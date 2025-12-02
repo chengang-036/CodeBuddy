@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeBuddy - 项目集合</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .project-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+        }
+        
+        .project-number {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+        
+        .project-title {
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .project-description {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .project-link {
+            display: inline-block;
+            padding: 10px 25px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .project-link:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .projects {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CodeBuddy</h1>
+            <p class="subtitle">练习项目集合</p>
+        </header>
+        
+        <div class="projects">
+            <div class="project-card">
+                <div class="project-number">项目 #0001</div>
+                <h2 class="project-title">Hello World</h2>
+                <p class="project-description">
+                    一个简单而优雅的 Hello World 网页示例，展示了基础的 HTML、CSS 和动画效果。
+                    包含渐变背景、毛玻璃效果和流畅的淡入动画。
+                </p>
+                <a href="0001-HelloWorld/index.html" class="project-link">查看项目 →</a>
+            </div>
+            
+            <!-- 未来的项目卡片将添加在这里 -->
+        </div>
+    </div>
+</body>
+</html>
