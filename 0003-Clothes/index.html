@@ -197,45 +197,85 @@
         </div>
     </div>
 
-    <script type="module">
-        // 导入 Firebase 配置
-        import { db } from './firebase-config.js';
-        import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase 配置 -->
+    <script src="firebase-config.js"></script>
 
+    <script>
         // 加载统计数据（从 Firebase）
         async function loadStats() {
             try {
+                console.log('开始加载统计数据...');
+                
+                if (!db) {
+                    console.error('Firebase 未初始化');
+                    return;
+                }
+                
                 // 获取衣服数据
-                const clothesSnapshot = await getDocs(collection(db, 'clothes'));
-                const clothes = clothesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const clothesSnapshot = await db.collection('clothes').get();
+                const clothes = [];
+                clothesSnapshot.forEach(function(doc) {
+                    clothes.push({ id: doc.id, ...doc.data() });
+                });
+                
+                console.log('获取到衣服数据:', clothes.length, '件');
                 
                 // 获取搭配数据
-                const outfitsSnapshot = await getDocs(collection(db, 'outfits'));
-                const outfits = outfitsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const outfitsSnapshot = await db.collection('outfits').get();
+                const outfits = [];
+                outfitsSnapshot.forEach(function(doc) {
+                    outfits.push({ id: doc.id, ...doc.data() });
+                });
+                
+                console.log('获取到搭配数据:', outfits.length, '个');
                 
                 // 计算今日新增
-                const today = new Date().toLocaleDateString('zh-CN');
-                const todayClothes = clothes.filter(c => c.createTime && c.createTime.startsWith(today));
+                const today = new Date();
+                const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                
+                const todayClothes = clothes.filter(function(c) {
+                    if (!c.createTime) return false;
+                    
+                    // 处理 Firestore Timestamp
+                    let createDate;
+                    if (c.createTime.toDate) {
+                        createDate = c.createTime.toDate();
+                    } else if (c.createTime.seconds) {
+                        createDate = new Date(c.createTime.seconds * 1000);
+                    } else {
+                        return false;
+                    }
+                    
+                    return createDate >= todayStart;
+                });
 
+                console.log('今日新增:', todayClothes.length, '件');
+
+                // 更新显示
                 document.getElementById('totalClothes').textContent = clothes.length;
                 document.getElementById('totalOutfits').textContent = outfits.length;
                 document.getElementById('todayAdded').textContent = todayClothes.length;
+                
+                console.log('✅ 统计数据更新完成');
             } catch (error) {
-                console.error('加载统计数据失败:', error);
-                // 如果 Firebase 未配置，显示提示
-                if (error.code === 'app/invalid-api-key' || error.message.includes('API key')) {
-                    document.getElementById('totalClothes').textContent = '?';
-                    document.getElementById('totalOutfits').textContent = '?';
-                    document.getElementById('todayAdded').textContent = '?';
-                    console.warn('请先配置 Firebase，参考 FIREBASE_SETUP.md');
-                }
+                console.error('❌ 加载统计数据失败:', error);
+                document.getElementById('totalClothes').textContent = '?';
+                document.getElementById('totalOutfits').textContent = '?';
+                document.getElementById('todayAdded').textContent = '?';
             }
         }
 
-        loadStats();
+        // 等待 Firebase 初始化后再加载数据
+        setTimeout(loadStats, 1000);
 
         // 每次进入页面时刷新统计
-        window.addEventListener('focus', loadStats);
+        window.addEventListener('focus', function() {
+            setTimeout(loadStats, 500);
+        });
     </script>
 </body>
 </html>
