@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寿险报案信息收集系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group input[type="number"],
+        .form-group input[type="tel"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .radio-group label,
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: normal;
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .radio-group label:hover,
+        .checkbox-group label:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .radio-group input[type="radio"],
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .conditional-section {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed #667eea;
+        }
+
+        .conditional-section.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-view {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #218838;
+        }
+
+        .success-message {
+            display: none;
+            padding: 20px;
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            color: #155724;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success-message.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+            }
+
+            .form-content {
+                padding: 20px;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>寿险报案信息收集系统</h1>
+            <p>请完整填写以下信息，标记 * 为必填项</p>
+        </div>
+
+        <div class="form-content">
+            <div class="success-message" id="successMessage">
+                ✓ 报案信息已成功保存！
+            </div>
+
+            <form id="claimForm">
+                <!-- 1. 被保人信息收集 -->
+                <div class="section">
+                    <h2 class="section-title">一、被保人信息</h2>
+                    
+                    <div class="form-group">
+                        <label>是否本人报案 <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="isSelfReport" value="是" required> 是
+                            </label>
+                            <label>
+                                <input type="radio" name="isSelfReport" value="否"> 否
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>被保人姓名 <span class="required">*</span></label>
+                            <input type="text" name="insuredName" required placeholder="请输入被保人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label>被保人身份证号 <span class="required">*</span></label>
+                            <input type="text" name="insuredIdCard" required placeholder="请输入18位身份证号" pattern="[0-9X]{18}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 工单整体询问 -->
+                <div class="section">
+                    <h2 class="section-title">二、出险信息</h2>
+                    
+                    <div class="form-group">
+                        <label>工单整体描述</label>
+                        <textarea name="caseDescription" placeholder="请简要描述出险情况"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>出险类型 <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="incidentType" value="疾病" required> 疾病
+                            </label>
+                            <label>
+                                <input type="radio" name="incidentType" value="意外"> 意外
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>出险时间 <span class="required">*</span></label>
+                        <input type="date" name="incidentDate" required>
+                    </div>
+
+                    <!-- 意外相关 -->
+                    <div class="conditional-section" id="accidentSection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">意外详情</h3>
+                        <div class="form-group">
+                            <label>意外类型</label>
+                            <select name="accidentType">
+                                <option value="">请选择</option>
+                                <option value="动物抓咬">动物抓咬</option>
+                                <option value="交通事故">交通事故</option>
+                                <option value="高处跌倒坠落">高处跌倒坠落</option>
+                                <option value="水平面跌倒坠落">水平面跌倒坠落</option>
+                                <option value="烧伤">烧伤</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>意外原因</label>
+                            <select name="accidentCause">
+                                <option value="">请选择</option>
+                                <option value="动物抓咬">动物抓咬</option>
+                                <option value="骨折">骨折</option>
+                                <option value="损伤">损伤</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 疾病相关 -->
+                    <div class="conditional-section" id="diseaseSection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">疾病详情</h3>
+                        <div class="form-group">
+                            <label>疾病类型</label>
+                            <select name="diseaseType">
+                                <option value="">请选择</option>
+                                <option value="支气管炎">支气管炎</option>
+                                <option value="肺炎">肺炎</option>
+                                <option value="甲状腺结节">甲状腺结节</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>疾病名称</label>
+                            <input type="text" name="diseaseName" placeholder="请输入具体疾病名称">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>索赔事故性质 <span class="required">*</span></label>
+                        <select name="claimNature" id="claimNature" required>
+                            <option value="">请选择</option>
+                            <option value="身故">身故</option>
+                            <option value="伤残">伤残</option>
+                            <option value="重大疾病">重大疾病</option>
+                            <option value="轻症/特定重疾">轻症/特定重疾</option>
+                            <option value="门诊医疗">门诊医疗</option>
+                            <option value="住院医疗">住院医疗</option>
+                            <option value="医疗补助">医疗补助</option>
+                        </select>
+                    </div>
+
+                    <!-- 身故 -->
+                    <div class="conditional-section" id="deathSection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">身故详情</h3>
+                        <div class="form-group">
+                            <label>死亡日期</label>
+                            <input type="date" name="deathDate">
+                        </div>
+                        <div class="form-group">
+                            <label>死亡类型</label>
+                            <select name="deathType">
+                                <option value="">请选择</option>
+                                <option value="溺水">溺水</option>
+                                <option value="中毒">中毒</option>
+                                <option value="高坠">高坠</option>
+                                <option value="触电">触电</option>
+                                <option value="自缢">自缢</option>
+                                <option value="车祸">车祸</option>
+                                <option value="猝死">猝死</option>
+                                <option value="来医院前死亡">来医院前死亡</option>
+                                <option value="宣告死亡失踪">宣告死亡失踪</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 伤残 -->
+                    <div class="conditional-section" id="disabilitySection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">伤残详情</h3>
+                        <div class="form-group">
+                            <label>伤残鉴定日期</label>
+                            <input type="date" name="disabilityDate">
+                        </div>
+                    </div>
+
+                    <!-- 重大疾病 -->
+                    <div class="conditional-section" id="criticalIllnessSection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">重大疾病详情</h3>
+                        <div class="form-group">
+                            <label>重疾鉴定/确诊时间</label>
+                            <input type="date" name="criticalIllnessDate">
+                        </div>
+                        <div class="form-group">
+                            <label>重疾类型</label>
+                            <select name="criticalIllnessType">
+                                <option value="">请选择</option>
+                                <option value="特定">特定</option>
+                                <option value="重疾">重疾</option>
+                                <option value="失能">失能</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>疾病名称</label>
+                            <input type="text" name="criticalIllnessName" placeholder="请输入疾病名称">
+                        </div>
+                    </div>
+
+                    <!-- 轻症/特定重疾 -->
+                    <div class="conditional-section" id="minorIllnessSection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">轻症/特定重疾详情</h3>
+                        <div class="form-group">
+                            <label>鉴定/确诊时间</label>
+                            <input type="date" name="minorIllnessDate">
+                        </div>
+                        <div class="form-group">
+                            <label>重疾类型</label>
+                            <select name="minorIllnessType">
+                                <option value="">请选择</option>
+                                <option value="特定">特定</option>
+                                <option value="重疾">重疾</option>
+                                <option value="失能">失能</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>疾病名称</label>
+                            <input type="text" name="minorIllnessName" placeholder="请输入疾病名称">
+                        </div>
+                    </div>
+
+                    <!-- 门诊医疗 -->
+                    <div class="conditional-section" id="outpatientSection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">门诊医疗详情</h3>
+                        <div class="form-group">
+                            <label>就诊医院</label>
+                            <input type="text" name="outpatientHospital" placeholder="请输入医院名称">
+                        </div>
+                        <div class="form-group">
+                            <label>治疗花费总金额(元)</label>
+                            <input type="number" name="outpatientCost" placeholder="请输入金额" step="0.01">
+                        </div>
+                    </div>
+
+                    <!-- 住院医疗 -->
+                    <div class="conditional-section" id="inpatientSection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">住院医疗详情</h3>
+                        <div class="form-group">
+                            <label>就诊医院</label>
+                            <input type="text" name="inpatientHospital" placeholder="请输入医院名称">
+                        </div>
+                        <div class="form-group">
+                            <label>治疗花费总金额(元)</label>
+                            <input type="number" name="inpatientCost" placeholder="请输入金额" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>安享垫付的入院时间</label>
+                            <input type="date" name="admissionDate">
+                        </div>
+                    </div>
+
+                    <!-- 医疗补助 -->
+                    <div class="conditional-section" id="medicalAllowanceSection">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">医疗补助详情</h3>
+                        <div class="form-group">
+                            <label>就诊医院</label>
+                            <input type="text" name="allowanceHospital" placeholder="请输入医院名称">
+                        </div>
+                        <div class="form-group">
+                            <label>治疗花费总金额(元)</label>
+                            <input type="number" name="allowanceCost" placeholder="请输入金额" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>身体状况 <span class="required">*</span></label>
+                        <select name="physicalCondition" required>
+                            <option value="">请选择</option>
+                            <option value="死亡">死亡</option>
+                            <option value="残疾">残疾</option>
+                            <option value="痊愈">痊愈</option>
+                            <option value="重大疾病">重大疾病</option>
+                            <option value="治疗中">治疗中</option>
+                            <option value="全残">全残</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>出险地点类型 <span class="required">*</span></label>
+                            <select name="incidentLocationType" required>
+                                <option value="">请选择</option>
+                                <option value="国内除港澳台">国内除港澳台</option>
+                                <option value="港澳台">港澳台</option>
+                                <option value="国外">国外</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>出险地点 <span class="required">*</span></label>
+                            <select name="incidentLocation" required>
+                                <option value="">请选择</option>
+                                <option value="工作单位">工作单位</option>
+                                <option value="学校">学校</option>
+                                <option value="公共场所">公共场所</option>
+                                <option value="家里">家里</option>
+                                <option value="封闭交通工具中">封闭交通工具中</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 报案人信息 -->
+                <div class="section">
+                    <h2 class="section-title">三、报案人信息</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>报案人与被保人关系 <span class="required">*</span></label>
+                            <select name="reporterRelation" required>
+                                <option value="">请选择</option>
+                                <option value="本人">本人</option>
+                                <option value="配偶">配偶</option>
+                                <option value="父母">父母</option>
+                                <option value="子女">子女</option>
+                                <option value="其他亲属">其他亲属</option>
+                                <option value="朋友">朋友</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>报案人姓名 <span class="required">*</span></label>
+                            <input type="text" name="reporterName" required placeholder="请输入报案人姓名">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>报案人手机号码 <span class="required">*</span></label>
+                            <input type="tel" name="reporterPhone" required placeholder="请输入11位手机号" pattern="[0-9]{11}">
+                        </div>
+                        <div class="form-group">
+                            <label>报案人身份证号 <span class="required">*</span></label>
+                            <input type="text" name="reporterIdCard" required placeholder="请输入18位身份证号" pattern="[0-9X]{18}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 业务员通知 -->
+                <div class="section">
+                    <h2 class="section-title">四、其他信息</h2>
+                    
+                    <div class="form-group">
+                        <label>是否通知业务员 <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="notifyAgent" value="是" required> 是
+                            </label>
+                            <label>
+                                <input type="radio" name="notifyAgent" value="否"> 否
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 按钮组 -->
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">提交报案</button>
+                    <button type="reset" class="btn btn-secondary">重置表单</button>
+                    <button type="button" class="btn btn-view" onclick="viewRecords()">查看记录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 出险类型切换
+        document.querySelectorAll('input[name="incidentType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('accidentSection').classList.remove('active');
+                document.getElementById('diseaseSection').classList.remove('active');
+                
+                if (this.value === '意外') {
+                    document.getElementById('accidentSection').classList.add('active');
+                } else if (this.value === '疾病') {
+                    document.getElementById('diseaseSection').classList.add('active');
+                }
+            });
+        });
+
+        // 索赔事故性质切换
+        document.getElementById('claimNature').addEventListener('change', function() {
+            // 隐藏所有条件区域
+            document.querySelectorAll('.conditional-section').forEach(section => {
+                if (section.id !== 'accidentSection' && section.id !== 'diseaseSection') {
+                    section.classList.remove('active');
+                }
+            });
+
+            // 根据选择显示对应区域
+            const sectionMap = {
+                '身故': 'deathSection',
+                '伤残': 'disabilitySection',
+                '重大疾病': 'criticalIllnessSection',
+                '轻症/特定重疾': 'minorIllnessSection',
+                '门诊医疗': 'outpatientSection',
+                '住院医疗': 'inpatientSection',
+                '医疗补助': 'medicalAllowanceSection'
+            };
+
+            const sectionId = sectionMap[this.value];
+            if (sectionId) {
+                document.getElementById(sectionId).classList.add('active');
+            }
+        });
+
+        // 表单提交
+        document.getElementById('claimForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 收集表单数据
+            const formData = new FormData(this);
+            const data = {
+                id: Date.now(),
+                submitTime: new Date().toLocaleString('zh-CN'),
+                data: {}
+            };
+
+            formData.forEach((value, key) => {
+                data.data[key] = value;
+            });
+
+            // 保存到 localStorage
+            let records = JSON.parse(localStorage.getItem('claimRecords') || '[]');
+            records.push(data);
+            localStorage.setItem('claimRecords', JSON.stringify(records));
+
+            // 显示成功消息
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('active');
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // 3秒后隐藏成功消息并重置表单
+            setTimeout(() => {
+                successMsg.classList.remove('active');
+                this.reset();
+                // 隐藏所有条件区域
+                document.querySelectorAll('.conditional-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+            }, 3000);
+        });
+
+        // 查看记录
+        function viewRecords() {
+            window.location.href = 'records.html';
+        }
+    </script>
+</body>
+</html>
