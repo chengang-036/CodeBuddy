@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 连接测试</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #ccc;
+        }
+        .test-item.success {
+            border-color: #28a745;
+        }
+        .test-item.error {
+            border-color: #dc3545;
+        }
+        .test-item.warning {
+            border-color: #ffc107;
+        }
+        h1 { color: #333; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Firebase 连接测试</h1>
+    <div id="results"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const results = document.getElementById('results');
+
+        function addResult(title, status, message, data) {
+            const div = document.createElement('div');
+            div.className = 'test-item ' + status;
+            div.innerHTML = `
+                <h3>${status === 'success' ? '✅' : status === 'error' ? '❌' : '⚠️'} ${title}</h3>
+                <p>${message}</p>
+                ${data ? '<pre>' + JSON.stringify(data, null, 2) + '</pre>' : ''}
+            `;
+            results.appendChild(div);
+        }
+
+        async function runTests() {
+            // 测试 1: Firebase 初始化
+            try {
+                if (firebase.apps.length > 0) {
+                    addResult('Firebase 初始化', 'success', 'Firebase 已成功初始化', {
+                        projectId: firebase.apps[0].options.projectId,
+                        storageBucket: firebase.apps[0].options.storageBucket
+                    });
+                } else {
+                    addResult('Firebase 初始化', 'error', 'Firebase 未初始化');
+                    return;
+                }
+            } catch (error) {
+                addResult('Firebase 初始化', 'error', error.message);
+                return;
+            }
+
+            // 测试 2: Firestore 连接
+            try {
+                addResult('Firestore 测试', 'warning', '正在测试 Firestore 连接...');
+                const testDoc = await db.collection('clothes').limit(1).get();
+                addResult('Firestore 连接', 'success', 
+                    `成功连接到 Firestore！已有 ${testDoc.size} 条数据`);
+            } catch (error) {
+                addResult('Firestore 连接', 'error', 
+                    '无法连接到 Firestore: ' + error.message, 
+                    { code: error.code, details: error.toString() });
+            }
+
+            // 测试 3: Storage 连接
+            try {
+                addResult('Storage 测试', 'warning', '正在测试 Storage 连接...');
+                const storageRef = storage.ref();
+                const bucket = storage.app.options.storageBucket;
+                addResult('Storage 连接', 'success', 
+                    'Storage 已配置', 
+                    { bucket: bucket });
+            } catch (error) {
+                addResult('Storage 连接', 'error', 
+                    '无法访问 Storage: ' + error.message);
+            }
+
+            // 测试 4: 写入测试
+            try {
+                addResult('写入测试', 'warning', '正在测试写入权限...');
+                const testData = {
+                    test: true,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await db.collection('clothes').doc('test_write').set(testData);
+                addResult('写入测试', 'success', '成功写入测试数据到 Firestore');
+                
+                // 清理测试数据
+                await db.collection('clothes').doc('test_write').delete();
+            } catch (error) {
+                addResult('写入测试', 'error', 
+                    '写入失败（可能是权限问题）: ' + error.message,
+                    { 
+                        code: error.code,
+                        hint: '请检查 Firestore 安全规则是否允许写入'
+                    });
+            }
+
+            // 测试 5: Storage 上传测试
+            try {
+                addResult('Storage 上传测试', 'warning', '正在测试上传权限...');
+                const testBlob = new Blob(['test'], { type: 'text/plain' });
+                const testRef = storage.ref('test/test.txt');
+                await testRef.put(testBlob);
+                addResult('Storage 上传', 'success', '成功上传测试文件到 Storage');
+                
+                // 清理测试文件
+                await testRef.delete();
+            } catch (error) {
+                addResult('Storage 上传', 'error', 
+                    '上传失败（可能是权限问题）: ' + error.message,
+                    { 
+                        code: error.code,
+                        hint: '请检查 Storage 安全规则是否允许写入'
+                    });
+            }
+
+            addResult('测试完成', 'success', '所有测试已完成，请检查上述结果');
+        }
+
+        // 延迟执行，确保 Firebase 完全加载
+        setTimeout(runTests, 1000);
+    </script>
+</body>
+</html>
