@@ -426,6 +426,8 @@
         // 表单提交
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            console.log('表单提交被触发'); // 调试日志
 
             if (!currentImage) {
                 alert('请先上传照片！');
@@ -438,28 +440,46 @@
                 return;
             }
 
-            // 创建衣服对象
+            // 创建衣服对象（使用 Array.slice() 替代展开运算符，兼容性更好）
             const cloth = {
                 id: Date.now(),
                 image: currentImage,
                 description: description,
-                tags: [...tags],
+                tags: tags.slice(), // 复制数组
                 createTime: new Date().toLocaleString('zh-CN'),
                 updateTime: new Date().toLocaleString('zh-CN')
             };
 
+            console.log('准备保存衣服:', cloth); // 调试日志
+
             // 保存到 localStorage
-            let clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
-            clothes.push(cloth);
-            localStorage.setItem('clothes', JSON.stringify(clothes));
+            try {
+                let clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
+                clothes.push(cloth);
+                localStorage.setItem('clothes', JSON.stringify(clothes));
+                console.log('保存成功，总数:', clothes.length); // 调试日志
+            } catch (error) {
+                console.error('保存失败:', error);
+                alert('保存失败: ' + error.message);
+                return;
+            }
 
             // 显示成功消息
             const successMsg = document.getElementById('successMessage');
             successMsg.classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Safari 兼容的滚动方式
+            if (window.scrollTo) {
+                try {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (e) {
+                    // 降级方案
+                    window.scrollTo(0, 0);
+                }
+            }
 
-            // 2秒后重置表单
-            setTimeout(() => {
+            // 2秒后重置表单（使用传统函数而非箭头函数）
+            setTimeout(function() {
                 successMsg.classList.remove('active');
                 resetForm();
             }, 2000);
