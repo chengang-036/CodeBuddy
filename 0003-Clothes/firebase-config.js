@@ -1,14 +1,23 @@
 // Firebase 配置文件
 // 请在 Firebase Console 创建项目后，将配置信息填写在这里
 
-const firebaseConfig = {
+//const firebaseConfig = {
     // 从 Firebase Console 获取这些配置
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+//    apiKey: "YOUR_API_KEY",
+//    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+//    projectId: "YOUR_PROJECT_ID",
+//    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+//    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+//    appId: "YOUR_APP_ID"
+//};
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDceg98xycXnvhHL43aQsFCpbBioMY46wM",
+  authDomain: "codebuddy-clothes.firebaseapp.com",
+  projectId: "codebuddy-clothes",
+  storageBucket: "codebuddy-clothes.firebasestorage.app",
+  messagingSenderId: "879362298778",
+  appId: "1:879362298778:web:3d8a841b0581843e1c2023"
 };
 
 // 初始化 Firebase（如果还没初始化）
