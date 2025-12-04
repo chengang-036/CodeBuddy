@@ -171,16 +171,16 @@
         </div>
 
         <div class="menu-grid">
-            <a href="upload.html" class="menu-card">
+            <a href="upload-firebase.html" class="menu-card">
                 <div class="menu-icon">📤</div>
                 <div class="menu-title">衣服上架</div>
-                <div class="menu-desc">上传衣服照片，添加描述和标签</div>
+                <div class="menu-desc">上传衣服照片，添加描述和标签（☁️ 云端版）</div>
             </a>
 
-            <a href="wardrobe.html" class="menu-card">
+            <a href="wardrobe-firebase.html" class="menu-card">
                 <div class="menu-icon">👗</div>
                 <div class="menu-title">衣橱管理</div>
-                <div class="menu-desc">查看、搜索、编辑和删除衣服</div>
+                <div class="menu-desc">查看、搜索、编辑和删除衣服（☁️ 云端版）</div>
             </a>
 
             <a href="match.html" class="menu-card">
@@ -197,18 +197,39 @@
         </div>
     </div>
 
-    <script>
-        // 加载统计数据
-        function loadStats() {
-            const clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
-            const outfits = JSON.parse(localStorage.getItem('outfits') || '[]');
-            
-            const today = new Date().toLocaleDateString('zh-CN');
-            const todayClothes = clothes.filter(c => c.createTime && c.createTime.startsWith(today));
+    <script type="module">
+        // 导入 Firebase 配置
+        import { db } from './firebase-config.js';
+        import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-            document.getElementById('totalClothes').textContent = clothes.length;
-            document.getElementById('totalOutfits').textContent = outfits.length;
-            document.getElementById('todayAdded').textContent = todayClothes.length;
+        // 加载统计数据（从 Firebase）
+        async function loadStats() {
+            try {
+                // 获取衣服数据
+                const clothesSnapshot = await getDocs(collection(db, 'clothes'));
+                const clothes = clothesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // 获取搭配数据
+                const outfitsSnapshot = await getDocs(collection(db, 'outfits'));
+                const outfits = outfitsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // 计算今日新增
+                const today = new Date().toLocaleDateString('zh-CN');
+                const todayClothes = clothes.filter(c => c.createTime && c.createTime.startsWith(today));
+
+                document.getElementById('totalClothes').textContent = clothes.length;
+                document.getElementById('totalOutfits').textContent = outfits.length;
+                document.getElementById('todayAdded').textContent = todayClothes.length;
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+                // 如果 Firebase 未配置，显示提示
+                if (error.code === 'app/invalid-api-key' || error.message.includes('API key')) {
+                    document.getElementById('totalClothes').textContent = '?';
+                    document.getElementById('totalOutfits').textContent = '?';
+                    document.getElementById('todayAdded').textContent = '?';
+                    console.warn('请先配置 Firebase，参考 FIREBASE_SETUP.md');
+                }
+            }
         }
 
         loadStats();
