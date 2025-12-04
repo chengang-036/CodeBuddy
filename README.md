@@ -38,24 +38,40 @@ CodeBuddy 练习项目集合
 ---
 
 ### 0003-Clothes (危老板的衣橱)
-智能衣服管理与搭配系统，让衣橱管理变得简单高效。
+智能衣服管理与搭配系统，支持**本地存储**和**云端同步**两种模式。
 
-**功能特点：**
+**核心功能：**
 - 📤 衣服上架：支持照片上传、描述和标签管理
 - 👗 衣橱管理：查看、搜索、编辑和删除衣服
 - ✨ 搭配功能：三窗口智能搭配（上装、下装、鞋子）
 - 💼 搭配方案：保存、查看和管理搭配组合
 - 🔍 智能搜索：支持描述模糊查询和标签组合查询
-- 💾 本地存储：使用 localStorage 保存所有数据
 - 📱 响应式设计：完美适配各种设备
+
+**两种版本：**
+
+1. **本地版** - 无需配置，立即使用
+   - 💾 数据存储在浏览器本地
+   - ✅ 完全离线使用
+   - ⚠️ 仅限单设备访问
+
+2. **云端版** ⭐ 推荐 - Firebase 支持
+   - ☁️ 数据保存到云端
+   - 🔄 跨设备实时同步
+   - 📱 手机、电脑数据共享
+   - 💾 支持更大存储容量
+   - ⚙️ 需要 5 分钟配置 Firebase
 
 **包含页面：**
 - `index.html` - 主页导航
-- `upload.html` - 衣服上架页面
-- `wardrobe.html` - 衣橱管理页面
-- `match.html` - 搭配功能页面
-- `outfits.html` - 搭配方案查询页面
+- `upload.html` / `upload-firebase.html` - 衣服上架（本地/云端）
+- `wardrobe.html` / `wardrobe-firebase.html` - 衣橱管理（本地/云端）
+- `match.html` - 搭配功能
+- `outfits.html` - 搭配方案查询
+- `FIREBASE_SETUP.md` - Firebase 配置教程
+- `README.md` - 详细使用说明
 
 **查看方式：**
-直接在浏览器中打开 `0003-Clothes/index.html` 文件即可。
+- 本地版：直接在浏览器中打开 `0003-Clothes/index.html`
+- 云端版：先配置 Firebase（查看 `FIREBASE_SETUP.md`），然后打开 `upload-firebase.html`
 
