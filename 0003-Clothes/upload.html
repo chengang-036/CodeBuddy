@@ -378,11 +378,45 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                currentImage = e.target.result;
-                previewImage.src = currentImage;
-                previewArea.classList.add('active');
+                // 压缩图片
+                compressImage(e.target.result, function(compressedImage) {
+                    currentImage = compressedImage;
+                    previewImage.src = compressedImage;
+                    previewArea.classList.add('active');
+                });
             };
             reader.readAsDataURL(file);
+        }
+
+        // 压缩图片函数
+        function compressImage(base64, callback, maxWidth = 800, quality = 0.7) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // 如果图片宽度大于最大宽度，按比例缩放
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // 转换为压缩后的 base64，使用 JPEG 格式和指定质量
+                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                
+                console.log('原始大小:', (base64.length / 1024).toFixed(2), 'KB');
+                console.log('压缩后大小:', (compressedBase64.length / 1024).toFixed(2), 'KB');
+                
+                callback(compressedBase64);
+            };
+            img.src = base64;
         }
 
         // 添加标签
@@ -456,11 +490,41 @@
             try {
                 let clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
                 clothes.push(cloth);
-                localStorage.setItem('clothes', JSON.stringify(clothes));
+                
+                // 计算存储大小
+                const dataStr = JSON.stringify(clothes);
+                const dataSize = (dataStr.length / 1024).toFixed(2);
+                console.log('当前数据大小:', dataSize, 'KB');
+                
+                localStorage.setItem('clothes', dataStr);
                 console.log('保存成功，总数:', clothes.length); // 调试日志
             } catch (error) {
                 console.error('保存失败:', error);
-                alert('保存失败: ' + error.message);
+                
+                // 如果是存储空间超限
+                if (error.name === 'QuotaExceededError' || error.code === 22) {
+                    const currentCount = JSON.parse(localStorage.getItem('clothes') || '[]').length;
+                    const message = '存储空间已满！\n\n' +
+                        '当前已保存 ' + currentCount + ' 件衣服\n' +
+                        '建议：\n' +
+                        '1. 前往"衣橱管理"删除一些不需要的衣服\n' +
+                        '2. 或点击"确定"清空部分旧数据';
+                    
+                    if (confirm(message)) {
+                        // 用户确认清理，删除最旧的一半数据
+                        try {
+                            let clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
+                            const halfCount = Math.floor(clothes.length / 2);
+                            clothes = clothes.slice(halfCount);
+                            localStorage.setItem('clothes', JSON.stringify(clothes));
+                            alert('已清理旧数据，请重新点击"保存上架"');
+                        } catch (e) {
+                            alert('清理失败，请手动前往"衣橱管理"删除数据');
+                        }
+                    }
+                } else {
+                    alert('保存失败: ' + error.message);
+                }
                 return;
             }
 
