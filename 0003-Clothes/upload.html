@@ -323,7 +323,7 @@
 
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary">保存上架</button>
-                    <button type="reset" class="btn btn-secondary" onclick="resetForm()">重置</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">重置</button>
                 </div>
             </form>
         </div>
@@ -340,8 +340,11 @@
         const tagInput = document.getElementById('tagInput');
 
         // 点击上传区域
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
+        uploadArea.addEventListener('click', (e) => {
+            // 如果点击的不是文件输入本身，才触发
+            if (e.target !== fileInput) {
+                fileInput.click();
+            }
         });
 
         // 文件选择
@@ -464,10 +467,19 @@
 
         // 重置表单
         function resetForm() {
+            // 重置表单元素
+            document.getElementById('uploadForm').reset();
+            
+            // 重置变量
             currentImage = null;
             tags = [];
+            
+            // 重置显示
             previewArea.classList.remove('active');
             updateTagsDisplay();
+            
+            // 清空文件输入
+            fileInput.value = '';
         }
     </script>
 </body>
