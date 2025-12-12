@@ -1,0 +1,42 @@
+[
+  {
+    "task_id": "case_001",
+    "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "audio_file": "report_001.mp3",
+    "case_time": "2024-01-15 14:30:00",
+    "asr_engine": "AlibabaCloud ASR v3.2",
+    "asr_text": "喂你好我想报案就是昨天晚上大概十点钟左右吧我在小区停车场发现我的车被砸了前挡风玻璃碎了副驾驶的窗户也破了车里的东西也被翻得乱七八糟我的笔记本电脑和一些现金都不见了大概损失有一万多块钱吧对对监控我看了一下好像是坏的小区物业说他们会配合调查的嗯好的我在家等你们谢谢"
+  },
+  {
+    "task_id": "case_002",
+    "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "audio_file": "report_002.mp3",
+    "case_time": "2024-01-15 15:45:00",
+    "asr_engine": "AlibabaCloud ASR v3.2",
+    "asr_text": "警察同志我要报警我妈妈走失了她今年七十五岁了有老年痴呆今天上午九点多出门买菜到现在都没回来我们找了好几个小时了都没找到她穿着一件红色的羽绒服黑色裤子身高大概一米六左右头发花白对她可能不记得回家的路了我真的很担心麻烦你们帮帮忙"
+  },
+  {
+    "task_id": "case_003",
+    "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    "audio_file": "report_003.mp3",
+    "case_time": "2024-01-15 16:20:00",
+    "asr_engine": "AlibabaCloud ASR v3.2",
+    "asr_text": "你好我想咨询一下就是我在网上被骗了对方说是某个购物平台的客服说我的会员账号出现异常需要注销不然会影响征信让我按照他的指示操作结果我就把验证码告诉他了然后我的银行卡就被转走了五万块钱我现在该怎么办能追回来吗"
+  },
+  {
+    "task_id": "case_004",
+    "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    "audio_file": "report_004.mp3",
+    "case_time": "2024-01-16 09:15:00",
+    "asr_engine": "AlibabaCloud ASR v3.2",
+    "asr_text": "你好警官我要举报有人在我们小区贩毒对对就在三栋二单元我好几次看到有人鬼鬼祟祟的进出那个房子而且经常是深夜我怀疑他们在进行非法交易希望你们能调查一下这个事情关系到我们整个小区的安全谢谢"
+  },
+  {
+    "task_id": "case_005",
+    "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+    "audio_file": "report_005.mp3",
+    "case_time": "2024-01-16 10:30:00",
+    "asr_engine": "AlibabaCloud ASR v3.2",
+    "asr_text": "喂是110吗我在高速公路上遇到车祸了位置是京沪高速往北方向135公里处有两辆车追尾了前面那辆车的司机受伤了现在在流血我已经打了120急救电话但是还没到请你们派交警过来处理一下现场谢谢快点"
+  }
+]

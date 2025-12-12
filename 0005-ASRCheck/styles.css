@@ -1,0 +1,680 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* 头部 */
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#logoutBtn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#logoutBtn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* 主内容区 - 双栏布局 */
+.main-content {
+    display: grid;
+    grid-template-columns: 450px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 120px);
+}
+
+/* 左侧面板 */
+.left-panel {
+    background: #f8f9fa;
+    padding: 25px;
+    border-right: 1px solid #e0e0e0;
+    overflow-y: auto;
+}
+
+/* 右侧面板 */
+.right-panel {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 面板通用样式 */
+.task-info-panel,
+.audio-panel,
+.shortcut-panel,
+.annotation-panel,
+.annotations-list-panel,
+.global-actions-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.task-info-panel h3,
+.audio-panel h3,
+.annotation-panel h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* 任务信息 */
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item label {
+    color: #666;
+    font-weight: 500;
+}
+
+.info-item span {
+    color: #333;
+    font-weight: 600;
+}
+
+/* 音频播放器 */
+.waveform-container {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    background: #1e1e1e;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+#waveformCanvas {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+#playhead {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: #ff4757;
+    pointer-events: none;
+    transition: left 0.1s linear;
+}
+
+.audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.control-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+.control-btn:hover {
+    transform: scale(1.1);
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.progress-container {
+    flex: 1;
+}
+
+#progressBar {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #e0e0e0;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+#progressBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #667eea;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#progressBar::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #667eea;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.time-display {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    text-align: center;
+}
+
+.audio-settings {
+    display: flex;
+    gap: 20px;
+}
+
+.setting-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.setting-group label {
+    font-size: 14px;
+    color: #666;
+    white-space: nowrap;
+}
+
+#volumeSlider {
+    flex: 1;
+    height: 4px;
+}
+
+#volumeValue {
+    font-size: 12px;
+    color: #666;
+    min-width: 35px;
+}
+
+#playbackRate {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* 快捷键面板 */
+.shortcut-panel {
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border: 1px solid #667eea30;
+}
+
+.shortcut-panel h4 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #667eea;
+}
+
+.shortcut-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 13px;
+    color: #555;
+}
+
+kbd {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: monospace;
+    font-size: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 文本标注区域 */
+.annotation-panel {
+    flex: 1;
+}
+
+.asr-text-container {
+    background: #fafafa;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 350px;
+    font-size: 16px;
+    line-height: 2;
+    color: #333;
+    user-select: text;
+    cursor: text;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.asr-text-container::selection {
+    background: #667eea40;
+}
+
+/* 高亮标注 */
+.annotation-highlight {
+    position: relative;
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.annotation-highlight:hover {
+    opacity: 0.8;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 浮动标注工具栏 */
+.annotation-toolbar {
+    position: fixed;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 600px;
+}
+
+.error-type-btn {
+    padding: 8px 14px;
+    border: 2px solid;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.error-type-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.error-type-btn[data-type="漏转"] {
+    background: #ff6b6b;
+    border-color: #ff6b6b;
+    color: white;
+}
+
+.error-type-btn[data-type="错转"] {
+    background: #ffa500;
+    border-color: #ffa500;
+    color: white;
+}
+
+.error-type-btn[data-type="多转"] {
+    background: #90ee90;
+    border-color: #90ee90;
+    color: #333;
+}
+
+.error-type-btn[data-type="标点错误"] {
+    background: #87ceeb;
+    border-color: #87ceeb;
+    color: white;
+}
+
+.error-type-btn[data-type="分词错误"] {
+    background: #dda0dd;
+    border-color: #dda0dd;
+    color: white;
+}
+
+.correction-input-group {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    min-width: 200px;
+}
+
+#correctionInput {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+#applyCorrection {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.remove-btn {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* 标注列表 */
+.annotations-list-panel h4 {
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: #555;
+}
+
+.annotations-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.annotation-item {
+    background: #f8f9fa;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border-left: 4px solid;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.annotation-item-content {
+    flex: 1;
+}
+
+.annotation-item-text {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.annotation-item-type {
+    color: #666;
+    font-size: 12px;
+}
+
+.annotation-item-delete {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* 全局操作面板 */
+.rating-group {
+    margin-bottom: 20px;
+}
+
+.rating-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #555;
+}
+
+.star-rating {
+    display: inline-flex;
+    gap: 5px;
+    font-size: 32px;
+    cursor: pointer;
+}
+
+.star {
+    color: #ddd;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.star.active {
+    color: #ffd700;
+}
+
+.star:hover,
+.star:hover ~ .star {
+    color: #ffd700;
+}
+
+#ratingValue {
+    margin-left: 15px;
+    font-size: 16px;
+    color: #666;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn {
+    flex: 1;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+/* 模态框 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    min-width: 400px;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* 管理员面板 */
+.admin-toggle-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    z-index: 100;
+}
+
+.admin-content {
+    position: fixed;
+    bottom: 90px;
+    right: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    min-width: 250px;
+}
+
+.admin-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-actions .btn {
+    text-align: left;
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .left-panel {
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

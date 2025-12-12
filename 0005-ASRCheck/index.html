@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASR质量抽检标注系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎙️ ASR质量抽检标注系统</h1>
+            <div class="user-info">
+                <span id="userName">标注员：<strong>未登录</strong></span>
+                <button id="logoutBtn" style="display:none;">退出</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 左侧：音频控制与信息面板 -->
+            <div class="left-panel">
+                <!-- 任务信息 -->
+                <div class="task-info-panel">
+                    <h3>📋 任务信息</h3>
+                    <div class="info-item">
+                        <label>任务ID：</label>
+                        <span id="taskId">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>录音文件：</label>
+                        <span id="audioFile">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>报案时间：</label>
+                        <span id="caseTime">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>ASR引擎：</label>
+                        <span id="asrEngine">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>任务进度：</label>
+                        <span id="taskProgress">0 / 0</span>
+                    </div>
+                </div>
+
+                <!-- 音频播放器 -->
+                <div class="audio-panel">
+                    <h3>🎵 音频播放器</h3>
+                    
+                    <!-- 波形图 -->
+                    <div class="waveform-container">
+                        <canvas id="waveformCanvas"></canvas>
+                        <div id="playhead"></div>
+                    </div>
+
+                    <!-- 音频控制 -->
+                    <audio id="audioPlayer" preload="auto"></audio>
+                    
+                    <div class="audio-controls">
+                        <button id="playPauseBtn" class="control-btn" title="播放/暂停 (空格)">
+                            <span class="icon">▶️</span>
+                        </button>
+                        
+                        <div class="progress-container">
+                            <input type="range" id="progressBar" min="0" max="100" value="0" step="0.1">
+                            <div class="time-display">
+                                <span id="currentTime">00:00</span> / <span id="duration">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="audio-settings">
+                        <div class="setting-group">
+                            <label>🔊 音量：</label>
+                            <input type="range" id="volumeSlider" min="0" max="100" value="80" step="1">
+                            <span id="volumeValue">80%</span>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label>⚡ 倍速：</label>
+                            <select id="playbackRate">
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1.0x</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2">2.0x</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷键提示 -->
+                <div class="shortcut-panel">
+                    <h4>⌨️ 快捷键</h4>
+                    <div class="shortcut-list">
+                        <div><kbd>空格</kbd> 播放/暂停</div>
+                        <div><kbd>1-5</kbd> 快速标注</div>
+                        <div><kbd>Ctrl+S</kbd> 提交</div>
+                        <div><kbd>Ctrl+N</kbd> 下一题</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：文本标注与操作面板 -->
+            <div class="right-panel">
+                <!-- 文本标注区域 -->
+                <div class="annotation-panel">
+                    <h3>📝 转写文本标注</h3>
+                    <div id="asrText" class="asr-text-container" contenteditable="false">
+                        请加载任务...
+                    </div>
+                </div>
+
+                <!-- 浮动标注工具栏 -->
+                <div id="annotationToolbar" class="annotation-toolbar" style="display: none;">
+                    <button class="error-type-btn" data-type="漏转" data-color="#ff6b6b" title="按键 1">漏转</button>
+                    <button class="error-type-btn" data-type="错转" data-color="#ffa500" title="按键 2">错转</button>
+                    <button class="error-type-btn" data-type="多转" data-color="#90ee90" title="按键 3">多转</button>
+                    <button class="error-type-btn" data-type="标点错误" data-color="#87ceeb" title="按键 4">标点</button>
+                    <button class="error-type-btn" data-type="分词错误" data-color="#dda0dd" title="按键 5">分词</button>
+                    <div class="correction-input-group">
+                        <input type="text" id="correctionInput" placeholder="修正为...">
+                        <button id="applyCorrection">✓</button>
+                    </div>
+                    <button id="removeAnnotation" class="remove-btn">✕ 删除标注</button>
+                </div>
+
+                <!-- 标注列表 -->
+                <div class="annotations-list-panel">
+                    <h4>📌 当前标注 (<span id="annotationCount">0</span>)</h4>
+                    <div id="annotationsList" class="annotations-list">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 全局操作面板 -->
+                <div class="global-actions-panel">
+                    <div class="rating-group">
+                        <label>⭐ 整体评分：</label>
+                        <div class="star-rating">
+                            <span class="star" data-value="1">☆</span>
+                            <span class="star" data-value="2">☆</span>
+                            <span class="star" data-value="3">☆</span>
+                            <span class="star" data-value="4">☆</span>
+                            <span class="star" data-value="5">☆</span>
+                        </div>
+                        <span id="ratingValue">未评分</span>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="skipBtn" class="btn btn-secondary">⏭️ 跳过</button>
+                        <button id="submitBtn" class="btn btn-primary">✅ 提交并下一题</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录对话框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>👤 用户登录</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>用户名：</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label>角色：</label>
+                    <select id="userRole">
+                        <option value="annotator">标注员</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 跳过原因对话框 -->
+    <div id="skipModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>⏭️ 跳过任务</h2>
+            <form id="skipForm">
+                <div class="form-group">
+                    <label>跳过原因：</label>
+                    <textarea id="skipReason" rows="4" placeholder="请简要说明跳过原因..." required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelSkip" class="btn btn-secondary">取消</button>
+                    <button type="submit" class="btn btn-primary">确认跳过</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 管理员面板（仅管理员可见） -->
+    <div id="adminPanel" style="display: none;">
+        <button id="showAdminBtn" class="admin-toggle-btn">⚙️ 管理</button>
+        <div id="adminContent" class="admin-content" style="display: none;">
+            <h3>管理员面板</h3>
+            <div class="admin-actions">
+                <button id="uploadTasksBtn" class="btn">📤 上传任务</button>
+                <button id="exportDataBtn" class="btn">📥 导出数据</button>
+                <button id="viewStatsBtn" class="btn">📊 统计报表</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
