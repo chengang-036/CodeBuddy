@@ -1,5 +1,6 @@
 # macOS
 .DS_Store
+._*
 
 # IDE
 .vscode/
@@ -7,3 +8,18 @@
 
 # Logs
 *.log
+
+# 部署脚本
+deploy-*.sh
+
+# CloudBase SDK临时文件
+**/cloudbase*.js
+**/tcb*.js
+**/sdk-info.json
+**/*deploy*.sh
+**/*pack*.sh
+**/部署指南.md
+
+# 临时和打包文件
+*.tar.gz
+*.zip
