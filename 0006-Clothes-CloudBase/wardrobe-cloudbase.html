@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>衣橱管理 - 云端版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 2rem; }
+        .btn-back {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-back:hover { background: white; color: #667eea; }
+        .content { padding: 40px; }
+        .search-bar {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .clothes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        .cloth-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .cloth-card:hover { transform: translateY(-5px); }
+        .cloth-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        .cloth-info { padding: 15px; }
+        .cloth-description {
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .cloth-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        .tag {
+            padding: 5px 10px;
+            background: #e7f0ff;
+            color: #667eea;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        .cloth-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-delete:hover { background: #c82333; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-icon { font-size: 5rem; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👗 衣橱管理 (云端版)</h1>
+            <a href="index.html" class="btn-back">← 返回主页</a>
+        </div>
+        <div class="content">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="搜索衣服描述或标签...">
+            </div>
+            <div id="loadingMsg" class="loading">⏳ 正在加载...</div>
+            <div id="clothesGrid" class="clothes-grid"></div>
+        </div>
+    </div>
+
+    <!-- 腾讯云开发 SDK -->
+    <script src="cloudbase.js"></script>
+    <script src="cloudbase-config.js"></script>
+    
+    <script>
+        let allClothes = [];
+
+        // 加载衣服数据
+        async function loadClothes() {
+            try {
+                const res = await db.collection('clothes').orderBy('createTime', 'desc').get();
+                allClothes = res.data || [];
+                console.log('✅ 加载了', allClothes.length, '件衣服');
+                displayClothes(allClothes);
+            } catch (error) {
+                console.error('❌ 加载失败:', error);
+                document.getElementById('loadingMsg').innerHTML = 
+                    '❌ 加载失败: ' + error.message + '<br><small>请检查CloudBase配置</small>';
+            }
+        }
+
+        // 显示衣服
+        function displayClothes(clothes) {
+            const grid = document.getElementById('clothesGrid');
+            const loading = document.getElementById('loadingMsg');
+            
+            loading.style.display = 'none';
+            
+            if (clothes.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <h2>衣橱空空如也</h2>
+                        <p>快去上传第一件衣服吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = clothes.map(cloth => `
+                <div class="cloth-card">
+                    <img src="${cloth.imageUrl || cloth.image}" class="cloth-image" alt="${cloth.description}">
+                    <div class="cloth-info">
+                        <div class="cloth-description">${cloth.description}</div>
+                        <div class="cloth-tags">
+                            ${(cloth.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                        <div class="cloth-actions">
+                            <button class="btn btn-delete" onclick="deleteCloth('${cloth._id}')">删除</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 删除衣服
+        async function deleteCloth(id) {
+            if (!confirm('确定要删除这件衣服吗？')) return;
+            
+            try {
+                await db.collection('clothes').doc(id).remove();
+                alert('✅ 删除成功！');
+                loadClothes();
+            } catch (error) {
+                alert('❌ 删除失败: ' + error.message);
+            }
+        }
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase();
+            if (!keyword) {
+                displayClothes(allClothes);
+                return;
+            }
+            
+            const filtered = allClothes.filter(cloth => {
+                const desc = (cloth.description || '').toLowerCase();
+                const tags = (cloth.tags || []).join(' ').toLowerCase();
+                return desc.includes(keyword) || tags.includes(keyword);
+            });
+            
+            displayClothes(filtered);
+        });
+
+        // 初始化
+        setTimeout(loadClothes, 1000);
+    </script>
+</body>
+</html>

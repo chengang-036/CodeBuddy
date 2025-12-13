@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搭配方案 - 云端版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content { padding: 40px; }
+        .outfits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+        }
+        .outfit-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .outfit-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .outfit-clothes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .outfit-cloth-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .btn-delete {
+            width: 100%;
+            padding: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-back {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 搭配方案 (云端版)</h1>
+            <a href="index.html" class="btn-back">← 返回主页</a>
+        </div>
+        <div class="content">
+            <div id="outfitsGrid" class="outfits-grid"></div>
+        </div>
+    </div>
+    <!-- 腾讯云开发 SDK -->
+    <script src="cloudbase.js"></script>
+    <script src="cloudbase-config.js"></script>
+    
+    <script>
+        async function loadOutfits() {
+            try {
+                const outfitsRes = await db.collection('outfits').get();
+                const outfits = outfitsRes.data || [];
+                
+                const clothesRes = await db.collection('clothes').get();
+                const clothes = clothesRes.data || [];
+                
+                displayOutfits(outfits, clothes);
+            } catch (error) {
+                alert('加载失败: ' + error.message);
+            }
+        }
+
+        function displayOutfits(outfits, clothes) {
+            const grid = document.getElementById('outfitsGrid');
+            
+            if (outfits.length === 0) {
+                grid.innerHTML = '<div style="text-align:center;padding:60px;"><h2>还没有搭配方案</h2></div>';
+                return;
+            }
+
+            grid.innerHTML = outfits.map(outfit => {
+                const outfitClothes = clothes.filter(c => outfit.clothes.includes(c._id));
+                return `
+                    <div class="outfit-card">
+                        <div class="outfit-name">${outfit.name}</div>
+                        <div class="outfit-clothes">
+                            ${outfitClothes.map(c => `
+                                <img src="${c.imageUrl || c.image}" class="outfit-cloth-img">
+                            `).join('')}
+                        </div>
+                        <button class="btn-delete" onclick="deleteOutfit('${outfit._id}')">删除方案</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteOutfit(id) {
+            if (!confirm('确定删除？')) return;
+            try {
+                await db.collection('outfits').doc(id).remove();
+                alert('删除成功');
+                loadOutfits();
+            } catch (error) {
+                alert('删除失败: ' + error.message);
+            }
+        }
+
+        setTimeout(loadOutfits, 1000);
+    </script>
+</body>
+</html>

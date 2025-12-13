@@ -396,7 +396,7 @@
     </div>
 
     <!-- 腾讯云开发 SDK -->
-    <script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.7.1/cloudbase.full.js"></script>
+    <script src="cloudbase.js"></script>
     
     <!-- 云开发配置 -->
     <script src="cloudbase-config.js"></script>
@@ -518,7 +518,7 @@
                 // 上传文件到云存储
                 const cloudPath = 'clothes/' + Date.now() + '-' + currentFile.name;
                 
-                const uploadResult = await cloudbase.uploadFile({
+                const uploadResult = await app.uploadFile({
                     cloudPath: cloudPath,
                     filePath: currentFile
                 });
@@ -526,7 +526,7 @@
                 console.log('文件上传成功:', uploadResult);
 
                 // 获取文件下载URL
-                const fileList = await cloudbase.getTempFileURL({
+                const fileList = await app.getTempFileURL({
                     fileList: [uploadResult.fileID]
                 });
 

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搭配衣服 - 云端版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 2rem; }
+        .btn-back {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .content { padding: 40px; }
+        .selection-area {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .clothes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .cloth-item {
+            cursor: pointer;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .cloth-item:hover { border-color: #667eea; }
+        .cloth-item.selected { border-color: #28a745; box-shadow: 0 0 15px rgba(40, 167, 69, 0.5); }
+        .cloth-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .save-section {
+            background: #fff3cd;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        .save-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ 搭配衣服 (云端版)</h1>
+            <a href="index.html" class="btn-back">← 返回主页</a>
+        </div>
+        <div class="content">
+            <div class="selection-area">
+                <h2>选择衣服（点击选中）</h2>
+                <div id="clothesGrid" class="clothes-grid"></div>
+            </div>
+            <div class="save-section">
+                <h3>保存搭配方案</h3>
+                <input type="text" id="outfitName" placeholder="给这个搭配起个名字...">
+                <button class="btn-save" onclick="saveOutfit()">💾 保存搭配</button>
+            </div>
+        </div>
+    </div>
+    <!-- 腾讯云开发 SDK -->
+    <script src="cloudbase.js"></script>
+    <script src="cloudbase-config.js"></script>
+    
+    <script>
+        let selectedClothes = [];
+
+        async function loadClothes() {
+            try {
+                const res = await db.collection('clothes').get();
+                const clothes = res.data || [];
+                displayClothes(clothes);
+            } catch (error) {
+                alert('加载失败: ' + error.message);
+            }
+        }
+
+        function displayClothes(clothes) {
+            const grid = document.getElementById('clothesGrid');
+            grid.innerHTML = clothes.map(cloth => `
+                <div class="cloth-item" onclick="toggleSelection('${cloth._id}', this)">
+                    <img src="${cloth.imageUrl || cloth.image}" class="cloth-image">
+                </div>
+            `).join('');
+        }
+
+        function toggleSelection(id, element) {
+            if (selectedClothes.includes(id)) {
+                selectedClothes = selectedClothes.filter(cid => cid !== id);
+                element.classList.remove('selected');
+            } else {
+                selectedClothes.push(id);
+                element.classList.add('selected');
+            }
+        }
+
+        async function saveOutfit() {
+            const name = document.getElementById('outfitName').value.trim();
+            if (!name) return alert('请输入搭配名称');
+            if (selectedClothes.length === 0) return alert('请至少选择一件衣服');
+
+            try {
+                await db.collection('outfits').add({
+                    name: name,
+                    clothes: selectedClothes,
+                    createTime: new Date()
+                });
+                alert('✅ 搭配保存成功！');
+                window.location.href = 'outfits-cloudbase.html';
+            } catch (error) {
+                alert('保存失败: ' + error.message);
+            }
+        }
+
+        setTimeout(loadClothes, 1000);
+    </script>
+</body>
+</html>

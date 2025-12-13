@@ -1,0 +1,25 @@
+# 打包文件
+*.tar.gz
+
+# 临时脚本
+auto-deploy.sh
+check-and-deploy.sh
+deploy-and-verify.sh
+deploy-cloudbase.sh
+deploy-final.sh
+deploy-fix.sh
+deploy-latest.sh
+deploy-no-auth.sh
+deploy-sdk2.sh
+deploy-with-pass.sh
+quick-check.sh
+simple-deploy.sh
+
+# 临时文档
+CLOUDBASE_QUICK_START.md
+DEPLOY_COMMANDS.md
+START_LOCAL.md
+
+# CDN 下载的临时文件
+cloudbase-v2.full.js
+cloudbase.full.js
