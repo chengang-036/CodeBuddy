@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>衣服上架</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .upload-area:hover {
+            background: #e9ecef;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragging {
+            background: #e7f0ff;
+            border-color: #667eea;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-area {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .preview-area.active {
+            display: block;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .tags-input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tags-input-area input {
+            flex: 1;
+        }
+
+        .btn-add-tag {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-tag:hover {
+            background: #5568d3;
+        }
+
+        .tags-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: #e7f0ff;
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            color: #dc3545;
+            transition: transform 0.2s ease;
+        }
+
+        .tag-remove:hover {
+            transform: scale(1.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .success-message {
+            display: none;
+            padding: 20px;
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            color: #155724;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .success-message.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📤 衣服上架</h1>
+            <a href="index.html" class="btn-back">← 返回主页</a>
+        </div>
+
+        <div class="content">
+            <div class="success-message" id="successMessage">
+                ✓ 衣服已成功上架！
+            </div>
+
+            <form id="uploadForm">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">点击或拖拽上传衣服照片</div>
+                    <div class="upload-hint">支持 JPG、PNG 格式</div>
+                    <input type="file" id="fileInput" accept="image/*" required>
+                </div>
+
+                <div class="preview-area" id="previewArea">
+                    <img id="previewImage" class="preview-image" alt="预览">
+                </div>
+
+                <div class="form-group">
+                    <label>照片描述 <span style="color: #e74c3c;">*</span></label>
+                    <textarea id="description" placeholder="例如: 这是一件夏天的衣服" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>添加标签</label>
+                    <div class="tags-input-area">
+                        <input type="text" id="tagInput" placeholder="例如: 牛仔裤、短裤">
+                        <button type="button" class="btn-add-tag" onclick="addTag()">添加</button>
+                    </div>
+                    <div class="tags-display" id="tagsDisplay"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">保存上架</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">重置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentImage = null;
+        let tags = [];
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const previewImage = document.getElementById('previewImage');
+        const tagInput = document.getElementById('tagInput');
+
+        // 点击上传区域
+        uploadArea.addEventListener('click', (e) => {
+            // 如果点击的不是文件输入本身，才触发
+            if (e.target !== fileInput) {
+                fileInput.click();
+            }
+        });
+
+        // 文件选择
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // 拖拽上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragging');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragging');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragging');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+
+        // 处理文件选择
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // 压缩图片
+                compressImage(e.target.result, function(compressedImage) {
+                    currentImage = compressedImage;
+                    previewImage.src = compressedImage;
+                    previewArea.classList.add('active');
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 压缩图片函数
+        function compressImage(base64, callback, maxWidth = 800, quality = 0.7) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // 如果图片宽度大于最大宽度，按比例缩放
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // 转换为压缩后的 base64，使用 JPEG 格式和指定质量
+                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                
+                console.log('原始大小:', (base64.length / 1024).toFixed(2), 'KB');
+                console.log('压缩后大小:', (compressedBase64.length / 1024).toFixed(2), 'KB');
+                
+                callback(compressedBase64);
+            };
+            img.src = base64;
+        }
+
+        // 添加标签
+        function addTag() {
+            const tagValue = tagInput.value.trim();
+            if (!tagValue) return;
+
+            if (!tags.includes(tagValue)) {
+                tags.push(tagValue);
+                updateTagsDisplay();
+            }
+
+            tagInput.value = '';
+        }
+
+        // 回车添加标签
+        tagInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag();
+            }
+        });
+
+        // 更新标签显示
+        function updateTagsDisplay() {
+            const display = document.getElementById('tagsDisplay');
+            display.innerHTML = tags.map((tag, index) => `
+                <span class="tag-item">
+                    ${tag}
+                    <span class="tag-remove" onclick="removeTag(${index})">×</span>
+                </span>
+            `).join('');
+        }
+
+        // 删除标签
+        function removeTag(index) {
+            tags.splice(index, 1);
+            updateTagsDisplay();
+        }
+
+        // 表单提交
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            console.log('表单提交被触发'); // 调试日志
+
+            if (!currentImage) {
+                alert('请先上传照片！');
+                return;
+            }
+
+            const description = document.getElementById('description').value.trim();
+            if (!description) {
+                alert('请填写照片描述！');
+                return;
+            }
+
+            // 创建衣服对象（使用 Array.slice() 替代展开运算符，兼容性更好）
+            const cloth = {
+                id: Date.now(),
+                image: currentImage,
+                description: description,
+                tags: tags.slice(), // 复制数组
+                createTime: new Date().toLocaleString('zh-CN'),
+                updateTime: new Date().toLocaleString('zh-CN')
+            };
+
+            console.log('准备保存衣服:', cloth); // 调试日志
+
+            // 保存到 localStorage
+            try {
+                let clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
+                clothes.push(cloth);
+                
+                // 计算存储大小
+                const dataStr = JSON.stringify(clothes);
+                const dataSize = (dataStr.length / 1024).toFixed(2);
+                console.log('当前数据大小:', dataSize, 'KB');
+                
+                localStorage.setItem('clothes', dataStr);
+                console.log('保存成功，总数:', clothes.length); // 调试日志
+            } catch (error) {
+                console.error('保存失败:', error);
+                
+                // 如果是存储空间超限
+                if (error.name === 'QuotaExceededError' || error.code === 22) {
+                    const currentCount = JSON.parse(localStorage.getItem('clothes') || '[]').length;
+                    const message = '存储空间已满！\n\n' +
+                        '当前已保存 ' + currentCount + ' 件衣服\n' +
+                        '建议：\n' +
+                        '1. 前往"衣橱管理"删除一些不需要的衣服\n' +
+                        '2. 或点击"确定"清空部分旧数据';
+                    
+                    if (confirm(message)) {
+                        // 用户确认清理，删除最旧的一半数据
+                        try {
+                            let clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
+                            const halfCount = Math.floor(clothes.length / 2);
+                            clothes = clothes.slice(halfCount);
+                            localStorage.setItem('clothes', JSON.stringify(clothes));
+                            alert('已清理旧数据，请重新点击"保存上架"');
+                        } catch (e) {
+                            alert('清理失败，请手动前往"衣橱管理"删除数据');
+                        }
+                    }
+                } else {
+                    alert('保存失败: ' + error.message);
+                }
+                return;
+            }
+
+            // 显示成功消息
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('active');
+            
+            // Safari 兼容的滚动方式
+            if (window.scrollTo) {
+                try {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (e) {
+                    // 降级方案
+                    window.scrollTo(0, 0);
+                }
+            }
+
+            // 2秒后重置表单（使用传统函数而非箭头函数）
+            setTimeout(function() {
+                successMsg.classList.remove('active');
+                resetForm();
+            }, 2000);
+        });
+
+        // 重置表单
+        function resetForm() {
+            // 重置表单元素
+            document.getElementById('uploadForm').reset();
+            
+            // 重置变量
+            currentImage = null;
+            tags = [];
+            
+            // 重置显示
+            previewArea.classList.remove('active');
+            updateTagsDisplay();
+            
+            // 清空文件输入
+            fileInput.value = '';
+        }
+    </script>
+</body>
+</html>
