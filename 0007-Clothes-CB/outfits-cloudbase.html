@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搭配方案（云端版）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .search-bar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-reset {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .outfits-grid {
+            display: grid;
+            gap: 30px;
+        }
+
+        .outfit-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .outfit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .outfit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .outfit-name {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .outfit-time {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .outfit-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .outfit-position {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .position-label {
+            font-size: 0.9rem;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .position-image-container {
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .position-image {
+            max-width: 100%;
+            max-height: 240px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .empty-position {
+            color: #ccc;
+            font-size: 3rem;
+        }
+
+        .position-desc {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .outfit-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-edit {
+            flex: 1;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            background: #5568d3;
+        }
+
+        .btn-delete {
+            flex: 1;
+            padding: 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state .icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .outfit-display {
+                grid-template-columns: 1fr;
+            }
+
+            .position-image-container {
+                min-height: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .outfit-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 搭配方案 <span style="background: rgba(255,255,255,0.3); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">☁️ 云端版</span></h1>
+            <a href="index.html" class="btn-back">← 返回主页</a>
+        </div>
+
+        <div class="content">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="搜索搭配名称..." 
+                       onkeypress="if(event.key==='Enter') searchOutfits()">
+                <button class="btn btn-search" onclick="searchOutfits()">🔍 搜索</button>
+                <button class="btn btn-reset" onclick="resetSearch()">重置</button>
+            </div>
+
+            <div class="outfits-grid" id="outfitsGrid"></div>
+        </div>
+    </div>
+
+    <!-- CloudBase SDK -->
+    <script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
+        <script src="cloudbase-config.js"></script>
+
+    <script>
+        let allOutfits = [];
+        let allClothes = [];
+        let filteredOutfits = [];
+
+        // 加载数据（从 CloudBase）
+        async function loadData() {
+            try {
+                console.log('开始从云端加载数据...');
+                
+                // 加载衣服数据 - CloudBase 返回 {data: [...]} 格式
+                const clothesResult = await db.collection('clothes').get();
+                allClothes = [];
+                const clothes = clothesResult.data || [];
+                clothes.forEach(function(cloth) {
+                    allClothes.push({
+                        id: cloth._id,
+                        image: cloth.imageUrl || cloth.image,
+                        description: cloth.description
+                    });
+                });
+                console.log('加载了', allClothes.length, '件衣服');
+                
+                // 加载搭配数据 - CloudBase 返回 {data: [...]} 格式
+                const outfitsResult = await db.collection('outfits').get();
+                allOutfits = [];
+                const outfits = outfitsResult.data || [];
+                outfits.forEach(function(outfit) {
+                    allOutfits.push({
+                        id: outfit._id,
+                        name: outfit.name,
+                        top: outfit.top,
+                        middle: outfit.middle,
+                        bottom: outfit.bottom,
+                        createTime: outfit.createTime ? formatTimestamp(outfit.createTime) : '未知',
+                        updateTime: outfit.updateTime ? formatTimestamp(outfit.updateTime) : null
+                    });
+                });
+                console.log('加载了', allOutfits.length, '套搭配');
+                
+                searchOutfits();
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                alert('加载数据失败: ' + error.message);
+            }
+        }
+
+        // 格式化时间戳 - 兼容CloudBase和Firebase
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return '未知';
+            
+            // CloudBase: Date对象
+            if (timestamp instanceof Date) {
+                return timestamp.toLocaleString('zh-CN');
+            }
+            
+            // CloudBase: ISO字符串
+            if (typeof timestamp === 'string') {
+                return new Date(timestamp).toLocaleString('zh-CN');
+            }
+            
+            // Firebase: Timestamp对象
+            if (timestamp.toDate) {
+                return timestamp.toDate().toLocaleString('zh-CN');
+            }
+            
+            // Firebase: seconds格式
+            if (timestamp.seconds) {
+                return new Date(timestamp.seconds * 1000).toLocaleString('zh-CN');
+            }
+            
+            return '未知';
+        }
+
+        // 搜索搭配
+        function searchOutfits() {
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            filteredOutfits = allOutfits.filter(outfit => {
+                return !keyword || outfit.name.toLowerCase().includes(keyword);
+            });
+
+            displayOutfits();
+        }
+
+        // 显示搭配
+        function displayOutfits() {
+            const grid = document.getElementById('outfitsGrid');
+
+            if (filteredOutfits.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">💼</div>
+                        <h3>暂无搭配方案</h3>
+                        <p>快去创建你的第一套搭配吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredOutfits.map(outfit => {
+                const topCloth = allClothes.find(c => c.id === outfit.top);
+                const middleCloth = allClothes.find(c => c.id === outfit.middle);
+                const bottomCloth = allClothes.find(c => c.id === outfit.bottom);
+
+                return `
+                    <div class="outfit-card">
+                        <div class="outfit-header">
+                            <div>
+                                <div class="outfit-name">${outfit.name}</div>
+                                <div class="outfit-time">创建于 ${outfit.createTime || '未知'}</div>
+                                ${outfit.updateTime && outfit.updateTime !== outfit.createTime ? 
+                                    `<div class="outfit-time">更新于 ${outfit.updateTime}</div>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="outfit-display">
+                            <div class="outfit-position">
+                                <div class="position-label">👕 上装</div>
+                                <div class="position-image-container">
+                                    ${topCloth ? 
+                                        `<img src="${topCloth.image}" class="position-image" onclick="viewImage('${topCloth.image}')">` : 
+                                        '<div class="empty-position">-</div>'}
+                                </div>
+                                ${topCloth ? `<div class="position-desc">${topCloth.description}</div>` : ''}
+                            </div>
+
+                            <div class="outfit-position">
+                                <div class="position-label">👖 下装</div>
+                                <div class="position-image-container">
+                                    ${middleCloth ? 
+                                        `<img src="${middleCloth.image}" class="position-image" onclick="viewImage('${middleCloth.image}')">` : 
+                                        '<div class="empty-position">-</div>'}
+                                </div>
+                                ${middleCloth ? `<div class="position-desc">${middleCloth.description}</div>` : ''}
+                            </div>
+
+                            <div class="outfit-position">
+                                <div class="position-label">👞 鞋子/配饰</div>
+                                <div class="position-image-container">
+                                    ${bottomCloth ? 
+                                        `<img src="${bottomCloth.image}" class="position-image" onclick="viewImage('${bottomCloth.image}')">` : 
+                                        '<div class="empty-position">-</div>'}
+                                </div>
+                                ${bottomCloth ? `<div class="position-desc">${bottomCloth.description}</div>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="outfit-actions">
+                            <button class="btn-edit" onclick="editOutfit(${outfit.id})">
+                                ✏️ 编辑搭配
+                            </button>
+                            <button class="btn-delete" onclick="deleteOutfit(${outfit.id})">
+                                🗑️ 删除
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 查看大图
+        function viewImage(src) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; justify-content: center; align-items: center; cursor: pointer;';
+            modal.innerHTML = `<img src="${src}" style="max-width: 90%; max-height: 90%; border-radius: 10px;">`;
+            modal.onclick = () => document.body.removeChild(modal);
+            document.body.appendChild(modal);
+        }
+
+        // 编辑搭配
+        function editOutfit(id) {
+            window.location.href = `match-cloudbase.html?edit=${id}`;
+        }
+
+        // 删除搭配（从 CloudBase）
+        async function deleteOutfit(id) {
+            if (!confirm('确定要删除这套搭配吗？')) return;
+
+            try {
+                await db.collection('outfits').doc(id).delete();
+                console.log('删除成功');
+                await loadData();
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('删除失败: ' + error.message);
+            }
+        }
+
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            searchOutfits();
+        }
+
+        // 页面加载
+        setTimeout(loadData, 1000);
+    </script>
+</body>
+</html>

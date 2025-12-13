@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+._*
+
+# 临时文件
+*.tar.gz
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# 部署相关
+deploy.tar.gz
+Dockerfile
+
+# Node modules (如果将来添加)
+node_modules/

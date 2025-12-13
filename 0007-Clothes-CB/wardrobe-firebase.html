@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>衣橱管理 (云端版)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+        }
+
+        .cloud-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .search-area {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-search {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search:hover {
+            background: #5568d3;
+        }
+
+        .tags-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag-filter-item {
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tag-filter-item.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .clothes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .cloth-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .cloth-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .cloth-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .cloth-info {
+            padding: 15px;
+        }
+
+        .cloth-description {
+            color: #333;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .cloth-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .cloth-tag {
+            padding: 4px 12px;
+            background: #e7f0ff;
+            color: #667eea;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .cloth-time {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        .cloth-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .clothes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>👗 衣橱管理 <span class="cloud-badge">☁️ 云端版</span></h1>
+            </div>
+            <a href="index.html" class="btn-back">← 返回主页</a>
+        </div>
+
+        <div class="content">
+            <div class="search-area">
+                <div class="search-row">
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜索描述...">
+                    <button class="btn-search" onclick="loadClothes()">🔍 搜索</button>
+                </div>
+                <div class="tags-filter" id="tagsFilter"></div>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p>正在从云端加载数据...</p>
+            </div>
+
+            <div id="clothesGrid" class="clothes-grid"></div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">👔</div>
+                <h2>还没有衣服</h2>
+                <p>快去上传您的第一件衣服吧！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase 配置 -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        let allClothes = [];
+        let selectedTags = [];
+        let allTags = new Set();
+
+        // 页面加载时自动加载数据
+        window.addEventListener('load', function() {
+            if (!db) {
+                document.getElementById('loading').innerHTML = '<p style="color: #dc3545;">Firebase 未配置！请查看 FIREBASE_SETUP.md</p>';
+                return;
+            }
+            loadClothes();
+        });
+
+        // 从 Firestore 加载衣服数据
+        async function loadClothes() {
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('clothesGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            loading.style.display = 'block';
+            grid.innerHTML = '';
+            emptyState.style.display = 'none';
+
+            try {
+                const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+                
+                // 查询 Firestore
+                let query = db.collection('clothes').orderBy('createTime', 'desc');
+                const snapshot = await query.get();
+                
+                allClothes = [];
+                allTags.clear();
+
+                snapshot.forEach(function(doc) {
+                    const cloth = doc.data();
+                    cloth.id = doc.id;
+                    allClothes.push(cloth);
+                    
+                    // 收集所有标签
+                    if (cloth.tags) {
+                        cloth.tags.forEach(function(tag) {
+                            allTags.add(tag);
+                        });
+                    }
+                });
+
+                // 过滤数据
+                let filteredClothes = allClothes;
+
+                // 按描述搜索
+                if (searchText) {
+                    filteredClothes = filteredClothes.filter(function(cloth) {
+                        return cloth.description && cloth.description.toLowerCase().includes(searchText);
+                    });
+                }
+
+                // 按标签过滤
+                if (selectedTags.length > 0) {
+                    filteredClothes = filteredClothes.filter(function(cloth) {
+                        if (!cloth.tags) return false;
+                        return selectedTags.every(function(tag) {
+                            return cloth.tags.includes(tag);
+                        });
+                    });
+                }
+
+                loading.style.display = 'none';
+
+                // 更新标签过滤器
+                updateTagsFilter();
+
+                // 显示结果
+                if (filteredClothes.length === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    displayClothes(filteredClothes);
+                }
+
+            } catch (error) {
+                console.error('加载失败:', error);
+                loading.innerHTML = '<p style="color: #dc3545;">加载失败: ' + error.message + '</p>';
+            }
+        }
+
+        // 更新标签过滤器
+        function updateTagsFilter() {
+            const container = document.getElementById('tagsFilter');
+            if (allTags.size === 0) {
+                container.innerHTML = '<p style="color: #999;">暂无标签</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            allTags.forEach(function(tag) {
+                const item = document.createElement('div');
+                item.className = 'tag-filter-item';
+                if (selectedTags.includes(tag)) {
+                    item.classList.add('active');
+                }
+                item.textContent = tag;
+                item.onclick = function() {
+                    toggleTag(tag);
+                };
+                container.appendChild(item);
+            });
+        }
+
+        // 切换标签选择
+        function toggleTag(tag) {
+            const index = selectedTags.indexOf(tag);
+            if (index > -1) {
+                selectedTags.splice(index, 1);
+            } else {
+                selectedTags.push(tag);
+            }
+            loadClothes();
+        }
+
+        // 显示衣服列表
+        function displayClothes(clothes) {
+            const grid = document.getElementById('clothesGrid');
+            grid.innerHTML = '';
+
+            clothes.forEach(function(cloth) {
+                const card = document.createElement('div');
+                card.className = 'cloth-card';
+
+                const tagsHTML = cloth.tags ? cloth.tags.map(function(tag) {
+                    return '<span class="cloth-tag">' + tag + '</span>';
+                }).join('') : '';
+
+                const timeStr = cloth.createTime ? formatTime(cloth.createTime.toDate()) : '未知时间';
+
+                card.innerHTML = 
+                    '<img src="' + cloth.imageUrl + '" class="cloth-image" alt="衣服">' +
+                    '<div class="cloth-info">' +
+                        '<div class="cloth-description">' + cloth.description + '</div>' +
+                        '<div class="cloth-tags">' + tagsHTML + '</div>' +
+                        '<div class="cloth-time">📅 ' + timeStr + '</div>' +
+                        '<div class="cloth-actions">' +
+                            '<button class="btn-action btn-delete" onclick="deleteCloth(\'' + cloth.id + '\', \'' + cloth.imagePath + '\')">删除</button>' +
+                        '</div>' +
+                    '</div>';
+
+                grid.appendChild(card);
+            });
+        }
+
+        // 格式化时间
+        function formatTime(date) {
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 删除衣服
+        async function deleteCloth(clothId, imagePath) {
+            if (!confirm('确定要删除这件衣服吗？')) {
+                return;
+            }
+
+            try {
+                // 删除 Firestore 数据
+                await db.collection('clothes').doc(clothId).delete();
+                
+                // 删除 Storage 图片
+                if (imagePath) {
+                    const storageRef = storage.ref(imagePath);
+                    await storageRef.delete().catch(function(err) {
+                        console.warn('删除图片失败（可能已被删除）:', err);
+                    });
+                }
+
+                alert('删除成功！');
+                loadClothes();
+
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('删除失败: ' + error.message);
+            }
+        }
+
+        // 搜索输入框回车搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadClothes();
+            }
+        });
+    </script>
+</body>
+</html>
