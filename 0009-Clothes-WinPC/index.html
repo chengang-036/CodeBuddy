@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Clothes - 衣橱管理系统 (Windows版)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .menu-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            display: block;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+            background: white;
+        }
+
+        .menu-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .menu-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .menu-desc {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👔 Clothes</h1>
+            <p>Windows本地衣橱管理系统</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalClothes">0</div>
+                <div class="stat-label">衣服总数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalOutfits">0</div>
+                <div class="stat-label">搭配方案</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="todayAdded">0</div>
+                <div class="stat-label">今日新增</div>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <a href="upload.html" class="menu-card">
+                <div class="menu-icon">📤</div>
+                <div class="menu-title">衣服上架</div>
+                <div class="menu-desc">上传衣服照片，添加描述和标签</div>
+            </a>
+
+            <a href="wardrobe.html" class="menu-card">
+                <div class="menu-icon">👗</div>
+                <div class="menu-title">衣橱管理</div>
+                <div class="menu-desc">查看、搜索、编辑和删除衣服</div>
+            </a>
+
+            <a href="match.html" class="menu-card">
+                <div class="menu-icon">✨</div>
+                <div class="menu-title">搭配衣服</div>
+                <div class="menu-desc">创建和保存心仪的搭配组合</div>
+            </a>
+
+            <a href="outfits.html" class="menu-card">
+                <div class="menu-icon">💼</div>
+                <div class="menu-title">搭配方案</div>
+                <div class="menu-desc">查看和管理已保存的搭配</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 加载统计数据
+        function loadStats() {
+            try {
+                // 获取衣服数据
+                const clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
+                
+                // 获取搭配数据
+                const outfits = JSON.parse(localStorage.getItem('outfits') || '[]');
+                
+                // 计算今日新增
+                const today = new Date();
+                const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                
+                const todayClothes = clothes.filter(function(c) {
+                    if (!c.createTime) return false;
+                    const createDate = new Date(c.createTime);
+                    return createDate >= todayStart;
+                });
+
+                // 更新显示
+                document.getElementById('totalClothes').textContent = clothes.length;
+                document.getElementById('totalOutfits').textContent = outfits.length;
+                document.getElementById('todayAdded').textContent = todayClothes.length;
+                
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+                document.getElementById('totalClothes').textContent = '?';
+                document.getElementById('totalOutfits').textContent = '?';
+                document.getElementById('todayAdded').textContent = '?';
+            }
+        }
+
+        // 页面加载时加载统计
+        loadStats();
+
+        // 每次进入页面时刷新统计
+        window.addEventListener('focus', loadStats);
+    </script>
+</body>
+</html>

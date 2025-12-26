@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>衣橱管理 - Clothes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .search-area {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-search {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search:hover {
+            background: #5568d3;
+        }
+
+        .tags-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag-filter-item {
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tag-filter-item.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .clothes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .cloth-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .cloth-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .cloth-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .cloth-info {
+            padding: 15px;
+        }
+
+        .cloth-description {
+            color: #333;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .cloth-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .cloth-tag {
+            padding: 4px 12px;
+            background: #e7f0ff;
+            color: #667eea;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .cloth-time {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        .cloth-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #218838;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        /* 编辑弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+        }
+
+        .btn-close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .edit-image-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* 标签编辑器样式 */
+        .tags-editor {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+
+        .tag-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .tag-item input {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            width: 80px;
+            outline: none;
+        }
+
+        .tag-item input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-tag-remove {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8rem;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .btn-tag-remove:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .tag-input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tag-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-tag-add {
+            padding: 8px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-tag-add:hover {
+            background: #5568d3;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-modal {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #218838;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .clothes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👗 衣橱管理</h1>
+            <a href="index.html" class="btn-back">← 返回主页</a>
+        </div>
+
+        <div class="content">
+            <div class="search-area">
+                <div class="search-row">
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜索描述...">
+                    <button class="btn-search" onclick="loadClothes()">🔍 搜索</button>
+                </div>
+                <div class="tags-filter" id="tagsFilter"></div>
+            </div>
+
+            <div id="clothesGrid" class="clothes-grid"></div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">👔</div>
+                <h2>还没有衣服</h2>
+                <p>快去上传您的第一件衣服吧！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ 编辑衣服</h2>
+                <button class="btn-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            
+            <img id="editImagePreview" class="edit-image-preview" src="" alt="衣服预览">
+            
+            <div class="form-group">
+                <label class="form-label">描述/名称</label>
+                <input type="text" id="editDescription" class="form-input" placeholder="请输入衣服描述或名称">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">标签</label>
+                <div class="tags-editor">
+                    <div class="tags-list" id="editTagsList"></div>
+                    <div class="tag-input-row">
+                        <input type="text" id="newTagInput" class="tag-input" placeholder="添加新标签..." 
+                               onkeypress="if(event.key==='Enter') addNewTag()">
+                        <button class="btn-tag-add" onclick="addNewTag()">+ 添加</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-modal btn-cancel" onclick="closeEditModal()">取消</button>
+                <button class="btn-modal btn-save" onclick="saveEdit()">💾 保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allClothes = [];
+        let selectedTags = [];
+        let allTags = new Set();
+        let currentEditingCloth = null;
+        let editingTags = [];
+
+        // 页面加载时自动加载数据
+        window.addEventListener('load', loadClothes);
+
+        // 加载衣服数据
+        function loadClothes() {
+            const grid = document.getElementById('clothesGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            grid.innerHTML = '';
+            emptyState.style.display = 'none';
+
+            try {
+                const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+                
+                // 从localStorage读取数据
+                allClothes = JSON.parse(localStorage.getItem('clothes') || '[]');
+                
+                allTags.clear();
+
+                // 收集所有标签
+                allClothes.forEach(function(cloth) {
+                    if (cloth.tags) {
+                        cloth.tags.forEach(function(tag) {
+                            allTags.add(tag);
+                        });
+                    }
+                });
+
+                // 过滤数据
+                let filteredClothes = allClothes;
+
+                // 按描述搜索
+                if (searchText) {
+                    filteredClothes = filteredClothes.filter(function(cloth) {
+                        return cloth.description && cloth.description.toLowerCase().includes(searchText);
+                    });
+                }
+
+                // 按标签过滤
+                if (selectedTags.length > 0) {
+                    filteredClothes = filteredClothes.filter(function(cloth) {
+                        if (!cloth.tags) return false;
+                        return selectedTags.every(function(tag) {
+                            return cloth.tags.includes(tag);
+                        });
+                    });
+                }
+
+                // 更新标签过滤器
+                updateTagsFilter();
+
+                // 显示结果
+                if (filteredClothes.length === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    displayClothes(filteredClothes);
+                }
+
+            } catch (error) {
+                console.error('加载失败:', error);
+                alert('加载失败: ' + error.message);
+            }
+        }
+
+        // 更新标签过滤器
+        function updateTagsFilter() {
+            const container = document.getElementById('tagsFilter');
+            if (allTags.size === 0) {
+                container.innerHTML = '<p style="color: #999;">暂无标签</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            allTags.forEach(function(tag) {
+                const item = document.createElement('div');
+                item.className = 'tag-filter-item';
+                if (selectedTags.includes(tag)) {
+                    item.classList.add('active');
+                }
+                item.textContent = tag;
+                item.onclick = function() {
+                    toggleTag(tag);
+                };
+                container.appendChild(item);
+            });
+        }
+
+        // 切换标签选择
+        function toggleTag(tag) {
+            const index = selectedTags.indexOf(tag);
+            if (index > -1) {
+                selectedTags.splice(index, 1);
+            } else {
+                selectedTags.push(tag);
+            }
+            loadClothes();
+        }
+
+        // 显示衣服列表
+        function displayClothes(clothes) {
+            const grid = document.getElementById('clothesGrid');
+            grid.innerHTML = '';
+
+            clothes.forEach(function(cloth) {
+                const card = document.createElement('div');
+                card.className = 'cloth-card';
+
+                const tagsHTML = cloth.tags ? cloth.tags.map(function(tag) {
+                    return '<span class="cloth-tag">' + tag + '</span>';
+                }).join('') : '';
+
+                let timeStr = '未知时间';
+                if (cloth.createTime) {
+                    timeStr = formatTime(new Date(cloth.createTime));
+                }
+
+                // 兼容不同的图片字段名：imageData(本地) 或 imageUrl(云端)
+                const imageSource = cloth.imageData || cloth.imageUrl || cloth.image || '';
+                const clothId = cloth.id || cloth._id;
+
+                card.innerHTML = 
+                    '<img src="' + imageSource + '" class="cloth-image" alt="衣服">' +
+                    '<div class="cloth-info">' +
+                        '<div class="cloth-description">' + cloth.description + '</div>' +
+                        '<div class="cloth-tags">' + tagsHTML + '</div>' +
+                        '<div class="cloth-time">📅 ' + timeStr + '</div>' +
+                        '<div class="cloth-actions">' +
+                            '<button class="btn-action btn-edit" onclick="openEditModal(\'' + clothId + '\')">编辑</button>' +
+                            '<button class="btn-action btn-delete" onclick="deleteCloth(\'' + clothId + '\')">删除</button>' +
+                        '</div>' +
+                    '</div>';
+
+                grid.appendChild(card);
+            });
+        }
+
+        // 格式化时间
+        function formatTime(date) {
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 打开编辑弹窗
+        function openEditModal(clothId) {
+            currentEditingCloth = allClothes.find(c => (c.id || c._id) === clothId);
+            if (!currentEditingCloth) {
+                alert('找不到该衣服！');
+                return;
+            }
+
+            // 兼容不同的图片字段名
+            const imageSource = currentEditingCloth.imageData || currentEditingCloth.imageUrl || currentEditingCloth.image || '';
+            document.getElementById('editImagePreview').src = imageSource;
+            document.getElementById('editDescription').value = currentEditingCloth.description || '';
+            
+            editingTags = currentEditingCloth.tags ? [...currentEditingCloth.tags] : [];
+            renderEditTags();
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // 关闭编辑弹窗
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditingCloth = null;
+            editingTags = [];
+            document.getElementById('newTagInput').value = '';
+        }
+
+        // 渲染编辑中的标签列表
+        function renderEditTags() {
+            const tagsList = document.getElementById('editTagsList');
+            tagsList.innerHTML = '';
+
+            editingTags.forEach(function(tag, index) {
+                const tagItem = document.createElement('div');
+                tagItem.className = 'tag-item';
+                tagItem.innerHTML = 
+                    '<input type="text" value="' + tag + '" onchange="updateTag(' + index + ', this.value)" placeholder="标签名">' +
+                    '<button class="btn-tag-remove" onclick="removeTag(' + index + ')">×</button>';
+                tagsList.appendChild(tagItem);
+            });
+        }
+
+        // 添加新标签
+        function addNewTag() {
+            const input = document.getElementById('newTagInput');
+            const newTag = input.value.trim();
+            
+            if (!newTag) {
+                alert('请输入标签内容');
+                return;
+            }
+
+            if (editingTags.includes(newTag)) {
+                alert('标签已存在');
+                return;
+            }
+
+            editingTags.push(newTag);
+            input.value = '';
+            renderEditTags();
+        }
+
+        // 更新标签
+        function updateTag(index, newValue) {
+            newValue = newValue.trim();
+            if (!newValue) {
+                alert('标签不能为空');
+                renderEditTags();
+                return;
+            }
+            
+            if (editingTags.some((tag, i) => i !== index && tag === newValue)) {
+                alert('标签已存在');
+                renderEditTags();
+                return;
+            }
+            
+            editingTags[index] = newValue;
+            renderEditTags();
+        }
+
+        // 删除标签
+        function removeTag(index) {
+            editingTags.splice(index, 1);
+            renderEditTags();
+        }
+
+        // 保存编辑
+        function saveEdit() {
+            if (!currentEditingCloth) return;
+
+            const newDescription = document.getElementById('editDescription').value.trim();
+            if (!newDescription) {
+                alert('请输入描述/名称');
+                return;
+            }
+
+            try {
+                // 更新数据
+                const clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
+                const index = clothes.findIndex(c => (c.id || c._id) === (currentEditingCloth.id || currentEditingCloth._id));
+                
+                if (index !== -1) {
+                    clothes[index].description = newDescription;
+                    clothes[index].tags = editingTags;
+                    clothes[index].updateTime = new Date().toISOString();
+                    
+                    localStorage.setItem('clothes', JSON.stringify(clothes));
+                    
+                    alert('✅ 保存成功！');
+                    closeEditModal();
+                    loadClothes();
+                }
+
+            } catch (error) {
+                console.error('保存失败:', error);
+                alert('❌ 保存失败: ' + error.message);
+            }
+        }
+
+        // 删除衣服
+        function deleteCloth(clothId) {
+            if (!confirm('确定要删除这件衣服吗？')) {
+                return;
+            }
+
+            try {
+                const clothes = JSON.parse(localStorage.getItem('clothes') || '[]');
+                const filtered = clothes.filter(c => (c.id || c._id) !== clothId);
+                localStorage.setItem('clothes', JSON.stringify(filtered));
+                
+                alert('删除成功！');
+                loadClothes();
+
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('删除失败: ' + error.message);
+            }
+        }
+
+        // 搜索输入框回车搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadClothes();
+            }
+        });
+    </script>
+</body>
+</html>

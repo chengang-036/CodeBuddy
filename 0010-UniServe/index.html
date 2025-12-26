@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniServe - 一体化客服系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="top-navbar">
+        <div class="navbar-left">
+            <div class="logo">UniServe 客服系统</div>
+            <div class="online-status">
+                <span class="status-dot online"></span>
+                <span>在线时长：<span id="onlineTime">00:00:00</span></span>
+            </div>
+        </div>
+        <div class="navbar-center">
+            <div class="agent-info">
+                <span class="agent-name" id="agentName">坐席001</span>
+                <span class="agent-group">客服组A</span>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <button class="btn-call" id="btnCall">
+                <svg class="icon" viewBox="0 0 1024 1024" width="16" height="16">
+                    <path d="M256 170.667A85.333 85.333 0 0 0 170.667 256v512A85.333 85.333 0 0 0 256 853.333h512A85.333 85.333 0 0 0 853.333 768V256A85.333 85.333 0 0 0 768 170.667z m0-85.334h512A170.667 170.667 0 0 1 938.667 256v512A170.667 170.667 0 0 1 768 938.667H256A170.667 170.667 0 0 1 85.333 768V256A170.667 170.667 0 0 1 256 85.333z m170.667 298.667a42.667 42.667 0 0 1 42.666-42.667h85.334a42.667 42.667 0 0 1 0 85.334h-85.334a42.667 42.667 0 0 1-42.666-42.667z m0 170.667a42.667 42.667 0 0 1 42.666-42.667h85.334a42.667 42.667 0 0 1 0 85.333h-85.334a42.667 42.667 0 0 1-42.666-85.333z" fill="currentColor"></path>
+                </svg>
+                呼出
+            </button>
+            <button class="btn-hangup" id="btnHangup" disabled>
+                <svg class="icon" viewBox="0 0 1024 1024" width="16" height="16">
+                    <path d="M512 85.333A426.667 426.667 0 0 0 85.333 512 426.667 426.667 0 0 0 512 938.667 426.667 426.667 0 0 0 938.667 512 426.667 426.667 0 0 0 512 85.333zM341.333 469.333h341.334v85.334H341.333z" fill="currentColor"></path>
+                </svg>
+                挂断
+            </button>
+            <label class="admin-switch">
+                <input type="checkbox" id="adminMode">
+                <span class="slider"></span>
+                <span class="label-text">管理员模式</span>
+            </label>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <div class="main-container">
+        <!-- 左侧会话列表 -->
+        <aside class="sidebar-left">
+            <div class="queue-header">
+                <h3>排队中</h3>
+                <span class="queue-count" id="queueCount">3</span>
+            </div>
+            <div class="session-list" id="sessionList">
+                <!-- 会话卡片将通过JS动态生成 -->
+            </div>
+        </aside>
+
+        <!-- 中间对话区域 -->
+        <main class="chat-area">
+            <!-- 面包屑导航 -->
+            <div class="breadcrumb">
+                <span>客服中心</span>
+                <span class="separator">/</span>
+                <span class="current">会话管理</span>
+            </div>
+
+            <!-- 标签页 -->
+            <div class="tabs">
+                <div class="tab active" data-session="session1">
+                    <span class="tab-label">张三 - 保单查询</span>
+                    <button class="tab-close">×</button>
+                </div>
+                <div class="tab" data-session="session2">
+                    <span class="tab-label">李四 - 理赔咨询</span>
+                    <button class="tab-close">×</button>
+                </div>
+            </div>
+
+            <!-- 对话消息区域 -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <p>欢迎使用UniServe客服系统</p>
+                    <p>请从左侧选择一个会话开始对话</p>
+                </div>
+            </div>
+
+            <!-- 底部输入区域 -->
+            <div class="input-area">
+                <div class="input-toolbar">
+                    <button class="toolbar-btn" title="表情">
+                        <svg class="icon" viewBox="0 0 1024 1024" width="20" height="20">
+                            <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z" fill="currentColor"></path>
+                            <path d="M288 421a48.01 48.01 0 0 1 96 0 48.01 48.01 0 0 1-96 0z m376 272h-48.1c-4.2 0-7.8-3.2-8.1-7.4C604 636.1 562.5 597 512 597s-92.1 39.1-95.8 88.6c-.3 4.2-3.9 7.4-8.1 7.4H360a8 8 0 0 1-8-8.4c4.4-84.3 74.5-151.6 160-151.6s155.6 67.3 160 151.6a8 8 0 0 1-8 8.4z m24-272a48.01 48.01 0 0 1 96 0 48.01 48.01 0 0 1-96 0z" fill="currentColor"></path>
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" title="附件">
+                        <svg class="icon" viewBox="0 0 1024 1024" width="20" height="20">
+                            <path d="M779.52 346.24l-315.52 315.52c-44.16 44.16-115.84 44.16-160 0-44.16-44.16-44.16-115.84 0-160l315.52-315.52c24.32-24.32 63.68-24.32 88 0 24.32 24.32 24.32 63.68 0 88L392 589.76c-4.48 4.48-11.84 4.48-16.32 0-4.48-4.48-4.48-11.84 0-16.32l315.52-315.52c17.28-17.28 17.28-45.44 0-62.72-17.28-17.28-45.44-17.28-62.72 0L312.96 510.72c-44.16 44.16-44.16 115.84 0 160 44.16 44.16 115.84 44.16 160 0l315.52-315.52c70.4-70.4 70.4-184.32 0-254.72-70.4-70.4-184.32-70.4-254.72 0L218.24 416c-17.28 17.28-17.28 45.44 0 62.72 17.28 17.28 45.44 17.28 62.72 0l315.52-315.52c31.68-31.68 83.2-31.68 114.88 0 31.68 31.68 31.68 83.2 0 114.88l-315.52 315.52c-70.4 70.4-184.32 70.4-254.72 0-70.4-70.4-70.4-184.32 0-254.72L456.64 23.36c108.8-108.8 285.44-108.8 394.24 0 108.8 108.8 108.8 285.44 0 394.24z" fill="currentColor"></path>
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" title="图片">
+                        <svg class="icon" viewBox="0 0 1024 1024" width="20" height="20">
+                            <path d="M928 160H96c-17.7 0-32 14.3-32 32v640c0 17.7 14.3 32 32 32h832c17.7 0 32-14.3 32-32V192c0-17.7-14.3-32-32-32z m-40 632H136v-39.9l138.5-164.3 150.1 178L658.1 489 888 761.6V792z m0-129.8L664.2 396.8c-3.2-3.8-9-3.8-12.2 0L424.6 666.4l-144-170.7c-3.2-3.8-9-3.8-12.2 0L136 652.7V232h752v430.2z" fill="currentColor"></path>
+                            <path d="M304 456c48.6 0 88-39.4 88-88s-39.4-88-88-88-88 39.4-88 88 39.4 88 88 88z m0-116c15.5 0 28 12.5 28 28s-12.5 28-28 28-28-12.5-28-28 12.5-28 28-28z" fill="currentColor"></path>
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" title="快捷回复">
+                        <svg class="icon" viewBox="0 0 1024 1024" width="20" height="20">
+                            <path d="M928 444H820V330.4c0-17.7-14.3-32-32-32H473L355.7 186.2a8.15 8.15 0 0 0-5.5-2.2H96c-17.7 0-32 14.3-32 32v592c0 17.7 14.3 32 32 32h698c13 0 24.8-7.9 29.7-20l134-332c1.5-3.8 2.3-7.9 2.3-12 0-17.7-14.3-32-32-32zM136 256h188.5l119.6 114.4H748V444H238c-13 0-24.8 7.9-29.7 20L136 643.2V256z m635.3 512H159l103.3-256h612.4L771.3 768z" fill="currentColor"></path>
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" title="知识库">
+                        <svg class="icon" viewBox="0 0 1024 1024" width="20" height="20">
+                            <path d="M832 64H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V96c0-17.7-14.3-32-32-32z m-40 824H232V687h97.9c11.6 32.8 32 62.3 59.1 84.7 34.5 28.5 78.2 44.3 123 44.3s88.5-15.7 123-44.3c27.1-22.4 47.5-51.9 59.1-84.7H792v201z m0-263H232V136h560v489z" fill="currentColor"></path>
+                            <path d="M484 535.8V288h56v247.8l126.3-126.3 39.6 39.6-206 206-206-206 39.6-39.6z" fill="currentColor"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-wrapper">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="请输入消息内容... (Ctrl+Enter发送)"
+                        rows="3"
+                    ></textarea>
+                    <button class="btn-send" id="btnSend">发送</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧工具栏 -->
+        <aside class="sidebar-right">
+            <div class="tool-tabs">
+                <div class="tool-tab active" data-tool="service">通用服务</div>
+                <div class="tool-tab" data-tool="policy">保单查询</div>
+                <div class="tool-tab" data-tool="practice">实务</div>
+                <div class="tool-tab" data-tool="product">产品</div>
+                <div class="tool-tab" data-tool="message">留言</div>
+                <div class="tool-tab" data-tool="task">任务提醒</div>
+            </div>
+            <div class="tool-content" id="toolContent">
+                <!-- 工具内容区域将通过JS动态生成 -->
+            </div>
+        </aside>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
