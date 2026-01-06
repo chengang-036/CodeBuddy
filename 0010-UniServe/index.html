@@ -48,8 +48,16 @@
         <!-- 左侧会话列表 -->
         <aside class="sidebar-left">
             <div class="queue-header">
-                <h3>排队中</h3>
-                <span class="queue-count" id="queueCount">3</span>
+                <div class="queue-item">
+                    <span class="label">排队人数</span>
+                    <span class="count" id="queueCount">4</span>
+                    <span class="arrow"></span>
+                </div>
+                <div class="queue-item">
+                    <span class="label">会话中</span>
+                    <span class="count" id="activeCount">5</span>
+                    <span class="arrow"></span>
+                </div>
             </div>
             <div class="session-list" id="sessionList">
                 <!-- 会话卡片将通过JS动态生成 -->
@@ -58,22 +66,43 @@
 
         <!-- 中间对话区域 -->
         <main class="chat-area">
-            <!-- 面包屑导航 -->
-            <div class="breadcrumb">
-                <span>客服中心</span>
-                <span class="separator">/</span>
-                <span class="current">会话管理</span>
-            </div>
-
             <!-- 标签页 -->
             <div class="tabs">
                 <div class="tab active" data-session="session1">
-                    <span class="tab-label">张三 - 保单查询</span>
+                    <span class="tab-label">会话</span>
                     <button class="tab-close">×</button>
                 </div>
                 <div class="tab" data-session="session2">
-                    <span class="tab-label">李四 - 理赔咨询</span>
+                    <span class="tab-label">历史咨询</span>
                     <button class="tab-close">×</button>
+                </div>
+                <div class="tab" data-session="session3">
+                    <span class="tab-label">智能记录</span>
+                    <button class="tab-close">×</button>
+                </div>
+            </div>
+
+            <!-- 客户信息卡片 -->
+            <div class="customer-card" id="customerCard">
+                <div class="customer-card-header">
+                    <img class="customer-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' fill='white' font-size='40' font-weight='bold'%3E张%3C/text%3E%3C/svg%3E" alt="张三">
+                    <div class="customer-card-info">
+                        <div class="customer-card-name">张三</div>
+                        <div class="customer-card-meta">
+                            <span>会话ID：153163476</span>
+                            <span class="meta-separator">|</span>
+                            <span>进线渠道：通话</span>
+                        </div>
+                    </div>
+                    <div class="customer-card-actions">
+                        <button class="btn-action">转接</button>
+                        <button class="btn-action">窗口小结</button>
+                        <button class="btn-action btn-action-primary">结束会话</button>
+                    </div>
+                </div>
+                <div class="customer-card-links">
+                    <a href="#" class="link-text">点击加载历史消息</a>
+                    <a href="#" class="link-text">机器人历史消息</a>
                 </div>
             </div>
 
@@ -122,7 +151,6 @@
                         class="message-input" 
                         id="messageInput" 
                         placeholder="请输入消息内容... (Ctrl+Enter发送)"
-                        rows="3"
                     ></textarea>
                     <button class="btn-send" id="btnSend">发送</button>
                 </div>

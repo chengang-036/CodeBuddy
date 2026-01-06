@@ -25,13 +25,16 @@ class UniServeApp {
         this.sessions = [
             {
                 id: 'session1',
-                customerName: '张三',
+                customerName: '这是我的名称',
                 customerId: 'C10001',
                 avatar: '张',
                 status: 'active',
-                lastMessage: '我想查询一下我的保单信息',
-                time: '10:25',
-                type: '保单查询'
+                customerStatus: 'online',
+                lastMessage: '您帮我查一下保单',
+                lastSender: 'agent',
+                time: '2分前',
+                type: '保单查询',
+                unreadCount: 1
             },
             {
                 id: 'session2',
@@ -39,9 +42,12 @@ class UniServeApp {
                 customerId: 'C10002',
                 avatar: '李',
                 status: 'active',
+                customerStatus: 'online',
                 lastMessage: '理赔需要准备什么材料？',
+                lastSender: 'customer',
                 time: '10:18',
-                type: '理赔咨询'
+                type: '理赔咨询',
+                unreadCount: 0
             },
             {
                 id: 'session3',
@@ -49,9 +55,12 @@ class UniServeApp {
                 customerId: 'C10003',
                 avatar: '王',
                 status: 'queued',
+                customerStatus: 'offline',
                 lastMessage: '在线吗？',
+                lastSender: 'customer',
                 time: '10:12',
-                type: '通用咨询'
+                type: '通用咨询',
+                unreadCount: 2
             }
         ];
 
@@ -60,30 +69,38 @@ class UniServeApp {
             {
                 id: 'msg1',
                 type: 'customer',
-                content: '你好，我想查询一下我的保单信息',
-                time: '10:25:30',
-                sender: '张三'
+                content: '要找下个东西和他说',
+                time: '9月14日 15:17:32',
+                sender: '王小明',
+                hasActions: true
             },
             {
                 id: 'msg2',
                 type: 'agent',
-                content: '您好！我是客服小智，很高兴为您服务。请提供您的保单号或身份证号，我来帮您查询。',
-                time: '10:25:45',
-                sender: '坐席001'
+                content: '好的，马上办您处理',
+                time: '9月14日 15:17:32',
+                sender: '李四',
+                quote: {
+                    author: '王小明',
+                    content: '要找下个东西和他说'
+                }
             },
             {
                 id: 'msg3',
                 type: 'customer',
-                content: '保单号是：P2024001234',
-                time: '10:26:10',
-                sender: '张三'
+                content: '',
+                isVoice: true,
+                duration: '9"',
+                time: '9月14日 15:17:32',
+                sender: '王小明',
+                hasActions: true
             },
             {
                 id: 'msg4',
-                type: 'agent',
-                content: '好的，正在为您查询，请稍候...',
-                time: '10:26:15',
-                sender: '坐席001'
+                type: 'customer',
+                content: '要找下个东西和他说',
+                time: '9月14日 15:17:32',
+                sender: '王小明'
             }
         ];
 
@@ -155,23 +172,25 @@ class UniServeApp {
                 card.classList.add('active');
             }
 
+            // 未读消息徽章
+            const unreadBadge = session.unreadCount > 0 
+                ? `<span class="unread-count">${session.unreadCount}</span>` 
+                : '';
+
             card.innerHTML = `
                 <div class="session-header">
                     <div class="customer-info">
-                        <div class="avatar">${session.avatar}</div>
+                        <div class="customer-status-dot ${session.customerStatus}"></div>
                         <div class="customer-details">
                             <h4>${session.customerName}</h4>
-                            <div class="customer-id">${session.customerId}</div>
                         </div>
                     </div>
                     <div class="session-time">${session.time}</div>
                 </div>
                 <div class="session-body">
-                    <div class="last-message">${session.lastMessage}</div>
-                </div>
-                <div class="session-footer">
-                    <button class="btn-transfer">转接</button>
-                    <button class="btn-summary">小结</button>
+                    <span class="agent-badge">坐席</span>
+                    <span class="message-text">${session.lastMessage}</span>
+                    ${unreadBadge}
                 </div>
             `;
 
@@ -179,14 +198,23 @@ class UniServeApp {
             sessionList.appendChild(card);
         });
 
-        // 更新排队数量
+        // 更新排队数量和会话中数量
         const queueCount = this.sessions.filter(s => s.status === 'queued').length;
+        const activeCount = this.sessions.filter(s => s.status === 'active').length;
         document.getElementById('queueCount').textContent = queueCount;
+        document.getElementById('activeCount').textContent = activeCount;
     }
 
     // 选择会话
     selectSession(sessionId) {
         this.currentSession = sessionId;
+        
+        // 清除未读消息数
+        const session = this.sessions.find(s => s.id === sessionId);
+        if (session) {
+            session.unreadCount = 0;
+        }
+        
         this.renderSessions();
         this.renderMessages();
     }
@@ -216,16 +244,49 @@ class UniServeApp {
                 ? 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23667eea"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" fill="white" font-size="40" font-weight="bold"%3E' + msg.sender.charAt(0) + '%3C/text%3E%3C/svg%3E'
                 : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%231890ff"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" fill="white" font-size="35"%3E%E5%9D%90%3C/text%3E%3C/svg%3E';
 
+            let bubbleContent = '';
+            
+            // 语音消息
+            if (msg.isVoice) {
+                bubbleContent = `
+                    <div class="voice-message">
+                        <div class="voice-icon">🔊</div>
+                        <div class="voice-duration">${msg.duration}</div>
+                    </div>
+                `;
+            } else {
+                // 普通文字消息
+                if (msg.quote) {
+                    bubbleContent += `
+                        <div class="quote-message">
+                            <div class="quote-author">${msg.quote.author}：${msg.quote.content}</div>
+                        </div>
+                    `;
+                }
+                bubbleContent += msg.content;
+            }
+
+            // 操作按钮
+            let actionsHTML = '';
+            if (msg.hasActions) {
+                actionsHTML = `
+                    <div class="message-actions">
+                        <button class="message-action-btn" title="转接">转</button>
+                        <button class="message-action-btn" title="复制">📋</button>
+                    </div>
+                `;
+            }
+
             messageDiv.innerHTML = `
-                ${msg.type === 'customer' ? `<img class="message-avatar" src="${avatarUrl}" alt="${msg.sender}">` : ''}
+                <img class="message-avatar" src="${avatarUrl}" alt="${msg.sender}">
                 <div class="message-content">
                     <div class="message-header">
                         <span>${msg.sender}</span>
                         <span>${msg.time}</span>
                     </div>
-                    <div class="message-bubble">${msg.content}</div>
+                    <div class="message-bubble">${bubbleContent}</div>
+                    ${actionsHTML}
                 </div>
-                ${msg.type === 'agent' ? `<img class="message-avatar" src="${avatarUrl}" alt="${msg.sender}">` : ''}
             `;
 
             container.appendChild(messageDiv);
@@ -273,6 +334,7 @@ class UniServeApp {
         const session = this.sessions.find(s => s.id === this.currentSession);
         if (session) {
             session.lastMessage = content;
+            session.lastSender = 'agent';
             session.time = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
             this.renderSessions();
         }
@@ -308,7 +370,20 @@ class UniServeApp {
         };
 
         this.messages[this.currentSession].push(message);
+        
+        // 更新会话列表
+        if (session) {
+            session.lastMessage = message.content;
+            session.lastSender = 'customer';
+            session.time = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            // 如果不是当前会话，增加未读数
+            if (this.currentSession !== session.id) {
+                session.unreadCount = (session.unreadCount || 0) + 1;
+            }
+        }
+        
         this.renderMessages();
+        this.renderSessions();
     }
 
     // 呼出电话

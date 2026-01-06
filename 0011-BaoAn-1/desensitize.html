@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据脱敏工具</title>
+    <!-- 使用多个CDN源，提高加载成功率 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" 
+            onerror="this.onerror=null; this.src='https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #1890ff;
+            padding: 16px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #1890ff;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .upload-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #1890ff;
+            background: #f0f7ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 12px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background: #40a9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+        }
+
+        .btn:disabled {
+            background: #d9d9d9;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #52c41a;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+        }
+
+        .progress-container {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1890ff, #52c41a);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .result-info {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 6px;
+        }
+
+        .result-info h3 {
+            color: #52c41a;
+            margin-bottom: 10px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #666;
+        }
+
+        .result-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .log-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .log-item {
+            margin-bottom: 5px;
+        }
+
+        .log-success {
+            color: #52c41a;
+        }
+
+        .log-warning {
+            color: #faad14;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 数据脱敏工具</h1>
+        <p class="subtitle">安全、快速地处理敏感信息</p>
+
+        <div class="info-box">
+            <h3>🔒 脱敏规则说明</h3>
+            <ul>
+                <li><strong>第二列（B列）</strong>：手机号码和座机号码脱敏</li>
+                <li><strong>Q列</strong>：识别并脱敏其中的手机号、座机、身份证</li>
+                <li><strong>W列</strong>：身份证脱敏</li>
+                <li><strong>唯一性保证</strong>：相同号码映射到相同编码，不同号码映射到不同编码</li>
+                <li><strong>格式保留</strong>：保留前缀、后缀，中间用唯一哈希码替换</li>
+            </ul>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">点击或拖拽文件到此区域</div>
+            <div class="upload-hint">支持 .xlsx, .xls 格式</div>
+            <input type="file" id="fileInput" accept=".xlsx,.xls">
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+        </div>
+
+        <div class="result-info" id="resultInfo">
+            <h3>✅ 脱敏完成</h3>
+            <div class="result-item">
+                <span class="result-label">处理行数：</span>
+                <span class="result-value" id="rowCount">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">脱敏手机号：</span>
+                <span class="result-value" id="phoneCount">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">脱敏身份证：</span>
+                <span class="result-value" id="idCardCount">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">脱敏座机号：</span>
+                <span class="result-value" id="telCount">0</span>
+            </div>
+        </div>
+
+        <div class="log-box" id="logBox"></div>
+
+        <div class="button-group">
+            <button class="btn btn-success" id="downloadBtn" style="display: none;">
+                💾 下载脱敏后的文件
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 等待页面和XLSX库完全加载
+        window.addEventListener('DOMContentLoaded', function() {
+            // 检查XLSX是否加载成功
+            if (typeof XLSX === 'undefined') {
+                document.body.innerHTML = `
+                    <div style="text-align: center; padding: 50px; font-family: Arial;">
+                        <h2 style="color: #ff4d4f;">❌ 加载失败</h2>
+                        <p>Excel处理库加载失败，可能是网络问题。</p>
+                        <p>请检查网络连接后刷新页面重试。</p>
+                        <button onclick="location.reload()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #1890ff; color: white; border: none; border-radius: 4px;">
+                            🔄 刷新页面
+                        </button>
+                        <hr style="margin: 30px 0;">
+                        <p style="color: #666; font-size: 14px;">技术提示：XLSX库未能加载</p>
+                    </div>
+                `;
+                return;
+            }
+            console.log('XLSX库加载成功');
+        });
+
+        let processedWorkbook = null;
+        let fileName = '';
+        
+        // 脱敏映射表，保证相同数据脱敏后一致
+        const desensitizeMap = new Map();
+
+        // 统计数据
+        const stats = {
+            rows: 0,
+            phones: 0,
+            idCards: 0,
+            tels: 0
+        };
+
+        // 上传区域交互
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const resultInfo = document.getElementById('resultInfo');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const logBox = document.getElementById('logBox');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        downloadBtn.addEventListener('click', downloadFile);
+
+        function log(message, type = 'normal') {
+            logBox.style.display = 'block';
+            const logItem = document.createElement('div');
+            logItem.className = `log-item ${type === 'success' ? 'log-success' : type === 'warning' ? 'log-warning' : ''}`;
+            logItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logBox.appendChild(logItem);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function handleFile(file) {
+            // 再次检查XLSX是否可用
+            if (typeof XLSX === 'undefined') {
+                alert('Excel处理库未加载成功，请刷新页面重试！');
+                return;
+            }
+
+            fileName = file.name;
+            log(`开始处理文件: ${fileName}`);
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    progressContainer.style.display = 'block';
+                    updateProgress(10, '读取文件...');
+                    
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    updateProgress(30, '解析数据...');
+                    
+                    // 处理第一个工作表
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    updateProgress(50, '脱敏处理中...');
+                    
+                    // 执行脱敏
+                    desensitizeWorksheet(worksheet);
+                    
+                    updateProgress(90, '保存数据...');
+                    
+                    processedWorkbook = workbook;
+                    
+                    updateProgress(100, '完成！');
+                    
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                        resultInfo.style.display = 'block';
+                        downloadBtn.style.display = 'inline-block';
+                        
+                        document.getElementById('rowCount').textContent = stats.rows;
+                        document.getElementById('phoneCount').textContent = stats.phones;
+                        document.getElementById('idCardCount').textContent = stats.idCards;
+                        document.getElementById('telCount').textContent = stats.tels;
+                        
+                        log('脱敏处理完成！', 'success');
+                    }, 500);
+                    
+                } catch (error) {
+                    alert('文件处理失败：' + error.message);
+                    log('错误: ' + error.message, 'warning');
+                    progressContainer.style.display = 'none';
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function updateProgress(percent, text) {
+            progressFill.style.width = percent + '%';
+            progressFill.textContent = text || percent + '%';
+        }
+
+        function desensitizeWorksheet(worksheet) {
+            const range = XLSX.utils.decode_range(worksheet['!ref']);
+            stats.rows = range.e.r - range.s.r; // 减去标题行
+            
+            log(`开始处理 ${stats.rows} 行数据`);
+            
+            // 遍历所有行（从第2行开始，跳过标题）
+            for (let row = range.s.r + 1; row <= range.e.r; row++) {
+                // 处理第二列（B列，索引为1）
+                const cellB = worksheet[XLSX.utils.encode_cell({ r: row, c: 1 })];
+                if (cellB && cellB.v) {
+                    const original = String(cellB.v).trim();
+                    cellB.v = desensitizePhone(original);
+                }
+                
+                // 处理Q列（索引为16）
+                const cellQ = worksheet[XLSX.utils.encode_cell({ r: row, c: 16 })];
+                if (cellQ && cellQ.v) {
+                    cellQ.v = desensitizeMixedContent(String(cellQ.v));
+                }
+                
+                // 处理W列（索引为22）
+                const cellW = worksheet[XLSX.utils.encode_cell({ r: row, c: 22 })];
+                if (cellW && cellW.v) {
+                    const original = String(cellW.v).trim();
+                    cellW.v = desensitizeIdCard(original);
+                }
+            }
+            
+            log(`处理完成: 手机${stats.phones}个, 身份证${stats.idCards}个, 座机${stats.tels}个`, 'success');
+        }
+
+        // 生成唯一标识码（基于哈希）
+        function generateUniqueCode(str, length = 6) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            // 转换为正数并生成指定长度的数字串
+            const positiveHash = Math.abs(hash);
+            let code = String(positiveHash).slice(0, length);
+            // 补齐长度
+            while (code.length < length) {
+                code = code + String(positiveHash).charAt(code.length % String(positiveHash).length);
+            }
+            return code;
+        }
+
+        // 手机号/座机号脱敏
+        function desensitizePhone(str) {
+            if (!str) return str;
+            
+            // 检查是否已经脱敏过
+            if (desensitizeMap.has(str)) {
+                return desensitizeMap.get(str);
+            }
+            
+            let result = str;
+            
+            // 手机号正则：1开头的11位数字
+            const mobileRegex = /1[3-9]\d{9}/g;
+            if (mobileRegex.test(str)) {
+                // 保留前3位和后2位，中间用******替换，后面加-HX-哈希值
+                const prefix = str.substring(0, 3);
+                const suffix = str.substring(9, 11);
+                const hashCode = generateUniqueCode(str, 6);
+                result = `${prefix}******${suffix}-HX-${hashCode}`;
+                stats.phones++;
+                log(`脱敏手机号: ${str} → ${result}`);
+            }
+            // 座机号正则：区号-号码 或 纯号码
+            else if (/^0\d{2,3}-?\d{7,8}$/.test(str)) {
+                const parts = str.split('-');
+                const hashCode = generateUniqueCode(str, 6);
+                if (parts.length === 2) {
+                    // 带连字符的座机
+                    const areaCode = parts[0];
+                    const number = parts[1];
+                    result = `${areaCode}-****${number.slice(-2)}-HX-${hashCode}`;
+                } else {
+                    // 不带连字符的座机
+                    result = str.substring(0, 4) + '****' + str.slice(-2) + `-HX-${hashCode}`;
+                }
+                stats.tels++;
+                log(`脱敏座机号: ${str} → ${result}`);
+            }
+            
+            desensitizeMap.set(str, result);
+            return result;
+        }
+
+        // 身份证脱敏（直接用星号）
+        function desensitizeIdCard(str) {
+            if (!str) return str;
+            
+            // 检查是否已经脱敏过
+            if (desensitizeMap.has(str)) {
+                return desensitizeMap.get(str);
+            }
+            
+            let result = str;
+            
+            // 18位身份证
+            if (/^\d{18}$/.test(str) || /^\d{17}[Xx]$/.test(str)) {
+                result = str.substring(0, 6) + '********' + str.substring(str.length - 4);
+                stats.idCards++;
+                log(`脱敏身份证: ${str} → ${result}`);
+            }
+            // 15位身份证
+            else if (/^\d{15}$/.test(str)) {
+                result = str.substring(0, 6) + '*****' + str.substring(str.length - 4);
+                stats.idCards++;
+                log(`脱敏身份证: ${str} → ${result}`);
+            }
+            
+            desensitizeMap.set(str, result);
+            return result;
+        }
+
+        // 混合内容脱敏（Q列）
+        function desensitizeMixedContent(str) {
+            if (!str) return str;
+            
+            let result = str;
+            
+            // 脱敏手机号
+            result = result.replace(/1[3-9]\d{9}/g, (match) => {
+                if (!desensitizeMap.has(match)) {
+                    const prefix = match.substring(0, 3);
+                    const suffix = match.substring(9, 11);
+                    const hashCode = generateUniqueCode(match, 6);
+                    const masked = `${prefix}******${suffix}-HX-${hashCode}`;
+                    desensitizeMap.set(match, masked);
+                    stats.phones++;
+                    log(`Q列脱敏手机: ${match} → ${masked}`);
+                }
+                return desensitizeMap.get(match);
+            });
+            
+            // 脱敏身份证（18位）
+            result = result.replace(/\b\d{17}[\dXx]\b/g, (match) => {
+                if (!desensitizeMap.has(match)) {
+                    const masked = match.substring(0, 6) + '********' + match.substring(match.length - 4);
+                    desensitizeMap.set(match, masked);
+                    stats.idCards++;
+                    log(`Q列脱敏身份证: ${match} → ${masked}`);
+                }
+                return desensitizeMap.get(match);
+            });
+            
+            // 脱敏身份证（15位）
+            result = result.replace(/\b\d{15}\b/g, (match) => {
+                if (!desensitizeMap.has(match)) {
+                    const masked = match.substring(0, 6) + '*****' + match.substring(match.length - 4);
+                    desensitizeMap.set(match, masked);
+                    stats.idCards++;
+                    log(`Q列脱敏身份证: ${match} → ${masked}`);
+                }
+                return desensitizeMap.get(match);
+            });
+            
+            // 脱敏座机号
+            result = result.replace(/0\d{2,3}-?\d{7,8}/g, (match) => {
+                if (!desensitizeMap.has(match)) {
+                    const parts = match.split('-');
+                    const hashCode = generateUniqueCode(match, 6);
+                    let masked;
+                    if (parts.length === 2) {
+                        const areaCode = parts[0];
+                        const number = parts[1];
+                        masked = `${areaCode}-****${number.slice(-2)}-HX-${hashCode}`;
+                    } else {
+                        masked = match.substring(0, 4) + '****' + match.slice(-2) + `-HX-${hashCode}`;
+                    }
+                    desensitizeMap.set(match, masked);
+                    stats.tels++;
+                    log(`Q列脱敏座机: ${match} → ${masked}`);
+                }
+                return desensitizeMap.get(match);
+            });
+            
+            return result;
+        }
+
+        function downloadFile() {
+            if (!processedWorkbook) {
+                alert('没有可下载的文件');
+                return;
+            }
+            
+            const wbout = XLSX.write(processedWorkbook, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            
+            const newFileName = fileName.replace(/(\.[^.]+)$/, '_脱敏$1');
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = newFileName;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            log(`文件已下载: ${newFileName}`, 'success');
+        }
+    </script>
+</body>
+</html>
