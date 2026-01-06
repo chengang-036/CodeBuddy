@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>岗位薪酬分摊计算工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 13px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        button.show {
+            display: block;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-calculate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-calculate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .status.warning {
+            background: #fff3e0;
+            color: #f57c00;
+            border-left: 4px solid #f57c00;
+        }
+
+        .file-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .sheet-list {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress.show {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>岗位薪酬分摊计算工具</h1>
+        <p class="subtitle">上传Excel文件进行岗位薪酬自动分摊计算</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📊</div>
+            <div class="upload-text">点击或拖拽Excel文件到此处</div>
+            <div class="upload-hint">支持 .xlsx 格式文件</div>
+        </div>
+
+        <input type="file" id="fileInput" accept=".xlsx">
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-name" id="fileName"></div>
+            <div class="sheet-list" id="sheetList"></div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-calculate" id="calculateBtn">
+                开始计算
+            </button>
+            <button class="btn-download" id="downloadBtn">
+                下载结果
+            </button>
+        </div>
+
+        <div class="progress" id="progress">
+            <div class="progress-text" id="progressText">准备计算...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // 简化的Excel处理 - 如果CDN失败，使用基础功能
+        setTimeout(() => {
+            if (typeof XLSX === 'undefined') {
+                alert('注意：Excel库加载失败。\n功能可能受限，建议检查网络后刷新页面。');
+            }
+        }, 3000);
+
+        let workbook = null;
+        let processedWorkbook = null;
+        let fileName = '';
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName_el = document.getElementById('fileName');
+        const sheetList = document.getElementById('sheetList');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const status = document.getElementById('status');
+        const progress = document.getElementById('progress');
+        const progressText = document.getElementById('progressText');
+        const progressFill = document.getElementById('progressFill');
+
+        // 上传区域点击事件
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // 拖拽上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+
+        // 文件选择事件
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        // 处理文件上传
+        function handleFile(file) {
+            if (!file.name.endsWith('.xlsx')) {
+                showStatus('error', '请上传 .xlsx 格式的Excel文件！');
+                return;
+            }
+
+            if (typeof XLSX === 'undefined') {
+                alert('错误：Excel处理库未加载\n\n请检查：\n1. 电脑是否联网\n2. 按Ctrl+F5刷新页面\n3. 或联系技术支持');
+                return;
+            }
+
+            fileName = file.name;
+            showStatus('info', '正在读取文件...');
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    workbook = XLSX.read(data, { type: 'array' });
+                    validateSheets();
+                } catch (error) {
+                    showStatus('error', '文件读取失败：' + error.message);
+                }
+            };
+            reader.onerror = () => {
+                showStatus('error', '文件读取失败，请重试。');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 验证Sheet
+        function validateSheets() {
+            const sheetNames = workbook.SheetNames;
+            const requiredSheets = ['1', '2', '3'];
+            const missingSheets = [];
+
+            requiredSheets.forEach(name => {
+                if (!sheetNames.includes(name)) {
+                    missingSheets.push(name);
+                }
+            });
+
+            if (missingSheets.length > 0) {
+                const sheetLabels = {
+                    '1': '分公司岗位分类/人力/薪酬',
+                    '2': '分公司岗位分类/服务精力占比',
+                    '3': '分摊结果'
+                };
+                const missing = missingSheets.map(s => `Sheet${s}（${sheetLabels[s]}）`).join('、');
+                showStatus('error', `Excel文件不完整，缺少应有的Sheet：${missing}`);
+                fileInfo.classList.remove('show');
+                calculateBtn.classList.remove('show');
+                downloadBtn.classList.remove('show');
+            } else {
+                showStatus('success', '文件验证通过，可以开始计算！');
+                fileName_el.textContent = `文件名：${fileName}`;
+                sheetList.innerHTML = `
+                    ✓ Sheet1：分公司岗位分类/人力/薪酬<br>
+                    ✓ Sheet2：分公司岗位分类/服务精力占比<br>
+                    ✓ Sheet3：分摊结果
+                `;
+                fileInfo.classList.add('show');
+                calculateBtn.classList.add('show');
+                downloadBtn.classList.remove('show');
+            }
+        }
+
+        // 计算按钮点击事件
+        calculateBtn.addEventListener('click', async () => {
+            calculateBtn.disabled = true;
+            downloadBtn.classList.remove('show');
+            progress.classList.add('show');
+            
+            try {
+                await performCalculations();
+                showStatus('success', '✓ 计算完成！可以下载结果文件了。');
+                downloadBtn.classList.add('show');
+            } catch (error) {
+                showStatus('error', '计算失败：' + error.message);
+            } finally {
+                calculateBtn.disabled = false;
+                progress.classList.remove('show');
+            }
+        });
+
+        // 执行计算
+        async function performCalculations() {
+            processedWorkbook = XLSX.utils.book_new();
+            
+            // 复制所有sheet
+            workbook.SheetNames.forEach(name => {
+                const ws = XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1, defval: '' });
+                processedWorkbook.Sheets[name] = XLSX.utils.aoa_to_sheet(ws);
+                processedWorkbook.SheetNames.push(name);
+            });
+
+            updateProgress(10, '步骤1/5：读取Sheet1和Sheet3数据...');
+            await sleep(100);
+
+            // 获取Sheet1和Sheet3数据
+            const sheet1 = XLSX.utils.sheet_to_json(workbook.Sheets['1'], { header: 1 });
+            const sheet2 = XLSX.utils.sheet_to_json(workbook.Sheets['2'], { header: 1 });
+            const sheet3 = XLSX.utils.sheet_to_json(workbook.Sheets['3'], { header: 1, defval: '' });
+
+            // 步骤5：填充人力和薪酬
+            updateProgress(20, '步骤2/5：填充人力和薪酬数据...');
+            await sleep(100);
+            fillManpowerAndSalary(sheet1, sheet3);
+
+            // 步骤6：计算分摊1（薪酬占比）
+            updateProgress(40, '步骤3/5：计算分摊1（薪酬占比）...');
+            await sleep(100);
+            calculateAllocation1(sheet3);
+
+            // 步骤7：管理岗分摊到分摊2
+            updateProgress(60, '步骤4/5：管理岗分摊计算...');
+            await sleep(100);
+            calculateAllocation2(sheet3);
+
+            // 步骤8：服务岗分摊到分摊3
+            updateProgress(80, '步骤5/5：服务岗分摊计算...');
+            await sleep(100);
+            calculateAllocation3(sheet2, sheet3);
+
+            // 保存结果
+            updateProgress(95, '保存结果...');
+            processedWorkbook.Sheets['3'] = XLSX.utils.aoa_to_sheet(sheet3);
+            updateProgress(100, '计算完成！');
+        }
+
+        // 步骤5：填充人力和薪酬
+        function fillManpowerAndSalary(sheet1, sheet3) {
+            // 建立Sheet1的岗位分类映射
+            const sheet1Map = {};
+            for (let i = 1; i < sheet1.length; i++) {
+                const category = String(sheet1[i][0] || '').trim();
+                const manpower = parseFloat(sheet1[i][1]) || 0;
+                const salary = parseFloat(sheet1[i][2]) || 0;
+                if (category) {
+                    sheet1Map[category] = { manpower, salary };
+                }
+            }
+
+            // 在Sheet3中填充
+            const headers = sheet3[0];
+            const categoryCol = headers.indexOf('岗位分类');
+            const manpowerCol = headers.indexOf('人力');
+            const salaryCol = headers.indexOf('薪酬');
+
+            if (categoryCol === -1 || manpowerCol === -1 || salaryCol === -1) {
+                throw new Error('Sheet3中缺少必要的列：岗位分类、人力或薪酬');
+            }
+
+            for (let i = 1; i < sheet3.length; i++) {
+                const category = String(sheet3[i][categoryCol] || '').trim();
+                if (category && sheet1Map[category]) {
+                    sheet3[i][manpowerCol] = sheet1Map[category].manpower;
+                    sheet3[i][salaryCol] = sheet1Map[category].salary;
+                }
+            }
+        }
+
+        // 步骤6：计算分摊1（薪酬占比）
+        function calculateAllocation1(sheet3) {
+            const headers = sheet3[0];
+            const manpowerCol = headers.indexOf('人力');
+            const salaryCol = headers.indexOf('薪酬');
+            const allocation1Col = headers.indexOf('分摊1');
+            
+            if (allocation1Col === -1) {
+                throw new Error('Sheet3中缺少必要的列：分摊1');
+            }
+
+            // 计算总薪酬（不包含空值）
+            let totalSalary = 0;
+            for (let i = 1; i < sheet3.length; i++) {
+                const manpower = sheet3[i][manpowerCol];
+                const salary = parseFloat(sheet3[i][salaryCol]);
+                // 人力和薪酬都不为空才计算
+                if (manpower !== '' && manpower !== null && manpower !== undefined &&
+                    salary !== '' && salary !== null && salary !== undefined && !isNaN(salary) && salary > 0) {
+                    totalSalary += salary;
+                }
+            }
+
+            // 计算每行的占比
+            for (let i = 1; i < sheet3.length; i++) {
+                const manpower = sheet3[i][manpowerCol];
+                const salary = parseFloat(sheet3[i][salaryCol]);
+                
+                // 人力和薪酬都不为空才计算
+                if (manpower !== '' && manpower !== null && manpower !== undefined &&
+                    salary !== '' && salary !== null && salary !== undefined && !isNaN(salary) && salary > 0 && totalSalary > 0) {
+                    const ratio = salary / totalSalary;
+                    sheet3[i][allocation1Col] = formatPercentage(ratio);
+                } else {
+                    sheet3[i][allocation1Col] = '';
+                }
+            }
+        }
+
+        // 步骤7：管理岗分摊到分摊2
+        function calculateAllocation2(sheet3) {
+            const headers = sheet3[0];
+            const attrCol = headers.indexOf('岗位属性');
+            const categoryCol = headers.indexOf('岗位分类');
+            const manpowerCol = headers.indexOf('人力');
+            const allocation1Col = headers.indexOf('分摊1');
+            const allocation2Col = headers.indexOf('分摊2');
+            
+            if (allocation2Col === -1) {
+                throw new Error('Sheet3中缺少必要的列：分摊2');
+            }
+
+            console.log('=== 开始计算分摊2 ===');
+
+            // 1. 先将所有行的分摊1复制到分摊2
+            for (let i = 1; i < sheet3.length; i++) {
+                sheet3[i][allocation2Col] = sheet3[i][allocation1Col] || '';
+            }
+
+            // 2. 计算所有管理岗的人力费用占比总和
+            let totalManagementAllocation = 0;
+            for (let i = 1; i < sheet3.length; i++) {
+                const attr = String(sheet3[i][attrCol] || '').trim();
+                if (attr === '管理岗') {
+                    const allocation1Value = parsePercentage(sheet3[i][allocation1Col]);
+                    totalManagementAllocation += allocation1Value;
+                }
+            }
+            console.log('步骤2: 管理岗人力费用占比总和 =', (totalManagementAllocation*100).toFixed(2) + '%');
+
+            // 3. 计算所有非管理岗的人力总数
+            let totalNonManagementManpower = 0;
+            for (let i = 1; i < sheet3.length; i++) {
+                const attr = String(sheet3[i][attrCol] || '').trim();
+                if (attr !== '管理岗') {
+                    const manpower = parseFloat(sheet3[i][manpowerCol]) || 0;
+                    totalNonManagementManpower += manpower;
+                }
+            }
+            console.log('步骤3: 非管理岗人力总数 =', totalNonManagementManpower);
+
+            // 4. 对每个非管理岗行计算分摊
+            for (let i = 1; i < sheet3.length; i++) {
+                const attr = String(sheet3[i][attrCol] || '').trim();
+                
+                if (attr !== '管理岗') {
+                    // 非管理岗：计算该行应得的管理岗分摊
+                    const manpower = parseFloat(sheet3[i][manpowerCol]) || 0;
+                    const ratio = totalNonManagementManpower > 0 ? manpower / totalNonManagementManpower : 0;
+                    const additionalAllocation = totalManagementAllocation * ratio;
+                    const currentValue = parsePercentage(sheet3[i][allocation1Col]);
+                    const newValue = currentValue + additionalAllocation;
+                    
+                    console.log(`  行${i}: 人力=${manpower}, 占比=${(ratio*100).toFixed(4)}%, 分摊额=${(additionalAllocation*100).toFixed(4)}%, 原值=${(currentValue*100).toFixed(2)}%, 新值=${(newValue*100).toFixed(2)}%`);
+                    
+                    sheet3[i][allocation2Col] = formatPercentage(newValue);
+                }
+            }
+            console.log('步骤4: 已完成非管理岗分摊');
+
+            // 5. 最后清空管理岗的分摊2
+            for (let i = 1; i < sheet3.length; i++) {
+                const attr = String(sheet3[i][attrCol] || '').trim();
+                if (attr === '管理岗') {
+                    sheet3[i][allocation2Col] = '';
+                    console.log(`  行${i}: 清空管理岗`);
+                }
+            }
+            console.log('步骤5: 已清空管理岗分摊2');
+            console.log('=== 分摊2计算完成 ===\n');
+        }
+
+        // 步骤8：服务岗分摊到分摊3
+        function calculateAllocation3(sheet2, sheet3) {
+            const headers3 = sheet3[0];
+            const attrCol = headers3.indexOf('岗位属性');
+            const categoryCol = headers3.indexOf('岗位分类');
+            const allocation2Col = headers3.indexOf('分摊2');
+            let allocation3Col = headers3.indexOf('分摊3');
+            
+            if (allocation3Col === -1) {
+                allocation3Col = headers3.length;
+                sheet3[0][allocation3Col] = '分摊3';
+            }
+
+            console.log('=== 开始计算分摊3 ===');
+
+            // 1. 先复制分摊2到分摊3
+            for (let i = 1; i < sheet3.length; i++) {
+                sheet3[i][allocation3Col] = sheet3[i][allocation2Col] || '';
+            }
+
+            // 2. 读取Sheet2的服务精力占比（岗位分类 -> 服务精力占比）
+            const sheet2Map = {};
+            for (let i = 1; i < sheet2.length; i++) {
+                const category = String(sheet2[i][0] || '').trim();
+                const ratio = parseFloat(sheet2[i][1]) || 0;
+                if (category) {
+                    sheet2Map[category] = ratio;
+                }
+            }
+            console.log('步骤2: Sheet2服务精力占比映射:', sheet2Map);
+
+            // 3. 计算所有服务岗的分摊管理成本总和
+            let totalServiceAllocation = 0;
+            for (let i = 1; i < sheet3.length; i++) {
+                const attr = String(sheet3[i][attrCol] || '').trim();
+                if (attr === '服务岗') {
+                    const allocation2Value = parsePercentage(sheet3[i][allocation2Col]);
+                    totalServiceAllocation += allocation2Value;
+                }
+            }
+            console.log('步骤3: 服务岗分摊管理成本总和 =', (totalServiceAllocation*100).toFixed(2) + '%');
+
+            // 4. 对每个非管理岗、非服务岗的行进行计算
+            for (let i = 1; i < sheet3.length; i++) {
+                const attr = String(sheet3[i][attrCol] || '').trim();
+                
+                if (attr !== '管理岗' && attr !== '服务岗') {
+                    // 获取该行的岗位分类
+                    const category = String(sheet3[i][categoryCol] || '').trim();
+                    
+                    // 从Sheet2查找该岗位分类的服务精力占比
+                    if (sheet2Map[category] !== undefined) {
+                        const ratio = sheet2Map[category];
+                        const additionalAllocation = totalServiceAllocation * ratio;
+                        const currentValue = parsePercentage(sheet3[i][allocation2Col]);
+                        const newValue = currentValue + additionalAllocation;
+                        
+                        console.log(`  行${i}: 岗位分类="${category}", 服务精力占比=${(ratio*100).toFixed(2)}%, 分摊额=${(additionalAllocation*100).toFixed(4)}%, 原值=${(currentValue*100).toFixed(2)}%, 新值=${(newValue*100).toFixed(2)}%`);
+                        
+                        sheet3[i][allocation3Col] = formatPercentage(newValue);
+                    } else {
+                        console.log(`  行${i}: 岗位分类="${category}", 在Sheet2中未找到，保持原值`);
+                    }
+                }
+            }
+            console.log('步骤4: 已完成非管理岗、非服务岗的分摊');
+
+            // 5. 清空服务岗的分摊3
+            for (let i = 1; i < sheet3.length; i++) {
+                const attr = String(sheet3[i][attrCol] || '').trim();
+                if (attr === '服务岗') {
+                    sheet3[i][allocation3Col] = '';
+                    console.log(`  行${i}: 清空服务岗`);
+                }
+            }
+            console.log('步骤5: 已清空服务岗分摊3');
+            console.log('=== 分摊3计算完成 ===\n');
+            
+            // 修改列名
+            renameColumns(sheet3);
+            
+            // 添加合计行
+            addTotalRow(sheet3);
+        }
+        
+        // 格式化为百分比（保留2位小数）
+        function formatPercentage(value) {
+            if (value === '' || value === null || value === undefined || isNaN(value)) {
+                return '';
+            }
+            return (value * 100).toFixed(2) + '%';
+        }
+        
+        // 解析百分比字符串为数值
+        function parsePercentage(str) {
+            if (str === '' || str === null || str === undefined) {
+                return 0;
+            }
+            if (typeof str === 'number') {
+                return str;
+            }
+            // 如果是百分比字符串，去掉%号并除以100
+            if (typeof str === 'string' && str.includes('%')) {
+                return parseFloat(str.replace('%', '')) / 100;
+            }
+            return parseFloat(str) || 0;
+        }
+        
+        // 添加合计行
+        function addTotalRow(sheet3) {
+            const headers = sheet3[0];
+            const manpowerCol = headers.indexOf('人力');
+            const salaryCol = headers.indexOf('薪酬');
+            const allocation1Col = headers.indexOf('人力费用占比');
+            const allocation2Col = headers.indexOf('分摊管理成本');
+            const allocation3Col = headers.indexOf('分摊服务成本');
+            
+            // 创建新的合计行
+            const totalRow = new Array(headers.length).fill('');
+            
+            // 第一列显示"合计"
+            totalRow[0] = '合计';
+            
+            // 计算人力合计
+            if (manpowerCol !== -1) {
+                let totalManpower = 0;
+                for (let i = 1; i < sheet3.length; i++) {
+                    const manpower = parseFloat(sheet3[i][manpowerCol]);
+                    if (!isNaN(manpower)) {
+                        totalManpower += manpower;
+                    }
+                }
+                totalRow[manpowerCol] = totalManpower;
+            }
+            
+            // 计算薪酬合计
+            if (salaryCol !== -1) {
+                let totalSalary = 0;
+                for (let i = 1; i < sheet3.length; i++) {
+                    const salary = parseFloat(sheet3[i][salaryCol]);
+                    if (!isNaN(salary)) {
+                        totalSalary += salary;
+                    }
+                }
+                totalRow[salaryCol] = totalSalary;
+            }
+            
+            // 计算人力费用占比合计
+            if (allocation1Col !== -1) {
+                let total1 = 0;
+                for (let i = 1; i < sheet3.length; i++) {
+                    const value = parsePercentage(sheet3[i][allocation1Col]);
+                    total1 += value;
+                }
+                totalRow[allocation1Col] = formatPercentage(total1);
+            }
+            
+            // 计算分摊管理成本合计
+            if (allocation2Col !== -1) {
+                let total2 = 0;
+                for (let i = 1; i < sheet3.length; i++) {
+                    const value = parsePercentage(sheet3[i][allocation2Col]);
+                    total2 += value;
+                }
+                totalRow[allocation2Col] = formatPercentage(total2);
+            }
+            
+            // 计算分摊服务成本合计
+            if (allocation3Col !== -1) {
+                let total3 = 0;
+                for (let i = 1; i < sheet3.length; i++) {
+                    const value = parsePercentage(sheet3[i][allocation3Col]);
+                    total3 += value;
+                }
+                totalRow[allocation3Col] = formatPercentage(total3);
+            }
+            
+            // 添加合计行到sheet3末尾
+            sheet3.push(totalRow);
+        }
+        
+        // 修改列名
+        function renameColumns(sheet3) {
+            const headers = sheet3[0];
+            const allocation1Col = headers.indexOf('分摊1');
+            const allocation2Col = headers.indexOf('分摊2');
+            const allocation3Col = headers.indexOf('分摊3');
+            
+            if (allocation1Col !== -1) {
+                sheet3[0][allocation1Col] = '人力费用占比';
+            }
+            if (allocation2Col !== -1) {
+                sheet3[0][allocation2Col] = '分摊管理成本';
+            }
+            if (allocation3Col !== -1) {
+                sheet3[0][allocation3Col] = '分摊服务成本';
+            }
+        }
+
+        // 下载按钮点击事件
+        downloadBtn.addEventListener('click', () => {
+            if (!processedWorkbook) {
+                showStatus('error', '没有可下载的结果文件！');
+                return;
+            }
+
+            if (typeof XLSX === 'undefined') {
+                alert('下载功能需要Excel库支持\n请刷新页面后重试');
+                return;
+            }
+
+            const wbout = XLSX.write(processedWorkbook, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName.replace('.xlsx', '_计算结果.xlsx');
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus('success', '文件已下载！');
+        });
+
+        // 显示状态消息
+        function showStatus(type, message) {
+            status.className = 'status show ' + type;
+            status.textContent = message;
+        }
+
+        // 更新进度
+        function updateProgress(percent, text) {
+            progressFill.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+
+        // 延迟函数
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
