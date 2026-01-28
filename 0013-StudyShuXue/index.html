@@ -295,10 +295,9 @@
             color: #666;
             margin: 10px 0;
             line-height: 1.6;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            max-height: 120px;
+            overflow: auto;
+            word-break: break-word;
         }
 
         .status-bar {
@@ -457,7 +456,273 @@
         @media (max-width: 768px) {
             .detail-grid { grid-template-columns: 1fr; }
         }
+        
+        /* 数学公式样式 */
+        .math-formula {
+            font-size: 1.1em;
+            margin: 5px 0;
+        }
+        
+        .formula-hint {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        /* 方法论卡片样式 */
+        .methodology-card {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .methodology-card:hover {
+            background: #f0f0f0;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .methodology-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .methodology-card p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .methodology-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .methodology-actions button {
+            padding: 4px 12px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-edit-method {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-delete-method {
+            background: #ff4d4f;
+            color: white;
+        }
+        
+        .methodology-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        /* Markdown 渲染样式 */
+        .markdown-content {
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3,
+        .markdown-content h4 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .markdown-content h1 { font-size: 1.8em; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .markdown-content h2 { font-size: 1.5em; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .markdown-content h3 { font-size: 1.3em; }
+        .markdown-content h4 { font-size: 1.1em; }
+        
+        .markdown-content p {
+            margin: 10px 0;
+        }
+        
+        .markdown-content ul,
+        .markdown-content ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        
+        .markdown-content li {
+            margin: 5px 0;
+        }
+        
+        .markdown-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #e83e8c;
+        }
+        
+        .markdown-content pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+            color: #333;
+        }
+        
+        .markdown-content blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 15px;
+            margin: 15px 0;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .markdown-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .markdown-content table th,
+        .markdown-content table td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        
+        .markdown-content table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+        
+        .markdown-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .markdown-content a:hover {
+            text-decoration: underline;
+        }
+        
+        .markdown-content hr {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 20px 0;
+        }
+        
+        /* 自定义滚动条样式 */
+        #methodologyList::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #methodologyList::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        #methodologyList::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        #methodologyList::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* 防止body滚动 */
+        body.modal-open {
+            overflow: hidden;
+        }
+        
+        /* 存储空间监控样式 */
+        .storage-info {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .storage-bar-container {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .storage-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #52c41a 0%, #faad14 70%, #ff4d4f 90%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .storage-bar.warning {
+            background: linear-gradient(90deg, #ff4d4f 0%, #ff7875 100%);
+        }
+        
+        .storage-text {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .storage-warning {
+            color: #ff4d4f;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
+    
+    <!-- MathJax 配置 -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            svg: {
+                fontCache: 'global'
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
 <body>
     <header class="app-header">
@@ -467,6 +732,7 @@
                 <p>整理错题，查漏补缺，稳步提升</p>
             </div>
             <div class="header-actions">
+                <button class="header-btn" onclick="showMethodologyModal()">📖 学习方法论</button>
                 <button class="header-btn" onclick="document.getElementById('importZipInput').click()">📦 导入ZIP</button>
                 <button class="header-btn danger" onclick="confirmClearAll()">🗑️ 清空数据</button>
                 <input type="file" id="importZipInput" accept=".zip" class="hidden">
@@ -536,7 +802,8 @@
 
                 <div class="form-group">
                     <label>题目描述</label>
-                    <textarea id="description" class="form-control" placeholder="简要描述题目内容..."></textarea>
+                    <textarea id="description" class="form-control" placeholder="简要描述题目内容..." rows="4"></textarea>
+                    <div class="formula-hint">💡 支持数学公式：行内公式用 $公式$ ，独立公式用 $$公式$$。例如：$x^2+1=0$ 或 $$\frac{a}{b}$$</div>
                 </div>
 
                 <div class="form-group">
@@ -551,11 +818,13 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>错误原因</label>
-                        <textarea id="errorReason" class="form-control" placeholder="为什么做错了？（计算错误、概念不清等）"></textarea>
+                        <textarea id="errorReason" class="form-control" placeholder="为什么做错了？（计算错误、概念不清等）" rows="4"></textarea>
+                        <div class="formula-hint">💡 支持数学公式：$x^2$ 或 $$\int_0^1 f(x)dx$$</div>
                     </div>
                     <div class="form-group">
                         <label>正确解题思路</label>
-                        <textarea id="correctSolution" class="form-control" placeholder="简述正确的解法和关键点..."></textarea>
+                        <textarea id="correctSolution" class="form-control" placeholder="简述正确的解法和关键点..." rows="4"></textarea>
+                        <div class="formula-hint">💡 支持数学公式：$\frac{dy}{dx}$ 或 $$\lim_{x\to 0}$$</div>
                     </div>
                 </div>
 
@@ -595,6 +864,45 @@
         </div>
 
         <div id="statusBar" class="status-bar"></div>
+        
+        <!-- 存储空间监控 -->
+        <div id="storageInfo" class="storage-info">
+            <div class="storage-bar-container">
+                <div class="storage-bar" id="storageBar"></div>
+            </div>
+            <div class="storage-text" id="storageText">正在计算存储空间...</div>
+        </div>
+    </div>
+
+    <!-- 学习方法论模态框 -->
+    <div id="methodologyModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeMethodologyModal()">&times;</span>
+            <h3>📖 学习方法论</h3>
+            
+            <!-- 方法论列表视图 -->
+            <div id="methodologyListView">
+                <button class="btn btn-primary" onclick="showAddMethodology()" style="margin-bottom: 20px;">➕ 新增方法论</button>
+                <div id="methodologyList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;"></div>
+            </div>
+            
+            <!-- 方法论编辑视图 -->
+            <div id="methodologyEditView" class="hidden">
+                <div class="form-group">
+                    <label>方法论标题</label>
+                    <input type="text" id="methodologyTitle" class="form-control" placeholder="例如：错题整理流程">
+                </div>
+                <div class="form-group">
+                    <label>方法论内容</label>
+                    <textarea id="methodologyContent" class="form-control" rows="8" placeholder="详细描述学习方法、技巧、流程等..."></textarea>
+                    <div class="formula-hint">💡 支持Markdown格式（# 标题、**粗体**、- 列表等）和数学公式（$x^2$ 或 $$\int f(x)dx$$）</div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveMethodology()">💾 保存</button>
+                    <button class="btn" style="background:#f5f5f5; color:#666;" onclick="cancelMethodologyEdit()">取消</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 详情模态框 -->
@@ -652,7 +960,8 @@
                 </div>
                 <div class="form-group">
                     <label>题目描述</label>
-                    <textarea id="editDesc" class="form-control"></textarea>
+                    <textarea id="editDesc" class="form-control" rows="4"></textarea>
+                    <div class="formula-hint">💡 支持数学公式：$公式$ 或 $$公式$$</div>
                 </div>
                 <div class="form-group">
                     <label>题目图片 <span class="image-count-badge" id="editImageCount">0/10</span> (支持粘贴 Ctrl+V)</label>
@@ -666,11 +975,13 @@
                 </div>
                 <div class="form-group">
                     <label>错误原因</label>
-                    <textarea id="editErrorReason" class="form-control"></textarea>
+                    <textarea id="editErrorReason" class="form-control" rows="4"></textarea>
+                    <div class="formula-hint">💡 支持数学公式：$x^2$ 或 $$\int f(x)dx$$</div>
                 </div>
                 <div class="form-group">
                     <label>正确解题思路</label>
-                    <textarea id="editSolution" class="form-control"></textarea>
+                    <textarea id="editSolution" class="form-control" rows="4"></textarea>
+                    <div class="formula-hint">💡 支持数学公式：$\frac{a}{b}$ 或 $$\sum_{i=1}^n$$</div>
                 </div>
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="saveEdit()">💾 保存修改</button>
@@ -682,6 +993,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
     <script>
         'use strict';
         // 全局状态
@@ -691,6 +1003,55 @@
         let currentImages = []; // 当前录入的图片数组
         let editImages = []; // 编辑模式的图片数组
         let db = null; // IndexedDB 数据库实例
+        let methodologies = []; // 学习方法论数组
+        let currentEditMethodologyIndex = -1; // 当前编辑的方法论索引
+        
+        // 计算IndexedDB存储空间
+        async function calculateStorageUsage() {
+            try {
+                if (!navigator.storage || !navigator.storage.estimate) {
+                    document.getElementById('storageText').innerHTML = '浏览器不支持存储空间查询';
+                    return;
+                }
+                
+                const estimate = await navigator.storage.estimate();
+                const usage = estimate.usage || 0; // 已使用字节数
+                const quota = estimate.quota || 0; // 总配额字节数
+                
+                if (quota === 0) {
+                    document.getElementById('storageText').innerHTML = '无法获取存储配额信息';
+                    return;
+                }
+                
+                const usedMB = (usage / 1024 / 1024).toFixed(2);
+                const totalMB = (quota / 1024 / 1024).toFixed(2);
+                const usedPercent = ((usage / quota) * 100).toFixed(1);
+                const remainingPercent = (100 - usedPercent).toFixed(1);
+                
+                // 更新进度条
+                const storageBar = document.getElementById('storageBar');
+                storageBar.style.width = usedPercent + '%';
+                
+                // 如果剩余空间低于10%，添加警告样式
+                if (remainingPercent <= 10) {
+                    storageBar.classList.add('warning');
+                } else {
+                    storageBar.classList.remove('warning');
+                }
+                
+                // 更新文本
+                let storageText = `📊 数据库存储: ${usedMB} MB / ${totalMB} MB (已使用 ${usedPercent}%, 剩余 ${remainingPercent}%)`;
+                
+                if (remainingPercent <= 10) {
+                    storageText += ' <span class="storage-warning">⚠️ 存储空间不足，请尽快导出备份！</span>';
+                }
+                
+                document.getElementById('storageText').innerHTML = storageText;
+            } catch (err) {
+                console.error('计算存储空间失败:', err);
+                document.getElementById('storageText').innerHTML = '存储空间查询失败';
+            }
+        }
 
         // 删除并重建数据库（用于修复损坏的数据库）
         function resetIndexedDB() {
@@ -721,7 +1082,7 @@
         // IndexedDB 初始化
         function initIndexedDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open('MathErrorDB', 1);
+                const request = indexedDB.open('MathErrorDB', 2); // 升级到版本2以支持方法论
                 
                 request.onerror = () => {
                     console.error('IndexedDB 打开失败:', request.error);
@@ -729,15 +1090,19 @@
                 };
                 
                 request.onupgradeneeded = (event) => {
-                    console.log('数据库升级中...');
+                    console.log('数据库升级中...从版本', event.oldVersion, '到版本', event.newVersion);
                     const database = event.target.result;
                     
-                    // 创建对象存储（如果不存在）
+                    // 创建 records 对象存储（如果不存在）
                     if (!database.objectStoreNames.contains('records')) {
                         const objectStore = database.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
-                        // 注意：createIndex 的第二个参数是 keyPath，不能包含特殊字符
-                        // 这里不创建索引，因为我们的字段名包含中文和特殊字符
                         console.log('创建 records 对象存储成功');
+                    }
+                    
+                    // 创建 methodologies 对象存储（版本2新增）
+                    if (!database.objectStoreNames.contains('methodologies')) {
+                        const methodologyStore = database.createObjectStore('methodologies', { keyPath: 'id', autoIncrement: true });
+                        console.log('创建 methodologies 对象存储成功');
                     }
                 };
                 
@@ -749,6 +1114,10 @@
                         console.error('对象存储 records 不存在');
                         reject(new Error('对象存储创建失败'));
                         return;
+                    }
+                    
+                    if (!db.objectStoreNames.contains('methodologies')) {
+                        console.warn('对象存储 methodologies 不存在，可能需要刷新页面');
                     }
                     
                     console.log('IndexedDB 初始化成功，对象存储:', Array.from(db.objectStoreNames));
@@ -882,6 +1251,123 @@
             });
         }
 
+        // ============== 学习方法论数据库操作 ==============
+        
+        // 加载所有方法论
+        function loadMethodologies() {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    console.error('数据库未初始化');
+                    reject(new Error('数据库未初始化'));
+                    return;
+                }
+                
+                // 检查对象存储是否存在
+                if (!db.objectStoreNames.contains('methodologies')) {
+                    console.warn('methodologies 对象存储不存在，跳过加载');
+                    methodologies = [];
+                    resolve(methodologies);
+                    return;
+                }
+                
+                try {
+                    const transaction = db.transaction(['methodologies'], 'readonly');
+                    const objectStore = transaction.objectStore('methodologies');
+                    const request = objectStore.getAll();
+                    
+                    request.onsuccess = () => {
+                        methodologies = request.result || [];
+                        console.log('从 IndexedDB 加载方法论:', methodologies.length, '条');
+                        resolve(methodologies);
+                    };
+                    
+                    request.onerror = () => {
+                        console.error('加载方法论失败');
+                        reject(request.error);
+                    };
+                } catch (err) {
+                    console.error('加载方法论异常:', err);
+                    reject(err);
+                }
+            });
+        }
+        
+        // 保存方法论
+        function saveMethodologyToDB(methodology) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    console.error('数据库未初始化');
+                    reject(new Error('数据库未初始化'));
+                    return;
+                }
+                
+                if (!db.objectStoreNames.contains('methodologies')) {
+                    console.error('methodologies 对象存储不存在');
+                    reject(new Error('请刷新页面后重试'));
+                    return;
+                }
+                
+                try {
+                    const transaction = db.transaction(['methodologies'], 'readwrite');
+                    const objectStore = transaction.objectStore('methodologies');
+                    
+                    const request = methodology.id ? objectStore.put(methodology) : objectStore.add(methodology);
+                    
+                    request.onsuccess = () => {
+                        if (!methodology.id) {
+                            methodology.id = request.result;
+                        }
+                        console.log('方法论已保存，ID:', methodology.id);
+                        resolve(methodology);
+                    };
+                    
+                    request.onerror = () => {
+                        console.error('保存方法论失败');
+                        reject(request.error);
+                    };
+                } catch (err) {
+                    console.error('保存方法论异常:', err);
+                    reject(err);
+                }
+            });
+        }
+        
+        // 删除方法论
+        function deleteMethodologyFromDB(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    console.error('数据库未初始化');
+                    reject(new Error('数据库未初始化'));
+                    return;
+                }
+                
+                if (!db.objectStoreNames.contains('methodologies')) {
+                    console.error('methodologies 对象存储不存在');
+                    reject(new Error('请刷新页面后重试'));
+                    return;
+                }
+                
+                try {
+                    const transaction = db.transaction(['methodologies'], 'readwrite');
+                    const objectStore = transaction.objectStore('methodologies');
+                    const request = objectStore.delete(id);
+                    
+                    request.onsuccess = () => {
+                        console.log('方法论已删除，ID:', id);
+                        resolve();
+                    };
+                    
+                    request.onerror = () => {
+                        console.error('删除方法论失败');
+                        reject(request.error);
+                    };
+                } catch (err) {
+                    console.error('删除方法论异常:', err);
+                    reject(err);
+                }
+            });
+        }
+
         // 本地存储功能（保留用于兼容，但主要使用 IndexedDB）
         function saveToLocalStorage() {
             // 已弃用，保留空函数以兼容旧代码
@@ -918,6 +1404,10 @@
             try {
                 await initIndexedDB();
                 await loadFromIndexedDB();
+                await loadMethodologies(); // 加载方法论
+                
+                // 计算存储空间
+                await calculateStorageUsage();
                 
                 if (records.length > 0) {
                     showApp();
@@ -1198,6 +1688,9 @@
                     showStatus('success', `成功导入${importedRecords.length}条错题及图片！`);
                 }
                 
+                // 更新存储空间显示
+                await calculateStorageUsage();
+                
                 // 清空文件选择
                 e.target.value = '';
                 
@@ -1228,6 +1721,9 @@
                 loadCard.classList.remove('hidden');
                 
                 showStatus('success', '所有数据已清空');
+                
+                // 更新存储空间显示
+                await calculateStorageUsage();
             } catch (err) {
                 console.error('清空失败:', err);
                 showStatus('error', '清空失败：' + err.message);
@@ -1286,6 +1782,9 @@
                 currentImages = [];
                 renderImageGallery();
                 showStatus('success', '错题保存成功！');
+                
+                // 更新存储空间显示
+                await calculateStorageUsage();
             } catch (err) {
                 console.error('保存失败:', err);
                 showStatus('error', '保存失败: ' + err.message);
@@ -1372,6 +1871,13 @@
                 `;
                 errorList.appendChild(card);
             });
+            
+            // 渲染列表中的数学公式
+            if (window.MathJax) {
+                MathJax.typesetPromise([errorList]).catch((err) => {
+                    console.log('MathJax渲染列表失败:', err);
+                });
+            }
         }
 
         window.showDetail = function(record) {
@@ -1404,15 +1910,29 @@
                 });
             }
             
-            document.getElementById('modalDesc').textContent = record['题目描述'] || '无';
-            document.getElementById('modalReason').textContent = record['错误原因'] || '未填写';
-            document.getElementById('modalSolution').textContent = record['正确解题思路'] || '未填写';
+            // 显示文本内容并渲染数学公式
+            const descEl = document.getElementById('modalDesc');
+            const reasonEl = document.getElementById('modalReason');
+            const solutionEl = document.getElementById('modalSolution');
+            
+            descEl.innerHTML = record['题目描述'] || '无';
+            reasonEl.innerHTML = record['错误原因'] || '未填写';
+            solutionEl.innerHTML = record['正确解题思路'] || '未填写';
+            
+            // 使用MathJax渲染公式
+            if (window.MathJax) {
+                MathJax.typesetPromise([descEl, reasonEl, solutionEl]).catch((err) => {
+                    console.log('MathJax渲染失败:', err);
+                });
+            }
             
             // 显示查看模式，隐藏编辑模式
             document.getElementById('viewMode').classList.remove('hidden');
             document.getElementById('editMode').classList.add('hidden');
             
             document.getElementById('detailModal').style.display = 'flex';
+            // 阻止背景滚动
+            document.body.classList.add('modal-open');
         }
 
         window.enterEditMode = function() {
@@ -1505,6 +2025,9 @@
                 // 关闭模态框
                 closeModal();
                 showStatus('success', '错题修改成功！');
+                
+                // 更新存储空间显示
+                await calculateStorageUsage();
             } catch (err) {
                 console.error('保存编辑失败:', err);
                 showStatus('error', '保存失败: ' + err.message);
@@ -1522,6 +2045,8 @@
             document.getElementById('detailModal').style.display = 'none';
             currentEditIndex = -1;
             editImages = [];
+            // 恢复背景滚动
+            document.body.classList.remove('modal-open');
         }
 
         window.clearLocalStorage = async function() {
@@ -1536,6 +2061,9 @@
                         renderImageGallery();
                         showStatus('success', '所有数据已清空');
                         console.log('IndexedDB 已清空');
+                        
+                        // 更新存储空间显示
+                        await calculateStorageUsage();
                     } catch (err) {
                         console.error('清空失败:', err);
                         showStatus('error', '清空失败: ' + err.message);
@@ -1553,6 +2081,9 @@
                     renderList();
                     updateStats();
                     showStatus('info', '已删除记录');
+                    
+                    // 更新存储空间显示
+                    await calculateStorageUsage();
                 } catch (err) {
                     console.error('删除失败:', err);
                     showStatus('error', '删除失败: ' + err.message);
@@ -1561,36 +2092,64 @@
         }
 
         function exportWorkbook() {
-            if (records.length === 0) {
-                alert('提示：当前没有错题记录可以导出！\n\n请先录入错题后再导出。');
-                showStatus('warning', '没有错题记录可以导出');
+            if (records.length === 0 && methodologies.length === 0) {
+                alert('提示：当前没有数据可以导出！\n\n请先录入错题或方法论后再导出。');
+                showStatus('warning', '没有数据可以导出');
                 return;
             }
             
             try {
-                // 转换数据，Excel 中显示图片数量
-                const exportData = records.map(r => ({
-                    '错题ID': r.id || '',
-                    '日期': r['日期'],
-                    '章节/知识点': r['章节/知识点'],
-                    '难度等级': r['难度等级'],
-                    '掌握程度': r['掌握程度'],
-                    '题目描述': r['题目描述'],
-                    '图片数量': (() => {
-                        try {
-                            const imgs = JSON.parse(r['题目图片'] || '[]');
-                            return Array.isArray(imgs) ? imgs.length : 0;
-                        } catch(e) {
-                            return r['题目图片'] ? 1 : 0;
-                        }
-                    })(),
-                    '错误原因': r['错误原因'],
-                    '正确解题思路': r['正确解题思路']
-                }));
-
-                const ws = XLSX.utils.json_to_sheet(exportData);
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "错题记录");
+                
+                // 1. 导出错题记录工作表
+                if (records.length > 0) {
+                    const exportData = records.map(r => ({
+                        '错题ID': r.id || '',
+                        '日期': r['日期'],
+                        '章节/知识点': r['章节/知识点'],
+                        '难度等级': r['难度等级'],
+                        '掌握程度': r['掌握程度'],
+                        '题目描述': r['题目描述'],
+                        '图片数量': (() => {
+                            try {
+                                const imgs = JSON.parse(r['题目图片'] || '[]');
+                                return Array.isArray(imgs) ? imgs.length : 0;
+                            } catch(e) {
+                                return r['题目图片'] ? 1 : 0;
+                            }
+                        })(),
+                        '错误原因': r['错误原因'],
+                        '正确解题思路': r['正确解题思路']
+                    }));
+                    const ws = XLSX.utils.json_to_sheet(exportData);
+                    XLSX.utils.book_append_sheet(wb, ws, "错题记录");
+                }
+                
+                // 2. 导出学习方法论工作表
+                if (methodologies.length > 0) {
+                    const methodologyData = methodologies.map((m, index) => ({
+                        '序号': index + 1,
+                        '标题': m.title,
+                        '内容': m.content,
+                        '创建时间': m.createTime ? new Date(m.createTime).toLocaleString('zh-CN') : '',
+                        '更新时间': m.updateTime ? new Date(m.updateTime).toLocaleString('zh-CN') : ''
+                    }));
+                    const methodWs = XLSX.utils.json_to_sheet(methodologyData);
+                    
+                    // 设置列宽
+                    methodWs['!cols'] = [
+                        { wch: 8 },   // 序号
+                        { wch: 30 },  // 标题
+                        { wch: 80 },  // 内容
+                        { wch: 20 },  // 创建时间
+                        { wch: 20 }   // 更新时间
+                    ];
+                    
+                    XLSX.utils.book_append_sheet(wb, methodWs, "学习方法论");
+                }
+                
+                // 生成文件名
+                const fileName = currentFileName || '高中数学错题本.xlsx';
                 
                 // Safari 特别处理
                 if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
@@ -1599,18 +2158,24 @@
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = currentFileName || '高中数学错题本.xlsx';
+                    a.download = fileName;
                     a.style.display = 'none';
                     document.body.appendChild(a);
                     setTimeout(() => {
                         a.click();
                         document.body.removeChild(a);
                         URL.revokeObjectURL(url);
-                        showStatus('success', 'Excel已导出（不含图片）');
+                        const sheets = [];
+                        if (records.length > 0) sheets.push('错题记录');
+                        if (methodologies.length > 0) sheets.push('学习方法论');
+                        showStatus('success', `Excel已导出：${sheets.join('、')}（不含图片）`);
                     }, 100);
                 } else {
-                    XLSX.writeFile(wb, currentFileName || '高中数学错题本.xlsx', { compression: true });
-                    showStatus('success', 'Excel已导出（不含图片）');
+                    XLSX.writeFile(wb, fileName, { compression: true });
+                    const sheets = [];
+                    if (records.length > 0) sheets.push('错题记录');
+                    if (methodologies.length > 0) sheets.push('学习方法论');
+                    showStatus('success', `Excel已导出：${sheets.join('、')}（不含图片）`);
                 }
             } catch (err) {
                 console.error('导出失败:', err);
@@ -1620,9 +2185,9 @@
 
         // 导出完整包（Excel + 图片）
         async function exportWithImages() {
-            if (records.length === 0) {
-                alert('提示：当前没有错题记录可以导出！');
-                showStatus('warning', '没有错题记录可以导出');
+            if (records.length === 0 && methodologies.length === 0) {
+                alert('提示：当前没有数据可以导出！');
+                showStatus('warning', '没有数据可以导出');
                 return;
             }
             
@@ -1632,68 +2197,101 @@
                 const zip = new JSZip();
                 
                 // 1. 生成 Excel 文件
-                const exportData = records.map(r => ({
-                    '错题ID': r.id || '',
-                    '日期': r['日期'],
-                    '章节/知识点': r['章节/知识点'],
-                    '难度等级': r['难度等级'],
-                    '掌握程度': r['掌握程度'],
-                    '题目描述': r['题目描述'],
-                    '图片路径': `images/${r.id || 'unknown'}/`,
-                    '错误原因': r['错误原因'],
-                    '正确解题思路': r['正确解题思路']
-                }));
-                
-                const ws = XLSX.utils.json_to_sheet(exportData);
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "错题记录");
+                
+                // 添加错题记录工作表
+                if (records.length > 0) {
+                    const exportData = records.map(r => ({
+                        '错题ID': r.id || '',
+                        '日期': r['日期'],
+                        '章节/知识点': r['章节/知识点'],
+                        '难度等级': r['难度等级'],
+                        '掌握程度': r['掌握程度'],
+                        '题目描述': r['题目描述'],
+                        '图片路径': `images/${r.id || 'unknown'}/`,
+                        '错误原因': r['错误原因'],
+                        '正确解题思路': r['正确解题思路']
+                    }));
+                    const ws = XLSX.utils.json_to_sheet(exportData);
+                    XLSX.utils.book_append_sheet(wb, ws, "错题记录");
+                }
+                
+                // 添加学习方法论工作表
+                if (methodologies.length > 0) {
+                    const methodologyData = methodologies.map((m, index) => ({
+                        '序号': index + 1,
+                        '标题': m.title,
+                        '内容': m.content,
+                        '创建时间': m.createTime ? new Date(m.createTime).toLocaleString('zh-CN') : '',
+                        '更新时间': m.updateTime ? new Date(m.updateTime).toLocaleString('zh-CN') : ''
+                    }));
+                    const methodWs = XLSX.utils.json_to_sheet(methodologyData);
+                    methodWs['!cols'] = [
+                        { wch: 8 },
+                        { wch: 30 },
+                        { wch: 80 },
+                        { wch: 20 },
+                        { wch: 20 }
+                    ];
+                    XLSX.utils.book_append_sheet(wb, methodWs, "学习方法论");
+                }
+                
                 const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 zip.file('错题本.xlsx', wbout);
                 
                 // 2. 添加图片文件夹
-                const imagesFolder = zip.folder('images');
-                
-                for (const record of records) {
-                    const recordId = record.id || 'unknown';
-                    let images = [];
+                if (records.length > 0) {
+                    const imagesFolder = zip.folder('images');
                     
-                    try {
-                        images = JSON.parse(record['题目图片'] || '[]');
-                        if (!Array.isArray(images)) {
+                    for (const record of records) {
+                        const recordId = record.id || 'unknown';
+                        let images = [];
+                        
+                        try {
+                            images = JSON.parse(record['题目图片'] || '[]');
+                            if (!Array.isArray(images)) {
+                                images = record['题目图片'] ? [record['题目图片']] : [];
+                            }
+                        } catch(e) {
                             images = record['题目图片'] ? [record['题目图片']] : [];
                         }
-                    } catch(e) {
-                        images = record['题目图片'] ? [record['题目图片']] : [];
-                    }
-                    
-                    if (images.length > 0) {
-                        const recordFolder = imagesFolder.folder(String(recordId));
                         
-                        images.forEach((base64, index) => {
-                            // 从 base64 中提取实际数据
-                            const base64Data = base64.split(',')[1];
-                            recordFolder.file(`image_${index + 1}.jpg`, base64Data, { base64: true });
-                        });
+                        if (images.length > 0) {
+                            const recordFolder = imagesFolder.folder(String(recordId));
+                            
+                            images.forEach((base64, index) => {
+                                // 从 base64 中提取实际数据
+                                const base64Data = base64.split(',')[1];
+                                recordFolder.file(`image_${index + 1}.jpg`, base64Data, { base64: true });
+                            });
+                        }
                     }
                 }
                 
                 // 3. 添加说明文件
                 const readme = `高中数学错题本导出包
-                
+
 导出时间: ${new Date().toLocaleString()}
 错题数量: ${records.length}
+方法论数量: ${methodologies.length}
 
 文件说明:
-- 错题本.xlsx: 包含所有错题的文本信息
+- 错题本.xlsx: 包含所有错题和学习方法论
+  * 工作表1: 错题记录
+  * 工作表2: 学习方法论
 - images/: 图片文件夹，按错题ID组织
   - 每个子文件夹对应一条错题
   - 文件夹名称即为错题ID
   - 图片按顺序命名为 image_1.jpg, image_2.jpg...
 
 使用说明:
-1. 查看 Excel 文件获取错题信息
+1. 查看 Excel 文件获取错题和方法论信息
 2. 根据"图片路径"列找到对应的图片文件夹
 3. 可将整个包保存到 iCloud 云盘进行备份
+
+学习方法论说明:
+- 方法论内容支持 Markdown 格式
+- 支持 LaTeX 数学公式（使用 $ 或 $$ 包裹）
 
 建议存储路径:
 iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
@@ -1717,7 +2315,7 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                showStatus('success', `完整包已导出！包含${records.length}条错题和所有图片`);
+                showStatus('success', `完整包已导出！包含${records.length}条错题和${methodologies.length}条方法论`);
             } catch (err) {
                 console.error('导出失败:', err);
                 showStatus('error', '导出失败：' + err.message);
@@ -1729,6 +2327,186 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
             const modal = document.getElementById('detailModal');
             if (event.target == modal) {
                 closeModal();
+            }
+            const methodModal = document.getElementById('methodologyModal');
+            if (event.target == methodModal) {
+                closeMethodologyModal();
+            }
+        }
+        
+        // ============== 学习方法论功能 ==============
+        
+        // 显示方法论模态框
+        window.showMethodologyModal = async function() {
+            try {
+                await loadMethodologies();
+                renderMethodologyList();
+                document.getElementById('methodologyListView').classList.remove('hidden');
+                document.getElementById('methodologyEditView').classList.add('hidden');
+                document.getElementById('methodologyModal').style.display = 'flex';
+                // 阻止背景滚动
+                document.body.classList.add('modal-open');
+            } catch (err) {
+                console.error('加载方法论失败:', err);
+                showStatus('error', '加载方法论失败：' + err.message);
+            }
+        }
+        
+        // 关闭方法论模态框
+        window.closeMethodologyModal = function() {
+            document.getElementById('methodologyModal').style.display = 'none';
+            currentEditMethodologyIndex = -1;
+            // 恢复背景滚动
+            document.body.classList.remove('modal-open');
+        }
+        
+        // 渲染方法论列表
+        function renderMethodologyList() {
+            const listEl = document.getElementById('methodologyList');
+            listEl.innerHTML = '';
+            
+            if (methodologies.length === 0) {
+                listEl.innerHTML = `
+                    <div class="methodology-empty">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📚</div>
+                        <p>还没有学习方法论，点击上方按钮添加第一条吧！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            methodologies.forEach((method, index) => {
+                const card = document.createElement('div');
+                card.className = 'methodology-card';
+                
+                // 使用 marked 解析 Markdown 内容
+                let contentHtml = method.content;
+                if (window.marked) {
+                    try {
+                        contentHtml = marked.parse(method.content);
+                    } catch (e) {
+                        console.error('Markdown解析失败:', e);
+                    }
+                }
+                
+                card.innerHTML = `
+                    <h4>
+                        <span>${method.title}</span>
+                    </h4>
+                    <div class="markdown-content">
+                        ${contentHtml}
+                    </div>
+                    <div class="methodology-actions" onclick="event.stopPropagation();">
+                        <button class="btn-edit-method" onclick="editMethodology(${index})">✏️ 编辑</button>
+                        <button class="btn-delete-method" onclick="deleteMethodology(${index})">🗑️ 删除</button>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+            
+            // 渲染数学公式
+            if (window.MathJax) {
+                MathJax.typesetPromise([listEl]).catch((err) => {
+                    console.log('MathJax渲染方法论列表失败:', err);
+                });
+            }
+        }
+        
+        // 显示新增方法论表单
+        window.showAddMethodology = function() {
+            currentEditMethodologyIndex = -1;
+            document.getElementById('methodologyTitle').value = '';
+            document.getElementById('methodologyContent').value = '';
+            document.getElementById('methodologyListView').classList.add('hidden');
+            document.getElementById('methodologyEditView').classList.remove('hidden');
+        }
+        
+        // 编辑方法论
+        window.editMethodology = function(index) {
+            currentEditMethodologyIndex = index;
+            const method = methodologies[index];
+            document.getElementById('methodologyTitle').value = method.title;
+            document.getElementById('methodologyContent').value = method.content;
+            document.getElementById('methodologyListView').classList.add('hidden');
+            document.getElementById('methodologyEditView').classList.remove('hidden');
+        }
+        
+        // 保存方法论
+        window.saveMethodology = async function() {
+            const title = document.getElementById('methodologyTitle').value.trim();
+            const content = document.getElementById('methodologyContent').value.trim();
+            
+            if (!title) {
+                alert('请输入方法论标题');
+                return;
+            }
+            
+            if (!content) {
+                alert('请输入方法论内容');
+                return;
+            }
+            
+            try {
+                let methodology;
+                
+                if (currentEditMethodologyIndex === -1) {
+                    // 新增
+                    methodology = {
+                        title: title,
+                        content: content,
+                        createTime: new Date().toISOString()
+                    };
+                } else {
+                    // 编辑
+                    methodology = methodologies[currentEditMethodologyIndex];
+                    methodology.title = title;
+                    methodology.content = content;
+                    methodology.updateTime = new Date().toISOString();
+                }
+                
+                await saveMethodologyToDB(methodology);
+                await loadMethodologies();
+                
+                // 返回列表视图
+                document.getElementById('methodologyEditView').classList.add('hidden');
+                document.getElementById('methodologyListView').classList.remove('hidden');
+                renderMethodologyList();
+                
+                showStatus('success', currentEditMethodologyIndex === -1 ? '方法论已添加' : '方法论已更新');
+                
+                // 更新存储空间显示
+                await calculateStorageUsage();
+            } catch (err) {
+                console.error('保存方法论失败:', err);
+                showStatus('error', '保存失败：' + err.message);
+            }
+        }
+        
+        // 取消编辑方法论
+        window.cancelMethodologyEdit = function() {
+            document.getElementById('methodologyEditView').classList.add('hidden');
+            document.getElementById('methodologyListView').classList.remove('hidden');
+            currentEditMethodologyIndex = -1;
+        }
+        
+        // 删除方法论
+        window.deleteMethodology = async function(index) {
+            if (!confirm('确定要删除这条学习方法论吗？')) {
+                return;
+            }
+            
+            try {
+                const methodology = methodologies[index];
+                await deleteMethodologyFromDB(methodology.id);
+                await loadMethodologies();
+                renderMethodologyList();
+                showStatus('success', '方法论已删除');
+                
+                // 更新存储空间显示
+                await calculateStorageUsage();
+            } catch (err) {
+                console.error('删除方法论失败:', err);
+                showStatus('error', '删除失败：' + err.message);
             }
         }
     </script>
