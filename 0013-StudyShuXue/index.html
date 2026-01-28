@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高中数学数字化错题本</title>
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #f5222d;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 40px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .app-header .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .app-header .header-left {
+            flex: 1;
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .app-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .app-header .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .header-btn.danger {
+            background: rgba(245,34,45,0.2);
+            border-color: rgba(245,34,45,0.4);
+        }
+        
+        .header-btn.danger:hover {
+            background: rgba(245,34,45,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .app-header .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .app-header .header-actions {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto 40px;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        /* 上传区域 */
+        .upload-section {
+            text-align: center;
+            border: 2px dashed #d9d9d9;
+            border-radius: 12px;
+            padding: 40px;
+            background: #fafafa;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary-color);
+            background: #f0f5ff;
+        }
+
+        .upload-section i {
+            font-size: 48px;
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        /* 表单样式 */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--bg-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: block;
+        }
+
+        .stat-card .label {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* 错题列表 */
+        .error-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .error-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s;
+            border: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .error-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .error-img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: #fafafa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .error-content {
+            padding: 20px;
+        }
+
+        .error-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tag-difficulty { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+        .tag-mastery { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+        .tag-chapter { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+
+        .error-desc {
+            font-size: 14px;
+            color: #666;
+            margin: 10px 0;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status-show { display: block; }
+        .status-info { background: #e6f7ff; color: #0050b3; border: 1px solid #91d5ff; }
+        .status-success { background: #f6ffed; color: #237804; border: 1px solid #b7eb8f; }
+
+        /* 图片预览区域 */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-item {
+            position: relative;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fafafa;
+            aspect-ratio: 1;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .image-item-delete {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 77, 79, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .image-item-delete:hover {
+            background: #ff4d4f;
+            transform: scale(1.1);
+        }
+
+        .image-count-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .hidden { display: none; }
+
+        /* 列表面板扩展 */
+        #listCard {
+            min-height: 400px;
+        }
+
+        .list-header {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .filter-select {
+            padding: 8px 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+        /* 错题详情模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            border-radius: 16px;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .detail-section h4 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .detail-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>高中数学错题本</h1>
+                <p>整理错题，查漏补缺，稳步提升</p>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" onclick="document.getElementById('importZipInput').click()">📦 导入ZIP</button>
+                <button class="header-btn danger" onclick="confirmClearAll()">🗑️ 清空数据</button>
+                <input type="file" id="importZipInput" accept=".zip" class="hidden">
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 统计面板 -->
+        <div id="statsPanel" class="stats-grid hidden">
+            <div class="stat-card">
+                <span class="value" id="totalCount">0</span>
+                <span class="label">累计错题</span>
+            </div>
+            <div class="stat-card">
+                <span class="value" id="masteredCount">0</span>
+                <span class="label">已掌握题目</span>
+            </div>
+            <div class="stat-card">
+                <span class="value" id="latestDate">-</span>
+                <span class="label">最近更新</span>
+            </div>
+            <div class="stat-card">
+                <span class="value" id="weakPoint">-</span>
+                <span class="label">薄弱章节</span>
+            </div>
+        </div>
+
+        <!-- 初始化/加载区域 -->
+        <div id="loadCard" class="card">
+            <div class="upload-section" style="border: none; background: transparent; cursor: default;">
+                <i>📚</i>
+                <p class="upload-text" style="font-size: 1.3rem; margin-bottom: 10px;">欢迎使用高中数学错题本</p>
+                <p class="upload-hint">点击下方按钮创建新的错题本，或使用顶部的"导入ZIP"导入已有数据</p>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="createNewBtn">✨ 创建新错题本</button>
+            </div>
+        </div>
+
+        <!-- 操作面板 -->
+        <div id="actionCard" class="card hidden">
+            <h3>录入新错题</h3>
+            <form id="errorForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>章节/知识点</label>
+                        <input type="text" id="chapter" class="form-control" placeholder="如：函数、立体几何" required>
+                    </div>
+                    <div class="form-group">
+                        <label>难度等级</label>
+                        <select id="difficulty" class="form-control">
+                            <option value="基础">基础</option>
+                            <option value="中等">中等</option>
+                            <option value="难题">难题</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>掌握程度</label>
+                        <select id="mastery" class="form-control">
+                            <option value="未掌握">未掌握</option>
+                            <option value="基本掌握">基本掌握</option>
+                            <option value="已掌握">已掌握</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>题目描述</label>
+                    <textarea id="description" class="form-control" placeholder="简要描述题目内容..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>题目图片 <span class="image-count-badge" id="imageCount">0/10</span> (支持剪贴板粘贴 Ctrl+V)</label>
+                    <div class="upload-section" id="imgUploadBtn" style="padding: 20px;">
+                        <span id="imgBtnText">点击选择或直接粘贴截图（可多选）</span>
+                        <input type="file" id="imgInput" accept="image/*" multiple class="hidden">
+                    </div>
+                    <div id="imageGallery" class="image-gallery"></div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>错误原因</label>
+                        <textarea id="errorReason" class="form-control" placeholder="为什么做错了？（计算错误、概念不清等）"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>正确解题思路</label>
+                        <textarea id="correctSolution" class="form-control" placeholder="简述正确的解法和关键点..."></textarea>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">➕ 保存错题</button>
+                    <button type="button" class="btn" style="background:#ff9800; color:white;" onclick="clearLocalStorage()">🗑️ 清空本地缓存</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 列表面板 -->
+        <div id="listCard" class="card hidden">
+            <div class="list-header">
+                <h3>错题记录列表</h3>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <div id="filterGroup" style="display: flex; gap: 10px;">
+                        <select id="filterDifficulty" class="filter-select" onchange="renderList()">
+                            <option value="all">所有难度</option>
+                            <option value="基础">基础</option>
+                            <option value="中等">中等</option>
+                            <option value="难题">难题</option>
+                        </select>
+                        <select id="filterMastery" class="filter-select" onchange="renderList()">
+                            <option value="all">所有掌握程度</option>
+                            <option value="未掌握">未掌握</option>
+                            <option value="基本掌握">基本掌握</option>
+                            <option value="已掌握">已掌握</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="exportWorkbook()" style="padding: 8px 16px; font-size: 14px;">💾 导出Excel</button>
+                    <button class="btn btn-primary" onclick="exportWithImages()" style="padding: 8px 16px; font-size: 14px;">📦 导出完整包(含图片)</button>
+                </div>
+            </div>
+            <div id="errorList" class="error-list">
+                <!-- 错题卡片将在这里生成 -->
+            </div>
+        </div>
+
+        <div id="statusBar" class="status-bar"></div>
+    </div>
+
+    <!-- 详情模态框 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle">错题详情</h3>
+            
+            <!-- 查看模式 -->
+            <div id="viewMode">
+                <div id="modalTags" style="margin: 15px 0;"></div>
+                <div id="modalImgGallery" class="image-gallery" style="margin-bottom:20px;"></div>
+                <div class="detail-grid">
+                    <div class="detail-section">
+                        <h4>题目描述</h4>
+                        <p id="modalDesc"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h4>错误原因</h4>
+                        <p id="modalReason"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h4>正确解题思路</h4>
+                        <p id="modalSolution"></p>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="enterEditMode()">✏️ 编辑</button>
+                </div>
+            </div>
+            
+            <!-- 编辑模式 -->
+            <div id="editMode" class="hidden">
+                <div class="form-grid" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label>章节/知识点</label>
+                        <input type="text" id="editChapter" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>难度等级</label>
+                        <select id="editDifficulty" class="form-control">
+                            <option value="基础">基础</option>
+                            <option value="中等">中等</option>
+                            <option value="难题">难题</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>掌握程度</label>
+                        <select id="editMastery" class="form-control">
+                            <option value="未掌握">未掌握</option>
+                            <option value="基本掌握">基本掌握</option>
+                            <option value="已掌握">已掌握</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>题目描述</label>
+                    <textarea id="editDesc" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>题目图片 <span class="image-count-badge" id="editImageCount">0/10</span> (支持粘贴 Ctrl+V)</label>
+                    <div style="position: relative;">
+                        <div id="editImgBtnArea" class="upload-section" style="padding: 20px; cursor: pointer;">
+                            <span id="editImgBtnText">点击选择图片或直接粘贴截图（可多选）</span>
+                            <input type="file" id="editImgInput" accept="image/*" multiple class="hidden">
+                        </div>
+                        <div id="editImageGallery" class="image-gallery"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>错误原因</label>
+                    <textarea id="editErrorReason" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>正确解题思路</label>
+                    <textarea id="editSolution" class="form-control"></textarea>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveEdit()">💾 保存修改</button>
+                    <button class="btn" style="background:#f5f5f5; color:#666;" onclick="cancelEdit()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        'use strict';
+        // 全局状态
+        let records = [];
+        let currentFileName = '我的高中数学错题本.xlsx';
+        let currentEditIndex = -1; // 当前编辑的记录索引
+        let currentImages = []; // 当前录入的图片数组
+        let editImages = []; // 编辑模式的图片数组
+        let db = null; // IndexedDB 数据库实例
+
+        // 删除并重建数据库（用于修复损坏的数据库）
+        function resetIndexedDB() {
+            return new Promise((resolve, reject) => {
+                if (db) {
+                    db.close();
+                    db = null;
+                }
+                
+                const deleteRequest = indexedDB.deleteDatabase('MathErrorDB');
+                
+                deleteRequest.onsuccess = () => {
+                    console.log('旧数据库已删除');
+                    resolve();
+                };
+                
+                deleteRequest.onerror = () => {
+                    console.error('删除数据库失败');
+                    reject(deleteRequest.error);
+                };
+                
+                deleteRequest.onblocked = () => {
+                    console.warn('数据库删除被阻止，可能有其他连接');
+                };
+            });
+        }
+
+        // IndexedDB 初始化
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('MathErrorDB', 1);
+                
+                request.onerror = () => {
+                    console.error('IndexedDB 打开失败:', request.error);
+                    reject(request.error);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    console.log('数据库升级中...');
+                    const database = event.target.result;
+                    
+                    // 创建对象存储（如果不存在）
+                    if (!database.objectStoreNames.contains('records')) {
+                        const objectStore = database.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
+                        // 注意：createIndex 的第二个参数是 keyPath，不能包含特殊字符
+                        // 这里不创建索引，因为我们的字段名包含中文和特殊字符
+                        console.log('创建 records 对象存储成功');
+                    }
+                };
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    
+                    // 验证对象存储是否存在
+                    if (!db.objectStoreNames.contains('records')) {
+                        console.error('对象存储 records 不存在');
+                        reject(new Error('对象存储创建失败'));
+                        return;
+                    }
+                    
+                    console.log('IndexedDB 初始化成功，对象存储:', Array.from(db.objectStoreNames));
+                    resolve(db);
+                };
+            });
+        }
+
+        // 从 IndexedDB 加载数据
+        function loadFromIndexedDB() {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    console.error('数据库未初始化');
+                    reject(new Error('数据库未初始化'));
+                    return;
+                }
+                
+                try {
+                    const transaction = db.transaction(['records'], 'readonly');
+                    const objectStore = transaction.objectStore('records');
+                    const request = objectStore.getAll();
+                    
+                    request.onsuccess = () => {
+                        records = request.result || [];
+                        console.log('从 IndexedDB 加载数据:', records.length, '条');
+                        resolve(records);
+                    };
+                    
+                    request.onerror = () => {
+                        console.error('加载数据失败');
+                        reject(request.error);
+                    };
+                } catch (err) {
+                    console.error('加载数据异常:', err);
+                    reject(err);
+                }
+            });
+        }
+
+        // 保存单条记录到 IndexedDB
+        function saveRecordToDB(record) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    console.error('数据库未初始化');
+                    reject(new Error('数据库未初始化'));
+                    return;
+                }
+                
+                try {
+                    const transaction = db.transaction(['records'], 'readwrite');
+                    const objectStore = transaction.objectStore('records');
+                    
+                    const request = record.id ? objectStore.put(record) : objectStore.add(record);
+                    
+                    request.onsuccess = () => {
+                        if (!record.id) {
+                            record.id = request.result; // 自动生成的 ID
+                        }
+                        console.log('记录已保存，ID:', record.id);
+                        resolve(record);
+                    };
+                    
+                    request.onerror = () => {
+                        console.error('保存记录失败');
+                        reject(request.error);
+                    };
+                } catch (err) {
+                    console.error('保存记录异常:', err);
+                    reject(err);
+                }
+            });
+        }
+
+        // 删除 IndexedDB 中的记录
+        function deleteRecordFromDB(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    console.error('数据库未初始化');
+                    reject(new Error('数据库未初始化'));
+                    return;
+                }
+                
+                try {
+                    const transaction = db.transaction(['records'], 'readwrite');
+                    const objectStore = transaction.objectStore('records');
+                    const request = objectStore.delete(id);
+                    
+                    request.onsuccess = () => {
+                        console.log('记录已删除，ID:', id);
+                        resolve();
+                    };
+                    
+                    request.onerror = () => {
+                        console.error('删除记录失败');
+                        reject(request.error);
+                    };
+                } catch (err) {
+                    console.error('删除记录异常:', err);
+                    reject(err);
+                }
+            });
+        }
+
+        // 清空 IndexedDB
+        function clearIndexedDB() {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    console.error('数据库未初始化');
+                    reject(new Error('数据库未初始化'));
+                    return;
+                }
+                
+                try {
+                    const transaction = db.transaction(['records'], 'readwrite');
+                    const objectStore = transaction.objectStore('records');
+                    const request = objectStore.clear();
+                    
+                    request.onsuccess = () => {
+                        console.log('IndexedDB 已清空');
+                        resolve();
+                    };
+                    
+                    request.onerror = () => {
+                        console.error('清空失败');
+                        reject(request.error);
+                    };
+                } catch (err) {
+                    console.error('清空异常:', err);
+                    reject(err);
+                }
+            });
+        }
+
+        // 本地存储功能（保留用于兼容，但主要使用 IndexedDB）
+        function saveToLocalStorage() {
+            // 已弃用，保留空函数以兼容旧代码
+            console.log('使用 IndexedDB 存储，不再使用 localStorage');
+        }
+
+        function loadFromLocalStorage() {
+            // 已弃用
+            return false;
+        }
+
+        // DOM 元素
+        const loadCard = document.getElementById('loadCard');
+        const actionCard = document.getElementById('actionCard');
+        const listCard = document.getElementById('listCard');
+        const statsPanel = document.getElementById('statsPanel');
+        const errorForm = document.getElementById('errorForm');
+        const imgInput = document.getElementById('imgInput');
+        const imageGallery = document.getElementById('imageGallery');
+        const imgUploadBtn = document.getElementById('imgUploadBtn');
+        const errorList = document.getElementById('errorList');
+        const statusBar = document.getElementById('statusBar');
+        const importZipInput = document.getElementById('importZipInput');
+
+        // 初始化
+        document.getElementById('createNewBtn').addEventListener('click', initNewWorkbook);
+        imgUploadBtn.addEventListener('click', () => imgInput.click());
+        imgInput.addEventListener('change', handleImageSelect);
+        errorForm.addEventListener('submit', handleFormSubmit);
+        importZipInput.addEventListener('change', handleZipImport);
+
+        // 页面加载时自动恢复数据
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initIndexedDB();
+                await loadFromIndexedDB();
+                
+                if (records.length > 0) {
+                    showApp();
+                    renderList();
+                    updateStats();
+                    showStatus('info', `已加载错题本（共${records.length}条）`);
+                } else {
+                    console.log('暂无数据，等待创建新错题本或导入');
+                }
+            } catch (err) {
+                console.error('初始化失败:', err);
+                
+                // 如果是对象存储不存在的错误，尝试重置数据库
+                if (err.message && err.message.includes('对象存储')) {
+                    console.log('尝试重置数据库...');
+                    try {
+                        await resetIndexedDB();
+                        await initIndexedDB();
+                        showStatus('info', '数据库已重置，可以开始使用');
+                    } catch (resetErr) {
+                        console.error('重置失败:', resetErr);
+                        showStatus('error', '数据库初始化失败，请清除浏览器数据后重试');
+                    }
+                } else {
+                    showStatus('error', '数据库初始化失败：' + err.message);
+                }
+            }
+        });
+
+        // 粘贴图片支持
+        window.addEventListener('paste', async (e) => {
+            if (actionCard.classList.contains('hidden') && document.getElementById('editMode').classList.contains('hidden')) return;
+            
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        // 判断是录入模式还是编辑模式
+                        if (!actionCard.classList.contains('hidden')) {
+                            await addImageToGallery(event.target.result);
+                        } else if (!document.getElementById('editMode').classList.contains('hidden')) {
+                            await addImageToEditGallery(event.target.result);
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+
+        // 压缩图片
+        function compressImage(base64, maxWidth = 800, quality = 0.7) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // 按比例缩放
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 转换为压缩后的 base64
+                    const compressed = canvas.toDataURL('image/jpeg', quality);
+                    console.log('图片压缩:', 
+                        '原始', (base64.length / 1024).toFixed(1) + 'KB', 
+                        '→ 压缩后', (compressed.length / 1024).toFixed(1) + 'KB'
+                    );
+                    resolve(compressed);
+                };
+                img.src = base64;
+            });
+        }
+
+        // 添加图片到录入画廊
+        async function addImageToGallery(base64) {
+            if (currentImages.length >= 10) {
+                alert('最多只能添加10张图片');
+                return;
+            }
+            
+            // 压缩图片
+            const compressed = await compressImage(base64);
+            currentImages.push(compressed);
+            renderImageGallery();
+        }
+
+        // 渲染录入图片画廊
+        function renderImageGallery() {
+            imageGallery.innerHTML = '';
+            document.getElementById('imageCount').textContent = `${currentImages.length}/10`;
+            
+            currentImages.forEach((img, index) => {
+                const item = document.createElement('div');
+                item.className = 'image-item';
+                item.innerHTML = `
+                    <img src="${img}">
+                    <button class="image-item-delete" onclick="removeImage(${index})">×</button>
+                `;
+                imageGallery.appendChild(item);
+            });
+        }
+
+        // 删除录入图片
+        window.removeImage = function(index) {
+            currentImages.splice(index, 1);
+            renderImageGallery();
+        }
+
+        // 添加图片到编辑画廊
+        async function addImageToEditGallery(base64) {
+            if (editImages.length >= 10) {
+                alert('最多只能添加10张图片');
+                return;
+            }
+            
+            // 压缩图片
+            const compressed = await compressImage(base64);
+            editImages.push(compressed);
+            renderEditImageGallery();
+        }
+
+        // 渲染编辑图片画廊
+        function renderEditImageGallery() {
+            const gallery = document.getElementById('editImageGallery');
+            gallery.innerHTML = '';
+            document.getElementById('editImageCount').textContent = `${editImages.length}/10`;
+            
+            editImages.forEach((img, index) => {
+                const item = document.createElement('div');
+                item.className = 'image-item';
+                item.innerHTML = `
+                    <img src="${img}">
+                    <button class="image-item-delete" onclick="removeEditImage(${index})">×</button>
+                `;
+                gallery.appendChild(item);
+            });
+        }
+
+        // 删除编辑图片
+        window.removeEditImage = function(index) {
+            editImages.splice(index, 1);
+            renderEditImageGallery();
+        }
+
+        function showStatus(type, text) {
+            statusBar.className = `status-bar status-show status-${type}`;
+            statusBar.textContent = text;
+            setTimeout(() => { statusBar.classList.remove('status-show'); }, 5000);
+        }
+
+        async function initNewWorkbook() {
+            try {
+                // 确保数据库已初始化
+                if (!db) {
+                    await initIndexedDB();
+                }
+                
+                // 清空现有数据
+                await clearIndexedDB();
+                records = [];
+                currentFileName = '我的高中数学错题本.xlsx';
+                
+                showApp();
+                renderList();
+                updateStats();
+                showStatus('success', '已创建新错题本，开始录入吧！');
+            } catch (err) {
+                console.error('创建新错题本失败:', err);
+                showStatus('error', '创建失败，请刷新页面重试');
+            }
+        }
+
+        // 导入ZIP文件
+        async function handleZipImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.zip')) {
+                showStatus('error', '请选择有效的ZIP文件');
+                return;
+            }
+            
+            try {
+                showStatus('info', '正在解析ZIP文件...');
+                
+                // 读取ZIP文件
+                const arrayBuffer = await file.arrayBuffer();
+                const zip = await JSZip.loadAsync(arrayBuffer);
+                
+                // 查找Excel文件
+                let excelFile = null;
+                let excelFileName = '';
+                
+                for (const [filename, zipEntry] of Object.entries(zip.files)) {
+                    if (filename.endsWith('.xlsx') && !filename.startsWith('__MACOSX')) {
+                        excelFile = zipEntry;
+                        excelFileName = filename;
+                        break;
+                    }
+                }
+                
+                if (!excelFile) {
+                    showStatus('error', 'ZIP文件中未找到Excel文件');
+                    return;
+                }
+                
+                // 读取Excel
+                const excelData = await excelFile.async('arraybuffer');
+                const wb = XLSX.read(new Uint8Array(excelData), { type: 'array' });
+                const sheet = wb.Sheets[wb.SheetNames[0]];
+                let importedRecords = XLSX.utils.sheet_to_json(sheet);
+                
+                // 读取图片文件夹
+                const imagesMap = {}; // 结构：{ recordId: [base64Image1, base64Image2, ...] }
+                
+                for (const [filename, zipEntry] of Object.entries(zip.files)) {
+                    // 匹配 images/数字/image_*.jpg 格式
+                    const match = filename.match(/^images\/(\d+)\/image_\d+\.(jpg|jpeg|png|gif)$/i);
+                    if (match && !zipEntry.dir) {
+                        const recordId = match[1];
+                        const imageData = await zipEntry.async('base64');
+                        const mimeType = match[2].toLowerCase() === 'png' ? 'image/png' : 'image/jpeg';
+                        const base64 = `data:${mimeType};base64,${imageData}`;
+                        
+                        if (!imagesMap[recordId]) {
+                            imagesMap[recordId] = [];
+                        }
+                        imagesMap[recordId].push(base64);
+                    }
+                }
+                
+                // 合并数据：使用Excel中的"错题ID"列来匹配图片
+                importedRecords = importedRecords.map((r) => {
+                    const recordId = String(r['错题ID'] || ''); // 使用Excel中的错题ID
+                    const images = imagesMap[recordId] || [];
+                    
+                    return {
+                        '日期': r['日期'] || '',
+                        '章节/知识点': r['章节/知识点'] || '',
+                        '难度等级': r['难度等级'] || '中等',
+                        '掌握程度': r['掌握程度'] || '未掌握',
+                        '题目描述': r['题目描述'] || '',
+                        '题目图片': JSON.stringify(images), // 存储为JSON数组
+                        '错误原因': r['错误原因'] || '',
+                        '正确解题思路': r['正确解题思路'] || ''
+                    };
+                });
+                
+                // 追加保存到 IndexedDB（不清空原有数据）
+                showStatus('info', '正在保存数据...');
+                
+                const existingCount = records.length;
+                
+                for (const record of importedRecords) {
+                    await saveRecordToDB(record);
+                }
+                
+                await loadFromIndexedDB();
+                
+                showApp();
+                renderList();
+                updateStats();
+                
+                if (existingCount > 0) {
+                    showStatus('success', `成功导入${importedRecords.length}条错题！当前共${records.length}条错题`);
+                } else {
+                    showStatus('success', `成功导入${importedRecords.length}条错题及图片！`);
+                }
+                
+                // 清空文件选择
+                e.target.value = '';
+                
+            } catch (err) {
+                console.error('导入失败:', err);
+                showStatus('error', '导入失败：' + err.message);
+            }
+        }
+        
+        // 确认清空所有数据
+        async function confirmClearAll() {
+            if (!confirm('⚠️ 确定要清空所有错题数据吗？\n此操作不可恢复！建议先导出备份。')) {
+                return;
+            }
+            
+            if (!confirm('⚠️ 再次确认：真的要删除所有数据吗？')) {
+                return;
+            }
+            
+            try {
+                await clearIndexedDB();
+                records = [];
+                
+                // 隐藏列表和统计
+                actionCard.classList.add('hidden');
+                listCard.classList.add('hidden');
+                statsPanel.classList.add('hidden');
+                loadCard.classList.remove('hidden');
+                
+                showStatus('success', '所有数据已清空');
+            } catch (err) {
+                console.error('清空失败:', err);
+                showStatus('error', '清空失败：' + err.message);
+            }
+        }
+
+        function handleImageSelect(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            
+            const remainingSlots = 10 - currentImages.length;
+            if (files.length > remainingSlots) {
+                alert(`最多还能添加${remainingSlots}张图片`);
+            }
+            
+            const filesToProcess = Math.min(files.length, remainingSlots);
+            for (let i = 0; i < filesToProcess; i++) {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    await addImageToGallery(event.target.result);
+                };
+                reader.readAsDataURL(files[i]);
+            }
+            
+            // 清空input以便重复选择
+            e.target.value = '';
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            console.log('开始保存新错题...');
+            console.log('当前图片数量:', currentImages.length);
+            
+            const newRecord = {
+                '日期': new Date().toLocaleDateString(),
+                '章节/知识点': document.getElementById('chapter').value,
+                '难度等级': document.getElementById('difficulty').value,
+                '掌握程度': document.getElementById('mastery').value,
+                '题目描述': document.getElementById('description').value,
+                '题目图片': JSON.stringify(currentImages), // 存储为JSON数组
+                '错误原因': document.getElementById('errorReason').value,
+                '正确解题思路': document.getElementById('correctSolution').value
+            };
+
+            console.log('新记录:', newRecord);
+            
+            try {
+                const savedRecord = await saveRecordToDB(newRecord);
+                records.unshift(savedRecord);
+                console.log('records 数组长度:', records.length);
+                
+                renderList();
+                updateStats();
+                errorForm.reset();
+                currentImages = [];
+                renderImageGallery();
+                showStatus('success', '错题保存成功！');
+            } catch (err) {
+                console.error('保存失败:', err);
+                showStatus('error', '保存失败: ' + err.message);
+            }
+        }
+
+        function showApp() {
+            loadCard.classList.add('hidden');
+            actionCard.classList.remove('hidden');
+            listCard.classList.remove('hidden');
+            statsPanel.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = records.length;
+            const mastered = records.filter(r => r['掌握程度'] === '已掌握').length;
+            document.getElementById('masteredCount').textContent = mastered;
+            
+            if (records.length > 0) {
+                document.getElementById('latestDate').textContent = records[0]['日期'] || '-';
+                
+                const chapters = {};
+                records.forEach(r => {
+                    const c = r['章节/知识点'];
+                    if (c) chapters[c] = (chapters[c] || 0) + 1;
+                });
+                const sorted = Object.entries(chapters).sort((a, b) => b[1] - a[1]);
+                document.getElementById('weakPoint').textContent = sorted.length > 0 ? sorted[0][0] : '-';
+            }
+        }
+
+        function renderList() {
+            const filterDifficulty = document.getElementById('filterDifficulty').value;
+            const filterMastery = document.getElementById('filterMastery').value;
+
+            const filtered = records.filter(r => {
+                const dMatch = filterDifficulty === 'all' || r['难度等级'] === filterDifficulty;
+                const mMatch = filterMastery === 'all' || r['掌握程度'] === filterMastery;
+                return dMatch && mMatch;
+            });
+
+            errorList.innerHTML = '';
+            if (filtered.length === 0) {
+                errorList.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i>📝</i>
+                        <p>${records.length === 0 ? '还没有错题记录，快去录入第一条吧！' : '没有符合筛选条件的题目'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach((record, index) => {
+                const card = document.createElement('div');
+                card.className = 'error-item';
+                card.onclick = () => showDetail(record);
+                
+                // 解析图片数组
+                let images = [];
+                try {
+                    images = JSON.parse(record['题目图片'] || '[]');
+                    if (!Array.isArray(images)) images = record['题目图片'] ? [record['题目图片']] : [];
+                } catch(e) {
+                    images = record['题目图片'] ? [record['题目图片']] : [];
+                }
+                
+                const firstImg = images.length > 0 ? images[0] : '';
+                const imgCount = images.length > 1 ? `<span style="position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; border-radius:12px; font-size:12px;">📷 ${images.length}</span>` : '';
+                
+                card.innerHTML = `
+                    ${firstImg ? `<div style="position:relative;"><img src="${firstImg}" class="error-img">${imgCount}</div>` : '<div class="error-img" style="display:flex;align-items:center;justify-content:center;color:#ccc;height:150px">无图片</div>'}
+                    <div class="error-content">
+                        <div>
+                            <span class="error-tag tag-chapter">${record['章节/知识点']}</span>
+                            <span class="error-tag tag-difficulty">${record['难度等级']}</span>
+                            <span class="error-tag tag-mastery">${record['掌握程度']}</span>
+                        </div>
+                        <div class="error-desc">${record['题目描述'] || '无描述'}</div>
+                        <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                            <span style="font-size: 12px; color: #999;">${record['日期']}</span>
+                            <button class="btn" style="padding: 4px 8px; font-size: 12px; background:#fff; border:1px solid #ff4d4f; color:#ff4d4f;" onclick="event.stopPropagation(); deleteRecord(${records.indexOf(record)})">删除</button>
+                        </div>
+                    </div>
+                `;
+                errorList.appendChild(card);
+            });
+        }
+
+        window.showDetail = function(record) {
+            currentEditIndex = records.indexOf(record);
+            
+            document.getElementById('modalTitle').textContent = record['章节/知识点'] + ' - 错题详情';
+            document.getElementById('modalTags').innerHTML = `
+                <span class="error-tag tag-difficulty">${record['难度等级']}</span>
+                <span class="error-tag tag-mastery">${record['掌握程度']}</span>
+                <span class="error-tag tag-chapter">${record['日期']}</span>
+            `;
+            
+            // 解析并显示多张图片
+            let images = [];
+            try {
+                images = JSON.parse(record['题目图片'] || '[]');
+                if (!Array.isArray(images)) images = record['题目图片'] ? [record['题目图片']] : [];
+            } catch(e) {
+                images = record['题目图片'] ? [record['题目图片']] : [];
+            }
+            
+            const modalImgGallery = document.getElementById('modalImgGallery');
+            modalImgGallery.innerHTML = '';
+            if (images.length > 0) {
+                images.forEach(img => {
+                    const item = document.createElement('div');
+                    item.className = 'image-item';
+                    item.innerHTML = `<img src="${img}" style="cursor:pointer;" onclick="window.open('${img}')">`;
+                    modalImgGallery.appendChild(item);
+                });
+            }
+            
+            document.getElementById('modalDesc').textContent = record['题目描述'] || '无';
+            document.getElementById('modalReason').textContent = record['错误原因'] || '未填写';
+            document.getElementById('modalSolution').textContent = record['正确解题思路'] || '未填写';
+            
+            // 显示查看模式，隐藏编辑模式
+            document.getElementById('viewMode').classList.remove('hidden');
+            document.getElementById('editMode').classList.add('hidden');
+            
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        window.enterEditMode = function() {
+            if (currentEditIndex === -1) return;
+            
+            const record = records[currentEditIndex];
+            
+            // 填充编辑表单
+            document.getElementById('editChapter').value = record['章节/知识点'];
+            document.getElementById('editDifficulty').value = record['难度等级'];
+            document.getElementById('editMastery').value = record['掌握程度'];
+            document.getElementById('editDesc').value = record['题目描述'];
+            document.getElementById('editErrorReason').value = record['错误原因'];
+            document.getElementById('editSolution').value = record['正确解题思路'];
+            
+            // 解析图片数组
+            try {
+                editImages = JSON.parse(record['题目图片'] || '[]');
+                if (!Array.isArray(editImages)) editImages = record['题目图片'] ? [record['题目图片']] : [];
+            } catch(e) {
+                editImages = record['题目图片'] ? [record['题目图片']] : [];
+            }
+            
+            renderEditImageGallery();
+            setupEditImageHandlers();
+            
+            // 切换到编辑模式
+            document.getElementById('viewMode').classList.add('hidden');
+            document.getElementById('editMode').classList.remove('hidden');
+        }
+
+        function setupEditImageHandlers() {
+            const editImgInput = document.getElementById('editImgInput');
+            const editImgBtnArea = document.getElementById('editImgBtnArea');
+            
+            // 点击上传区域
+            editImgBtnArea.onclick = () => editImgInput.click();
+            
+            // 文件选择
+            editImgInput.onchange = (e) => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+                
+                const remainingSlots = 10 - editImages.length;
+                if (files.length > remainingSlots) {
+                    alert(`最多还能添加${remainingSlots}张图片`);
+                }
+                
+                const filesToProcess = Math.min(files.length, remainingSlots);
+                for (let i = 0; i < filesToProcess; i++) {
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        await addImageToEditGallery(event.target.result);
+                    };
+                    reader.readAsDataURL(files[i]);
+                }
+                
+                e.target.value = '';
+            };
+        }
+
+        window.saveEdit = async function() {
+            if (currentEditIndex === -1) return;
+            
+            console.log('开始保存编辑...');
+            console.log('编辑索引:', currentEditIndex);
+            console.log('编辑图片数量:', editImages.length);
+            
+            // 更新记录
+            records[currentEditIndex]['章节/知识点'] = document.getElementById('editChapter').value;
+            records[currentEditIndex]['难度等级'] = document.getElementById('editDifficulty').value;
+            records[currentEditIndex]['掌握程度'] = document.getElementById('editMastery').value;
+            records[currentEditIndex]['题目描述'] = document.getElementById('editDesc').value;
+            records[currentEditIndex]['错误原因'] = document.getElementById('editErrorReason').value;
+            records[currentEditIndex]['正确解题思路'] = document.getElementById('editSolution').value;
+            
+            // 更新图片数组
+            records[currentEditIndex]['题目图片'] = JSON.stringify(editImages);
+            
+            console.log('更新后的记录:', records[currentEditIndex]);
+            
+            try {
+                // 保存到 IndexedDB
+                await saveRecordToDB(records[currentEditIndex]);
+                
+                // 刷新列表和统计
+                renderList();
+                updateStats();
+                
+                // 关闭模态框
+                closeModal();
+                showStatus('success', '错题修改成功！');
+            } catch (err) {
+                console.error('保存编辑失败:', err);
+                showStatus('error', '保存失败: ' + err.message);
+            }
+        }
+
+        window.cancelEdit = function() {
+            // 切换回查看模式
+            editImages = [];
+            document.getElementById('editMode').classList.add('hidden');
+            document.getElementById('viewMode').classList.remove('hidden');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('detailModal').style.display = 'none';
+            currentEditIndex = -1;
+            editImages = [];
+        }
+
+        window.clearLocalStorage = async function() {
+            if (confirm('⚠️ 确定要清空所有数据吗？\n\n建议先导出备份！\n清空后将删除所有错题数据。')) {
+                if (confirm('再次确认：真的要清空吗？（此操作不可恢复）')) {
+                    try {
+                        await clearIndexedDB();
+                        records = [];
+                        currentImages = [];
+                        renderList();
+                        updateStats();
+                        renderImageGallery();
+                        showStatus('success', '所有数据已清空');
+                        console.log('IndexedDB 已清空');
+                    } catch (err) {
+                        console.error('清空失败:', err);
+                        showStatus('error', '清空失败: ' + err.message);
+                    }
+                }
+            }
+        }
+
+        window.deleteRecord = async function(index) {
+            if (confirm('确定要删除这条记录吗？')) {
+                try {
+                    const recordId = records[index].id;
+                    await deleteRecordFromDB(recordId);
+                    records.splice(index, 1);
+                    renderList();
+                    updateStats();
+                    showStatus('info', '已删除记录');
+                } catch (err) {
+                    console.error('删除失败:', err);
+                    showStatus('error', '删除失败: ' + err.message);
+                }
+            }
+        }
+
+        function exportWorkbook() {
+            if (records.length === 0) {
+                alert('提示：当前没有错题记录可以导出！\n\n请先录入错题后再导出。');
+                showStatus('warning', '没有错题记录可以导出');
+                return;
+            }
+            
+            try {
+                // 转换数据，Excel 中显示图片数量
+                const exportData = records.map(r => ({
+                    '错题ID': r.id || '',
+                    '日期': r['日期'],
+                    '章节/知识点': r['章节/知识点'],
+                    '难度等级': r['难度等级'],
+                    '掌握程度': r['掌握程度'],
+                    '题目描述': r['题目描述'],
+                    '图片数量': (() => {
+                        try {
+                            const imgs = JSON.parse(r['题目图片'] || '[]');
+                            return Array.isArray(imgs) ? imgs.length : 0;
+                        } catch(e) {
+                            return r['题目图片'] ? 1 : 0;
+                        }
+                    })(),
+                    '错误原因': r['错误原因'],
+                    '正确解题思路': r['正确解题思路']
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "错题记录");
+                
+                // Safari 特别处理
+                if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentFileName || '高中数学错题本.xlsx';
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    setTimeout(() => {
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        showStatus('success', 'Excel已导出（不含图片）');
+                    }, 100);
+                } else {
+                    XLSX.writeFile(wb, currentFileName || '高中数学错题本.xlsx', { compression: true });
+                    showStatus('success', 'Excel已导出（不含图片）');
+                }
+            } catch (err) {
+                console.error('导出失败:', err);
+                showStatus('error', '导出失败：' + err.message);
+            }
+        }
+
+        // 导出完整包（Excel + 图片）
+        async function exportWithImages() {
+            if (records.length === 0) {
+                alert('提示：当前没有错题记录可以导出！');
+                showStatus('warning', '没有错题记录可以导出');
+                return;
+            }
+            
+            try {
+                showStatus('info', '正在打包数据和图片，请稍候...');
+                
+                const zip = new JSZip();
+                
+                // 1. 生成 Excel 文件
+                const exportData = records.map(r => ({
+                    '错题ID': r.id || '',
+                    '日期': r['日期'],
+                    '章节/知识点': r['章节/知识点'],
+                    '难度等级': r['难度等级'],
+                    '掌握程度': r['掌握程度'],
+                    '题目描述': r['题目描述'],
+                    '图片路径': `images/${r.id || 'unknown'}/`,
+                    '错误原因': r['错误原因'],
+                    '正确解题思路': r['正确解题思路']
+                }));
+                
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "错题记录");
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                zip.file('错题本.xlsx', wbout);
+                
+                // 2. 添加图片文件夹
+                const imagesFolder = zip.folder('images');
+                
+                for (const record of records) {
+                    const recordId = record.id || 'unknown';
+                    let images = [];
+                    
+                    try {
+                        images = JSON.parse(record['题目图片'] || '[]');
+                        if (!Array.isArray(images)) {
+                            images = record['题目图片'] ? [record['题目图片']] : [];
+                        }
+                    } catch(e) {
+                        images = record['题目图片'] ? [record['题目图片']] : [];
+                    }
+                    
+                    if (images.length > 0) {
+                        const recordFolder = imagesFolder.folder(String(recordId));
+                        
+                        images.forEach((base64, index) => {
+                            // 从 base64 中提取实际数据
+                            const base64Data = base64.split(',')[1];
+                            recordFolder.file(`image_${index + 1}.jpg`, base64Data, { base64: true });
+                        });
+                    }
+                }
+                
+                // 3. 添加说明文件
+                const readme = `高中数学错题本导出包
+                
+导出时间: ${new Date().toLocaleString()}
+错题数量: ${records.length}
+
+文件说明:
+- 错题本.xlsx: 包含所有错题的文本信息
+- images/: 图片文件夹，按错题ID组织
+  - 每个子文件夹对应一条错题
+  - 文件夹名称即为错题ID
+  - 图片按顺序命名为 image_1.jpg, image_2.jpg...
+
+使用说明:
+1. 查看 Excel 文件获取错题信息
+2. 根据"图片路径"列找到对应的图片文件夹
+3. 可将整个包保存到 iCloud 云盘进行备份
+
+建议存储路径:
+iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
+`;
+                zip.file('README.txt', readme);
+                
+                // 4. 生成并下载 ZIP
+                const content = await zip.generateAsync({ 
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 }
+                });
+                
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `数学错题本_${new Date().toLocaleDateString().replace(/\//g, '-')}.zip`;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showStatus('success', `完整包已导出！包含${records.length}条错题和所有图片`);
+            } catch (err) {
+                console.error('导出失败:', err);
+                showStatus('error', '导出失败：' + err.message);
+            }
+        }
+
+        // 点击外部关闭模态框
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
