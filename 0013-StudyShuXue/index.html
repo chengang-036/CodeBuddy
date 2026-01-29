@@ -470,6 +470,76 @@
         }
         
         /* 方法论卡片样式 */
+        .methodology-modal-content {
+            max-width: 1200px !important;
+            width: 95% !important;
+        }
+        
+        .methodology-layout {
+            display: flex;
+            gap: 20px;
+            height: 70vh;
+        }
+        
+        .methodology-sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .methodology-list-sidebar {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fafafa;
+        }
+        
+        .methodology-list-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: white;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .methodology-list-item:hover {
+            background: #f0f7ff;
+            border-color: var(--primary-color);
+        }
+        
+        .methodology-list-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .methodology-content-area {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 25px;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .methodology-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
         .methodology-card {
             background: #f9f9f9;
             border: 1px solid #e0e0e0;
@@ -525,6 +595,26 @@
         .btn-delete-method {
             background: #ff4d4f;
             color: white;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .methodology-layout {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .methodology-sidebar {
+                width: 100%;
+            }
+            
+            .methodology-list-sidebar {
+                max-height: 200px;
+            }
+            
+            .methodology-content-area {
+                min-height: 400px;
+            }
         }
         
         .methodology-empty {
@@ -632,22 +722,30 @@
         }
         
         /* 自定义滚动条样式 */
-        #methodologyList::-webkit-scrollbar {
+        #methodologyList::-webkit-scrollbar,
+        .methodology-list-sidebar::-webkit-scrollbar,
+        #viewMethodologyContent::-webkit-scrollbar {
             width: 8px;
         }
         
-        #methodologyList::-webkit-scrollbar-track {
+        #methodologyList::-webkit-scrollbar-track,
+        .methodology-list-sidebar::-webkit-scrollbar-track,
+        #viewMethodologyContent::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
         
-        #methodologyList::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
+        #methodologyList::-webkit-scrollbar-thumb,
+        .methodology-list-sidebar::-webkit-scrollbar-thumb,
+        #viewMethodologyContent::-webkit-scrollbar-thumb {
+            background: #888;
             border-radius: 4px;
         }
         
-        #methodologyList::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
+        #methodologyList::-webkit-scrollbar-thumb:hover,
+        .methodology-list-sidebar::-webkit-scrollbar-thumb:hover,
+        #viewMethodologyContent::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
         
         /* 防止body滚动 */
@@ -830,7 +928,6 @@
 
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary">➕ 保存错题</button>
-                    <button type="button" class="btn" style="background:#ff9800; color:white;" onclick="clearLocalStorage()">🗑️ 清空本地缓存</button>
                 </div>
             </form>
         </div>
@@ -876,30 +973,57 @@
 
     <!-- 学习方法论模态框 -->
     <div id="methodologyModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content methodology-modal-content">
             <span class="modal-close" onclick="closeMethodologyModal()">&times;</span>
-            <h3>📖 学习方法论</h3>
+            <h3 style="margin-bottom: 20px;">📖 学习方法论</h3>
             
-            <!-- 方法论列表视图 -->
-            <div id="methodologyListView">
-                <button class="btn btn-primary" onclick="showAddMethodology()" style="margin-bottom: 20px;">➕ 新增方法论</button>
-                <div id="methodologyList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;"></div>
-            </div>
-            
-            <!-- 方法论编辑视图 -->
-            <div id="methodologyEditView" class="hidden">
-                <div class="form-group">
-                    <label>方法论标题</label>
-                    <input type="text" id="methodologyTitle" class="form-control" placeholder="例如：错题整理流程">
+            <!-- 左右分栏布局 -->
+            <div class="methodology-layout">
+                <!-- 左侧：方法论列表 -->
+                <div class="methodology-sidebar">
+                    <button class="btn btn-primary" onclick="showAddMethodology()" style="width: 100%; margin-bottom: 15px;">➕ 新增方法论</button>
+                    <div id="methodologyListSidebar" class="methodology-list-sidebar">
+                        <!-- 方法论标题列表 -->
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>方法论内容</label>
-                    <textarea id="methodologyContent" class="form-control" rows="8" placeholder="详细描述学习方法、技巧、流程等..."></textarea>
-                    <div class="formula-hint">💡 支持Markdown格式（# 标题、**粗体**、- 列表等）和数学公式（$x^2$ 或 $$\int f(x)dx$$）</div>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="saveMethodology()">💾 保存</button>
-                    <button class="btn" style="background:#f5f5f5; color:#666;" onclick="cancelMethodologyEdit()">取消</button>
+                
+                <!-- 右侧：方法论详情/编辑 -->
+                <div class="methodology-content-area">
+                    <!-- 空状态 -->
+                    <div id="methodologyEmptyState" class="methodology-empty">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📚</div>
+                        <p>还没有学习方法论，点击左侧按钮添加第一条吧！</p>
+                    </div>
+                    
+                    <!-- 查看模式 -->
+                    <div id="methodologyViewMode" class="hidden" style="display: none; flex-direction: column; height: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;">
+                            <h4 id="viewMethodologyTitle" style="color: var(--primary-color); margin: 0;"></h4>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn" style="background: #52c41a; color: white; padding: 6px 15px;" onclick="editCurrentMethodology()">✏️ 编辑</button>
+                                <button class="btn" style="background: #f5222d; color: white; padding: 6px 15px;" onclick="deleteCurrentMethodology()">🗑️ 删除</button>
+                            </div>
+                        </div>
+                        <div id="viewMethodologyContent" class="markdown-content" style="line-height: 1.8; color: #333; overflow-y: auto; padding-right: 10px; flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <!-- 编辑模式 -->
+                    <div id="methodologyEditMode" class="hidden">
+                        <div class="form-group">
+                            <label>方法论标题</label>
+                            <input type="text" id="methodologyTitle" class="form-control" placeholder="例如：错题整理流程">
+                        </div>
+                        <div class="form-group">
+                            <label>方法论内容</label>
+                            <textarea id="methodologyContent" class="form-control" rows="15" placeholder="详细描述学习方法、技巧、流程等..." style="max-height: calc(70vh - 150px);"></textarea>
+                            <div class="formula-hint">💡 支持Markdown格式（# 标题、**粗体**、- 列表等）和数学公式（$x^2$ 或 $$\int f(x)dx$$）</div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="saveMethodology()">💾 保存</button>
+                            <button class="btn" style="background:#f5f5f5; color:#666;" onclick="cancelMethodologyEdit()">取消</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1040,7 +1164,12 @@
                 }
                 
                 // 更新文本
-                let storageText = `📊 数据库存储: ${usedMB} MB / ${totalMB} MB (已使用 ${usedPercent}%, 剩余 ${remainingPercent}%)`;
+                let storageText = `📊 浏览器存储: ${usedMB} MB / ${totalMB} MB (已使用 ${usedPercent}%, 剩余 ${remainingPercent}%)`;
+                
+                // 添加说明
+                if (usage > 1024 * 1024 && records.length === 0 && methodologies.length === 0) {
+                    storageText += ' <span style="color:#ff9800;">ℹ️ 数据已清空但存储未释放？请关闭标签页重新打开，或清除浏览器缓存</span>';
+                }
                 
                 if (remainingPercent <= 10) {
                     storageText += ' <span class="storage-warning">⚠️ 存储空间不足，请尽快导出备份！</span>';
@@ -1221,31 +1350,48 @@
             });
         }
 
-        // 清空 IndexedDB
+        // 清空 IndexedDB（删除并重建数据库以释放空间）
         function clearIndexedDB() {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    console.error('数据库未初始化');
-                    reject(new Error('数据库未初始化'));
-                    return;
-                }
-                
+            return new Promise(async (resolve, reject) => {
                 try {
-                    const transaction = db.transaction(['records'], 'readwrite');
-                    const objectStore = transaction.objectStore('records');
-                    const request = objectStore.clear();
+                    // 关闭当前数据库连接
+                    if (db) {
+                        db.close();
+                        db = null;
+                        console.log('数据库连接已关闭');
+                    }
                     
-                    request.onsuccess = () => {
-                        console.log('IndexedDB 已清空');
-                        resolve();
-                    };
+                    // 删除整个数据库以释放磁盘空间
+                    const deleteRequest = indexedDB.deleteDatabase('MathErrorDB');
                     
-                    request.onerror = () => {
-                        console.error('清空失败');
-                        reject(request.error);
-                    };
+                    await new Promise((res, rej) => {
+                        deleteRequest.onsuccess = () => {
+                            console.log('数据库已删除，磁盘空间已释放');
+                            res();
+                        };
+                        
+                        deleteRequest.onerror = () => {
+                            console.error('删除数据库失败');
+                            rej(deleteRequest.error);
+                        };
+                        
+                        deleteRequest.onblocked = () => {
+                            console.warn('数据库删除被阻止，可能有其他连接');
+                            // 等待一段时间后继续
+                            setTimeout(() => res(), 100);
+                        };
+                    });
+                    
+                    // 等待浏览器完成删除操作
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    
+                    // 重新初始化数据库
+                    await initIndexedDB();
+                    console.log('数据库已重新创建');
+                    
+                    resolve();
                 } catch (err) {
-                    console.error('清空异常:', err);
+                    console.error('清空数据库异常:', err);
                     reject(err);
                 }
             });
@@ -1628,8 +1774,23 @@
                 // 读取Excel
                 const excelData = await excelFile.async('arraybuffer');
                 const wb = XLSX.read(new Uint8Array(excelData), { type: 'array' });
+                
+                // 读取错题记录工作表
                 const sheet = wb.Sheets[wb.SheetNames[0]];
                 let importedRecords = XLSX.utils.sheet_to_json(sheet);
+                
+                // 读取学习方法论工作表（如果存在）
+                let importedMethodologies = [];
+                if (wb.SheetNames.includes('学习方法论')) {
+                    const methodSheet = wb.Sheets['学习方法论'];
+                    const methodData = XLSX.utils.sheet_to_json(methodSheet);
+                    importedMethodologies = methodData.map(m => ({
+                        title: m['标题'] || '',
+                        content: m['内容'] || '',
+                        createTime: m['创建时间'] ? new Date(m['创建时间']).getTime() : Date.now(),
+                        updateTime: m['更新时间'] ? new Date(m['更新时间']).getTime() : Date.now()
+                    }));
+                }
                 
                 // 读取图片文件夹
                 const imagesMap = {}; // 结构：{ recordId: [base64Image1, base64Image2, ...] }
@@ -1671,22 +1832,43 @@
                 showStatus('info', '正在保存数据...');
                 
                 const existingCount = records.length;
+                const existingMethodCount = methodologies.length;
                 
                 for (const record of importedRecords) {
                     await saveRecordToDB(record);
                 }
                 
+                // 追加方法论数据
+                for (const method of importedMethodologies) {
+                    await saveMethodologyToDB(method);
+                }
+                
                 await loadFromIndexedDB();
+                await loadMethodologies();
                 
                 showApp();
                 renderList();
                 updateStats();
                 
-                if (existingCount > 0) {
-                    showStatus('success', `成功导入${importedRecords.length}条错题！当前共${records.length}条错题`);
-                } else {
-                    showStatus('success', `成功导入${importedRecords.length}条错题及图片！`);
+                // 显示导入结果
+                let successMsg = '';
+                if (importedRecords.length > 0) {
+                    successMsg += `成功导入${importedRecords.length}条错题`;
+                    if (existingCount > 0) {
+                        successMsg += `！当前共${records.length}条错题`;
+                    }
                 }
+                if (importedMethodologies.length > 0) {
+                    if (successMsg) successMsg += '，';
+                    successMsg += `${importedMethodologies.length}条方法论`;
+                    if (existingMethodCount > 0) {
+                        successMsg += `！当前共${methodologies.length}条方法论`;
+                    }
+                }
+                if (!successMsg) {
+                    successMsg = '导入完成，但未找到有效数据';
+                }
+                showStatus('success', successMsg);
                 
                 // 更新存储空间显示
                 await calculateStorageUsage();
@@ -1702,7 +1884,7 @@
         
         // 确认清空所有数据
         async function confirmClearAll() {
-            if (!confirm('⚠️ 确定要清空所有错题数据吗？\n此操作不可恢复！建议先导出备份。')) {
+            if (!confirm('⚠️ 确定要清空所有错题数据和学习方法论吗？\n此操作不可恢复！建议先导出备份。')) {
                 return;
             }
             
@@ -1713,6 +1895,7 @@
             try {
                 await clearIndexedDB();
                 records = [];
+                methodologies = [];
                 
                 // 隐藏列表和统计
                 actionCard.classList.add('hidden');
@@ -1720,10 +1903,13 @@
                 statsPanel.classList.add('hidden');
                 loadCard.classList.remove('hidden');
                 
-                showStatus('success', '所有数据已清空');
+                showStatus('success', '所有数据已清空，磁盘空间已释放');
                 
-                // 更新存储空间显示
-                await calculateStorageUsage();
+                // 等待浏览器更新存储信息，多次刷新存储空间显示
+                for (let i = 0; i < 3; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    await calculateStorageUsage();
+                }
             } catch (err) {
                 console.error('清空失败:', err);
                 showStatus('error', '清空失败：' + err.message);
@@ -2336,16 +2522,31 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
         
         // ============== 学习方法论功能 ==============
         
+        let currentViewMethodologyIndex = -1; // 当前查看的方法论索引
+        
         // 显示方法论模态框
         window.showMethodologyModal = async function() {
             try {
                 await loadMethodologies();
-                renderMethodologyList();
-                document.getElementById('methodologyListView').classList.remove('hidden');
-                document.getElementById('methodologyEditView').classList.add('hidden');
+                
+                // 先渲染侧边栏
+                renderMethodologySidebar();
+                
+                // 显示模态框
                 document.getElementById('methodologyModal').style.display = 'flex';
                 // 阻止背景滚动
                 document.body.classList.add('modal-open');
+                
+                // 等待DOM渲染完成后再显示内容
+                setTimeout(() => {
+                    // 默认显示第一条方法论
+                    if (methodologies.length > 0) {
+                        viewMethodology(0);
+                    } else {
+                        showEmptyState();
+                    }
+                }, 50);
+                
             } catch (err) {
                 console.error('加载方法论失败:', err);
                 showStatus('error', '加载方法论失败：' + err.message);
@@ -2356,60 +2557,85 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
         window.closeMethodologyModal = function() {
             document.getElementById('methodologyModal').style.display = 'none';
             currentEditMethodologyIndex = -1;
+            currentViewMethodologyIndex = -1;
             // 恢复背景滚动
             document.body.classList.remove('modal-open');
         }
         
-        // 渲染方法论列表
-        function renderMethodologyList() {
-            const listEl = document.getElementById('methodologyList');
-            listEl.innerHTML = '';
+        // 显示空状态
+        function showEmptyState() {
+            document.getElementById('methodologyEmptyState').style.display = 'flex';
+            document.getElementById('methodologyViewMode').style.display = 'none';
+            document.getElementById('methodologyEditMode').style.display = 'none';
+        }
+        
+        // 渲染左侧方法论列表
+        function renderMethodologySidebar() {
+            const sidebarEl = document.getElementById('methodologyListSidebar');
+            sidebarEl.innerHTML = '';
             
             if (methodologies.length === 0) {
-                listEl.innerHTML = `
-                    <div class="methodology-empty">
-                        <div style="font-size: 48px; margin-bottom: 15px;">📚</div>
-                        <p>还没有学习方法论，点击上方按钮添加第一条吧！</p>
-                    </div>
-                `;
+                sidebarEl.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">暂无方法论</p>';
                 return;
             }
             
             methodologies.forEach((method, index) => {
-                const card = document.createElement('div');
-                card.className = 'methodology-card';
-                
-                // 使用 marked 解析 Markdown 内容
-                let contentHtml = method.content;
-                if (window.marked) {
-                    try {
-                        contentHtml = marked.parse(method.content);
-                    } catch (e) {
-                        console.error('Markdown解析失败:', e);
-                    }
+                const item = document.createElement('div');
+                item.className = 'methodology-list-item';
+                if (index === currentViewMethodologyIndex) {
+                    item.classList.add('active');
                 }
-                
-                card.innerHTML = `
-                    <h4>
-                        <span>${method.title}</span>
-                    </h4>
-                    <div class="markdown-content">
-                        ${contentHtml}
-                    </div>
-                    <div class="methodology-actions" onclick="event.stopPropagation();">
-                        <button class="btn-edit-method" onclick="editMethodology(${index})">✏️ 编辑</button>
-                        <button class="btn-delete-method" onclick="deleteMethodology(${index})">🗑️ 删除</button>
-                    </div>
-                `;
-                listEl.appendChild(card);
+                item.textContent = method.title;
+                item.onclick = () => viewMethodology(index);
+                sidebarEl.appendChild(item);
             });
+        }
+        
+        // 查看方法论详情
+        function viewMethodology(index) {
+            currentViewMethodologyIndex = index;
+            const method = methodologies[index];
+            
+            // 更新左侧选中状态
+            document.querySelectorAll('.methodology-list-item').forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // 显示详情
+            document.getElementById('viewMethodologyTitle').textContent = method.title;
+            
+            // 使用 marked 解析 Markdown 内容
+            let contentHtml = method.content;
+            if (window.marked) {
+                try {
+                    contentHtml = marked.parse(method.content);
+                } catch (e) {
+                    console.error('Markdown解析失败:', e);
+                    contentHtml = method.content.replace(/\n/g, '<br>');
+                }
+            }
+            document.getElementById('viewMethodologyContent').innerHTML = contentHtml;
+            
+            // 显示查看模式
+            document.getElementById('methodologyEmptyState').style.display = 'none';
+            document.getElementById('methodologyViewMode').style.display = 'flex';
+            document.getElementById('methodologyEditMode').style.display = 'none';
             
             // 渲染数学公式
             if (window.MathJax) {
-                MathJax.typesetPromise([listEl]).catch((err) => {
-                    console.log('MathJax渲染方法论列表失败:', err);
+                MathJax.typesetPromise([document.getElementById('viewMethodologyContent')]).catch((err) => {
+                    console.log('MathJax渲染失败:', err);
                 });
             }
+        }
+        
+        // 渲染方法论列表（保留用于兼容性）
+        function renderMethodologyList() {
+            renderMethodologySidebar();
         }
         
         // 显示新增方法论表单
@@ -2417,8 +2643,22 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
             currentEditMethodologyIndex = -1;
             document.getElementById('methodologyTitle').value = '';
             document.getElementById('methodologyContent').value = '';
-            document.getElementById('methodologyListView').classList.add('hidden');
-            document.getElementById('methodologyEditView').classList.remove('hidden');
+            
+            document.getElementById('methodologyEmptyState').style.display = 'none';
+            document.getElementById('methodologyViewMode').style.display = 'none';
+            document.getElementById('methodologyEditMode').style.display = 'block';
+        }
+        
+        // 编辑当前查看的方法论
+        window.editCurrentMethodology = function() {
+            if (currentViewMethodologyIndex === -1) return;
+            editMethodology(currentViewMethodologyIndex);
+        }
+        
+        // 删除当前查看的方法论
+        window.deleteCurrentMethodology = function() {
+            if (currentViewMethodologyIndex === -1) return;
+            deleteMethodology(currentViewMethodologyIndex);
         }
         
         // 编辑方法论
@@ -2427,8 +2667,10 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
             const method = methodologies[index];
             document.getElementById('methodologyTitle').value = method.title;
             document.getElementById('methodologyContent').value = method.content;
-            document.getElementById('methodologyListView').classList.add('hidden');
-            document.getElementById('methodologyEditView').classList.remove('hidden');
+            
+            document.getElementById('methodologyEmptyState').style.display = 'none';
+            document.getElementById('methodologyViewMode').style.display = 'none';
+            document.getElementById('methodologyEditMode').style.display = 'block';
         }
         
         // 保存方法论
@@ -2467,10 +2709,17 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
                 await saveMethodologyToDB(methodology);
                 await loadMethodologies();
                 
-                // 返回列表视图
-                document.getElementById('methodologyEditView').classList.add('hidden');
-                document.getElementById('methodologyListView').classList.remove('hidden');
-                renderMethodologyList();
+                // 重新渲染侧边栏
+                renderMethodologySidebar();
+                
+                // 显示刚保存的方法论
+                if (currentEditMethodologyIndex === -1) {
+                    // 新增：显示最后一条
+                    viewMethodology(methodologies.length - 1);
+                } else {
+                    // 编辑：继续显示当前这条
+                    viewMethodology(currentEditMethodologyIndex);
+                }
                 
                 showStatus('success', currentEditMethodologyIndex === -1 ? '方法论已添加' : '方法论已更新');
                 
@@ -2484,8 +2733,16 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
         
         // 取消编辑方法论
         window.cancelMethodologyEdit = function() {
-            document.getElementById('methodologyEditView').classList.add('hidden');
-            document.getElementById('methodologyListView').classList.remove('hidden');
+            if (currentViewMethodologyIndex !== -1) {
+                // 如果之前在查看某条，返回查看模式
+                viewMethodology(currentViewMethodologyIndex);
+            } else if (methodologies.length > 0) {
+                // 否则显示第一条
+                viewMethodology(0);
+            } else {
+                // 没有数据，显示空状态
+                showEmptyState();
+            }
             currentEditMethodologyIndex = -1;
         }
         
@@ -2499,7 +2756,20 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
                 const methodology = methodologies[index];
                 await deleteMethodologyFromDB(methodology.id);
                 await loadMethodologies();
-                renderMethodologyList();
+                
+                renderMethodologySidebar();
+                
+                // 删除后的显示逻辑
+                if (methodologies.length === 0) {
+                    showEmptyState();
+                } else if (index >= methodologies.length) {
+                    // 如果删除的是最后一条，显示新的最后一条
+                    viewMethodology(methodologies.length - 1);
+                } else {
+                    // 否则显示同样位置的下一条
+                    viewMethodology(index);
+                }
+                
                 showStatus('success', '方法论已删除');
                 
                 // 更新存储空间显示
