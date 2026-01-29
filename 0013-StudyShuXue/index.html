@@ -298,6 +298,7 @@
             max-height: 120px;
             overflow: auto;
             word-break: break-word;
+            white-space: pre-wrap; /* 保留换行符和空格 */
         }
 
         .status-bar {
@@ -350,11 +351,40 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            z-index: 2;
         }
 
         .image-item-delete:hover {
             background: #ff4d4f;
             transform: scale(1.1);
+        }
+        
+        .image-item-recognize {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(82, 196, 26, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+        
+        .image-item-recognize:hover {
+            background: #52c41a;
+            transform: scale(1.1);
+        }
+        
+        .image-item-recognize:active {
+            transform: scale(0.95);
         }
 
         .image-count-badge {
@@ -451,6 +481,12 @@
             color: var(--primary-color);
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 5px;
+        }
+        
+        .detail-section p {
+            white-space: pre-wrap; /* 保留换行符和空格 */
+            word-wrap: break-word; /* 长单词自动换行 */
+            line-height: 1.6; /* 增加行高提升可读性 */
         }
 
         @media (max-width: 768px) {
@@ -709,6 +745,53 @@
         .markdown-content a {
             color: var(--primary-color);
             text-decoration: none;
+        }
+        
+        /* 图片预览模态框 */
+        .image-preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+        
+        .image-preview-modal img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            box-shadow: 0 0 50px rgba(255,255,255,0.3);
+        }
+        
+        .image-preview-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            z-index: 2001;
+            transition: all 0.3s;
+        }
+        
+        .image-preview-close:hover {
+            transform: scale(1.2);
+            color: #ff4444;
+        }
+        
+        .image-gallery img {
+            cursor: zoom-in;
+            transition: transform 0.3s;
+        }
+        
+        .image-gallery img:hover {
+            transform: scale(1.05);
         }
         
         .markdown-content a:hover {
@@ -1120,6 +1203,22 @@
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
     <script>
         'use strict';
+        
+        // ============== 豆包API配置 ==============
+        // 请在这里填入你的豆包API配置
+        const DOUBAO_CONFIG = {
+            apiKey: '', // 填入你的API Key
+            endpointId: '', // 填入你的推理接入点ID（在火山引擎控制台获取）
+            // endpoint会根据endpointId自动构建
+            get endpoint() {
+                return `https://ark.cn-beijing.volces.com/api/v3/chat/completions`;
+            },
+            // 模型ID应该使用推理接入点ID，而不是模型名称
+            get model() {
+                return this.endpointId;
+            }
+        };
+        
         // 全局状态
         let records = [];
         let currentFileName = '我的高中数学错题本.xlsx';
@@ -1129,6 +1228,144 @@
         let db = null; // IndexedDB 数据库实例
         let methodologies = []; // 学习方法论数组
         let currentEditMethodologyIndex = -1; // 当前编辑的方法论索引
+        
+        // ============== 豆包AI图片识别功能 ==============
+        
+        // 调用豆包API识别图片中的题目
+        async function recognizeQuestionFromImage(base64Image) {
+            // 检查API配置
+            if (!DOUBAO_CONFIG.apiKey || !DOUBAO_CONFIG.endpointId) {
+                alert('⚠️ 请先配置豆包API\n\n' +
+                      '操作步骤：\n' +
+                      '1. 访问 https://console.volcengine.com/ark\n' +
+                      '2. 在"在线服务-推理"中创建一个接入点，选择支持视觉的模型（如doubao-vision-pro-32k）\n' +
+                      '3. 复制接入点ID（格式：ep-20250129162937-xxxxx）\n' +
+                      '4. 在"API Key管理"中创建API Key\n' +
+                      '5. 在代码中找到 DOUBAO_CONFIG，填入 apiKey 和 endpointId\n\n' +
+                      '详细说明请查看：豆包API配置说明.md');
+                return null;
+            }
+            
+            // 检查endpointId格式
+            if (!DOUBAO_CONFIG.endpointId.startsWith('ep-')) {
+                alert('⚠️ endpointId格式不正确\n\n' +
+                      '推理接入点ID应该以"ep-"开头，例如：ep-20250129162937-xxxxx\n' +
+                      '请在火山引擎控制台的"在线服务-推理"中查看你的接入点ID');
+                return null;
+            }
+            
+            try {
+                showStatus('info', '🔍 正在识别图片中的题目...');
+                
+                // 准备请求数据
+                const requestBody = {
+                    model: DOUBAO_CONFIG.model,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image_url',
+                                    image_url: {
+                                        url: base64Image
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: '请识别这张图片中的数学题目。注意：\n' +
+                                          '1. 只提取印刷体的题目文字，忽略手写的答案和笔记\n' +
+                                          '2. 保留题目的完整性，包括题号\n' +
+                                          '3. 如果有数学公式，用LaTeX格式表示（如 $x^2$, $\\frac{a}{b}$）\n' +
+                                          '4. 直接输出题目文字，不要添加任何解释\n' +
+                                          '5. 如果无法识别出题目，返回"未识别到题目"'
+                                }
+                            ]
+                        }
+                    ],
+                    temperature: 0.3,
+                    max_tokens: 2000
+                };
+                
+                console.log('调用豆包API:', {
+                    endpoint: DOUBAO_CONFIG.endpoint,
+                    model: DOUBAO_CONFIG.model
+                });
+                
+                // 调用豆包API
+                const response = await fetch(DOUBAO_CONFIG.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DOUBAO_CONFIG.apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                console.log('API响应状态:', response.status);
+                
+                if (!response.ok) {
+                    let errorMsg = `HTTP ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        console.error('API错误详情:', errorData);
+                        errorMsg = errorData.error?.message || errorData.message || errorMsg;
+                        
+                        // 针对常见错误提供友好提示
+                        if (response.status === 404) {
+                            errorMsg = '接入点ID不存在或无权访问，请检查：\n' +
+                                      '1. endpointId是否正确（应从火山引擎控制台复制）\n' +
+                                      '2. 接入点是否已启用\n' +
+                                      '3. API Key是否有权限访问该接入点';
+                        } else if (response.status === 401) {
+                            errorMsg = 'API Key无效或已过期，请重新创建';
+                        }
+                    } catch (e) {
+                        console.error('解析错误响应失败:', e);
+                    }
+                    throw new Error(errorMsg);
+                }
+                
+                const data = await response.json();
+                console.log('API返回数据:', data);
+                
+                const recognizedText = data.choices?.[0]?.message?.content;
+                
+                if (!recognizedText || recognizedText.includes('未识别到题目')) {
+                    showStatus('warning', '⚠️ 未能识别出题目，可能图片中没有清晰的印刷体题目');
+                    return null;
+                }
+                
+                showStatus('success', '✅ 题目识别成功！');
+                return recognizedText.trim();
+                
+            } catch (error) {
+                console.error('识别失败:', error);
+                alert('❌ 识别失败\n\n' + error.message + '\n\n请查看浏览器控制台获取详细错误信息');
+                showStatus('error', '识别失败');
+                return null;
+            }
+        }
+        
+        // 识别图片并填入题目描述
+        async function recognizeAndFillQuestion(imageIndex) {
+            const base64Image = currentImages[imageIndex];
+            const recognizedText = await recognizeQuestionFromImage(base64Image);
+            
+            if (recognizedText) {
+                const descTextarea = document.getElementById('description');
+                const currentText = descTextarea.value.trim();
+                
+                // 如果当前描述为空，直接填入；否则追加
+                if (currentText) {
+                    descTextarea.value = currentText + '\n\n' + recognizedText;
+                } else {
+                    descTextarea.value = recognizedText;
+                }
+                
+                // 触发MathJax渲染（如果需要预览）
+                descTextarea.focus();
+            }
+        }
         
         // 计算IndexedDB存储空间
         async function calculateStorageUsage() {
@@ -1662,6 +1899,9 @@
                 item.innerHTML = `
                     <img src="${img}">
                     <button class="image-item-delete" onclick="removeImage(${index})">×</button>
+                    <button class="image-item-recognize" onclick="recognizeAndFillQuestion(${index})" title="识别题目">
+                        🔍
+                    </button>
                 `;
                 imageGallery.appendChild(item);
             });
@@ -2041,7 +2281,7 @@
                 const imgCount = images.length > 1 ? `<span style="position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; border-radius:12px; font-size:12px;">📷 ${images.length}</span>` : '';
                 
                 card.innerHTML = `
-                    ${firstImg ? `<div style="position:relative;"><img src="${firstImg}" class="error-img">${imgCount}</div>` : '<div class="error-img" style="display:flex;align-items:center;justify-content:center;color:#ccc;height:150px">无图片</div>'}
+                    ${firstImg ? `<div style="position:relative;" onclick="event.stopPropagation(); openImagePreview('${firstImg}')"><img src="${firstImg}" class="error-img" style="cursor:zoom-in;">${imgCount}</div>` : '<div class="error-img" style="display:flex;align-items:center;justify-content:center;color:#ccc;height:150px">无图片</div>'}
                     <div class="error-content">
                         <div>
                             <span class="error-tag tag-chapter">${record['章节/知识点']}</span>
@@ -2064,6 +2304,23 @@
                     console.log('MathJax渲染列表失败:', err);
                 });
             }
+        }
+        
+        // 图片预览功能
+        window.openImagePreview = function(imageSrc) {
+            const modal = document.getElementById('imagePreviewModal');
+            const img = document.getElementById('previewImage');
+            img.src = imageSrc;
+            modal.style.display = 'flex';
+            // 阻止背景滚动
+            document.body.style.overflow = 'hidden';
+        }
+        
+        window.closeImagePreview = function() {
+            const modal = document.getElementById('imagePreviewModal');
+            modal.style.display = 'none';
+            // 恢复背景滚动
+            document.body.style.overflow = 'auto';
         }
 
         window.showDetail = function(record) {
@@ -2091,7 +2348,7 @@
                 images.forEach(img => {
                     const item = document.createElement('div');
                     item.className = 'image-item';
-                    item.innerHTML = `<img src="${img}" style="cursor:pointer;" onclick="window.open('${img}')">`;
+                    item.innerHTML = `<img src="${img}" onclick="event.stopPropagation(); openImagePreview('${img}')">`;
                     modalImgGallery.appendChild(item);
                 });
             }
@@ -2278,18 +2535,34 @@
         }
 
         function exportWorkbook() {
-            if (records.length === 0 && methodologies.length === 0) {
-                alert('提示：当前没有数据可以导出！\n\n请先录入错题或方法论后再导出。');
-                showStatus('warning', '没有数据可以导出');
-                return;
+            // 获取当前筛选条件
+            const filterDifficulty = document.getElementById('filterDifficulty').value;
+            const filterMastery = document.getElementById('filterMastery').value;
+            
+            // 根据筛选条件过滤数据
+            const filteredRecords = records.filter(r => {
+                const dMatch = filterDifficulty === 'all' || r['难度等级'] === filterDifficulty;
+                const mMatch = filterMastery === 'all' || r['掌握程度'] === filterMastery;
+                return dMatch && mMatch;
+            });
+            
+            // 检查是否有数据
+            if (filteredRecords.length === 0 && methodologies.length === 0) {
+                if (records.length > 0) {
+                    alert('提示：当前筛选条件下没有错题记录！\n\n仅导出学习方法论。');
+                } else {
+                    alert('提示：当前没有数据可以导出！\n\n请先录入错题或方法论后再导出。');
+                    showStatus('warning', '没有数据可以导出');
+                    return;
+                }
             }
             
             try {
                 const wb = XLSX.utils.book_new();
                 
-                // 1. 导出错题记录工作表
-                if (records.length > 0) {
-                    const exportData = records.map(r => ({
+                // 1. 导出错题记录工作表（只导出筛选后的数据）
+                if (filteredRecords.length > 0) {
+                    const exportData = filteredRecords.map(r => ({
                         '错题ID': r.id || '',
                         '日期': r['日期'],
                         '章节/知识点': r['章节/知识点'],
@@ -2311,7 +2584,7 @@
                     XLSX.utils.book_append_sheet(wb, ws, "错题记录");
                 }
                 
-                // 2. 导出学习方法论工作表
+                // 2. 导出学习方法论工作表（始终导出全部方法论）
                 if (methodologies.length > 0) {
                     const methodologyData = methodologies.map((m, index) => ({
                         '序号': index + 1,
@@ -2352,15 +2625,15 @@
                         document.body.removeChild(a);
                         URL.revokeObjectURL(url);
                         const sheets = [];
-                        if (records.length > 0) sheets.push('错题记录');
-                        if (methodologies.length > 0) sheets.push('学习方法论');
+                        if (filteredRecords.length > 0) sheets.push(`${filteredRecords.length}条错题记录`);
+                        if (methodologies.length > 0) sheets.push(`${methodologies.length}条学习方法论`);
                         showStatus('success', `Excel已导出：${sheets.join('、')}（不含图片）`);
                     }, 100);
                 } else {
                     XLSX.writeFile(wb, fileName, { compression: true });
                     const sheets = [];
-                    if (records.length > 0) sheets.push('错题记录');
-                    if (methodologies.length > 0) sheets.push('学习方法论');
+                    if (filteredRecords.length > 0) sheets.push(`${filteredRecords.length}条错题记录`);
+                    if (methodologies.length > 0) sheets.push(`${methodologies.length}条学习方法论`);
                     showStatus('success', `Excel已导出：${sheets.join('、')}（不含图片）`);
                 }
             } catch (err) {
@@ -2371,10 +2644,26 @@
 
         // 导出完整包（Excel + 图片）
         async function exportWithImages() {
-            if (records.length === 0 && methodologies.length === 0) {
-                alert('提示：当前没有数据可以导出！');
-                showStatus('warning', '没有数据可以导出');
-                return;
+            // 获取当前筛选条件
+            const filterDifficulty = document.getElementById('filterDifficulty').value;
+            const filterMastery = document.getElementById('filterMastery').value;
+            
+            // 根据筛选条件过滤数据
+            const filteredRecords = records.filter(r => {
+                const dMatch = filterDifficulty === 'all' || r['难度等级'] === filterDifficulty;
+                const mMatch = filterMastery === 'all' || r['掌握程度'] === filterMastery;
+                return dMatch && mMatch;
+            });
+            
+            // 检查是否有数据
+            if (filteredRecords.length === 0 && methodologies.length === 0) {
+                if (records.length > 0) {
+                    alert('提示：当前筛选条件下没有错题记录！\n\n仅导出学习方法论。');
+                } else {
+                    alert('提示：当前没有数据可以导出！');
+                    showStatus('warning', '没有数据可以导出');
+                    return;
+                }
             }
             
             try {
@@ -2385,9 +2674,9 @@
                 // 1. 生成 Excel 文件
                 const wb = XLSX.utils.book_new();
                 
-                // 添加错题记录工作表
-                if (records.length > 0) {
-                    const exportData = records.map(r => ({
+                // 添加错题记录工作表（只导出筛选后的数据）
+                if (filteredRecords.length > 0) {
+                    const exportData = filteredRecords.map(r => ({
                         '错题ID': r.id || '',
                         '日期': r['日期'],
                         '章节/知识点': r['章节/知识点'],
@@ -2402,7 +2691,7 @@
                     XLSX.utils.book_append_sheet(wb, ws, "错题记录");
                 }
                 
-                // 添加学习方法论工作表
+                // 添加学习方法论工作表（始终导出全部方法论）
                 if (methodologies.length > 0) {
                     const methodologyData = methodologies.map((m, index) => ({
                         '序号': index + 1,
@@ -2425,11 +2714,11 @@
                 const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 zip.file('错题本.xlsx', wbout);
                 
-                // 2. 添加图片文件夹
-                if (records.length > 0) {
+                // 2. 添加图片文件夹（只添加筛选后的错题图片）
+                if (filteredRecords.length > 0) {
                     const imagesFolder = zip.folder('images');
                     
-                    for (const record of records) {
+                    for (const record of filteredRecords) {
                         const recordId = record.id || 'unknown';
                         let images = [];
                         
@@ -2458,13 +2747,13 @@
                 const readme = `高中数学错题本导出包
 
 导出时间: ${new Date().toLocaleString()}
-错题数量: ${records.length}
+错题数量: ${filteredRecords.length}${filteredRecords.length < records.length ? ` (已根据筛选条件从${records.length}条中筛选)` : ''}
 方法论数量: ${methodologies.length}
 
 文件说明:
-- 错题本.xlsx: 包含所有错题和学习方法论
-  * 工作表1: 错题记录
-  * 工作表2: 学习方法论
+- 错题本.xlsx: 包含筛选后的错题和全部学习方法论
+  * 工作表1: 错题记录（根据筛选条件导出）
+  * 工作表2: 学习方法论（全部）
 - images/: 图片文件夹，按错题ID组织
   - 每个子文件夹对应一条错题
   - 文件夹名称即为错题ID
@@ -2501,7 +2790,7 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                showStatus('success', `完整包已导出！包含${records.length}条错题和${methodologies.length}条方法论`);
+                showStatus('success', `完整包已导出！包含${filteredRecords.length}条错题${filteredRecords.length < records.length ? '(已筛选)' : ''}和${methodologies.length}条方法论`);
             } catch (err) {
                 console.error('导出失败:', err);
                 showStatus('error', '导出失败：' + err.message);
@@ -2780,5 +3069,11 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
             }
         }
     </script>
+    
+    <!-- 图片预览模态框 -->
+    <div id="imagePreviewModal" class="image-preview-modal" onclick="closeImagePreview()">
+        <span class="image-preview-close" onclick="closeImagePreview()">&times;</span>
+        <img id="previewImage" src="" alt="预览图片">
+    </div>
 </body>
 </html>
