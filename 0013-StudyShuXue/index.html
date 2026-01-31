@@ -214,6 +214,17 @@
             background: var(--success-color);
             color: white;
         }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            opacity: 0.9;
+        }
 
         /* 统计卡片 */
         .stats-grid {
@@ -1006,6 +1017,9 @@
                         <label>正确解题思路</label>
                         <textarea id="correctSolution" class="form-control" placeholder="简述正确的解法和关键点..." rows="4"></textarea>
                         <div class="formula-hint">💡 支持数学公式：$\frac{dy}{dx}$ 或 $$\lim_{x\to 0}$$</div>
+                        <button type="button" class="btn btn-secondary" onclick="solveWithAI()" style="margin-top: 10px; width: 100%;">
+                            🤖 AI解答本题
+                        </button>
                     </div>
                 </div>
 
@@ -1364,6 +1378,128 @@
                 
                 // 触发MathJax渲染（如果需要预览）
                 descTextarea.focus();
+            }
+        }
+        
+        // AI解答题目功能
+        async function solveWithAI() {
+            // 获取题目描述
+            const questionText = document.getElementById('description').value.trim();
+            
+            if (!questionText) {
+                alert('⚠️ 请先填写或识别题目描述');
+                return;
+            }
+            
+            // 检查API配置
+            if (!DOUBAO_CONFIG.apiKey || !DOUBAO_CONFIG.endpointId) {
+                alert('⚠️ 请先配置豆包API\n\n' +
+                      '操作步骤：\n' +
+                      '1. 访问 https://console.volcengine.com/ark\n' +
+                      '2. 在"在线服务-推理"中创建一个接入点\n' +
+                      '3. 复制接入点ID和API Key\n' +
+                      '4. 在代码中找到 DOUBAO_CONFIG 填入配置');
+                return;
+            }
+            
+            try {
+                showStatus('info', '🤖 AI正在解答题目，请稍候...');
+                
+                // 准备请求数据
+                const requestBody = {
+                    model: DOUBAO_CONFIG.model,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: `你是一位经验丰富的高中数学老师，请用高中生能理解的语言解答下面这道数学题。
+
+题目：
+${questionText}
+
+请按照以下格式回答：
+
+## 📖 解题思路
+（用通俗易懂的语言，从高中生的角度分析这道题）
+
+## 📝 详细步骤
+（列出清晰的解题步骤，每一步都要解释为什么这样做）
+
+## ✅ 最终答案
+（给出最终结果）
+
+## 💡 知识点总结
+（总结这道题涉及的关键知识点和注意事项）
+
+注意：
+1. 使用LaTeX格式表示数学公式，例如 $x^2$, $\\frac{a}{b}$, $$\\int_0^1 f(x)dx$$
+2. 步骤要详细，让高中生能看懂每一步
+3. 语言要通俗易懂，避免过于专业的术语
+4. 如果有多种解法，可以简要提及`
+                        }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 3000
+                };
+                
+                console.log('调用豆包API解答题目');
+                
+                // 调用豆包API
+                const response = await fetch(DOUBAO_CONFIG.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DOUBAO_CONFIG.apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    let errorMsg = `HTTP ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        console.error('API错误详情:', errorData);
+                        errorMsg = errorData.error?.message || errorData.message || errorMsg;
+                    } catch (e) {
+                        console.error('解析错误响应失败:', e);
+                    }
+                    throw new Error(errorMsg);
+                }
+                
+                const data = await response.json();
+                console.log('AI解答返回数据:', data);
+                
+                const solution = data.choices?.[0]?.message?.content;
+                
+                if (!solution) {
+                    showStatus('warning', '⚠️ AI未能生成解答');
+                    return;
+                }
+                
+                // 将解答填入"正确解题思路"文本框
+                const solutionTextarea = document.getElementById('correctSolution');
+                const currentSolution = solutionTextarea.value.trim();
+                
+                // 如果当前已有内容，询问是否覆盖
+                if (currentSolution) {
+                    if (!confirm('当前已有解题思路，是否用AI解答覆盖？\n\n点击"确定"覆盖，点击"取消"追加到末尾')) {
+                        solutionTextarea.value = currentSolution + '\n\n---\n\n' + solution;
+                    } else {
+                        solutionTextarea.value = solution;
+                    }
+                } else {
+                    solutionTextarea.value = solution;
+                }
+                
+                // 自动滚动到解题思路区域
+                solutionTextarea.focus();
+                solutionTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                showStatus('success', '✅ AI解答完成！');
+                
+            } catch (error) {
+                console.error('AI解答失败:', error);
+                alert('❌ AI解答失败\n\n' + error.message + '\n\n请查看浏览器控制台获取详细错误信息');
+                showStatus('error', 'AI解答失败');
             }
         }
         
