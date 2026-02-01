@@ -462,13 +462,30 @@
 
         .modal-content {
             background: white;
-            width: 100%;
-            max-width: 900px;
+            width: 92%;
+            max-width: none;
             max-height: 90vh;
             border-radius: 16px;
             overflow-y: auto;
             padding: 30px;
             position: relative;
+            resize: both;
+            min-width: 600px;
+            min-height: 400px;
+            overflow: auto;
+        }
+        
+        /* 拖动手柄提示（右下角同时提示可横向与纵向拖动） */
+        .modal-content::after {
+            content: '⋮⋮';
+            position: absolute;
+            right: 5px;
+            bottom: 5px;
+            color: #ccc;
+            font-size: 20px;
+            line-height: 1;
+            cursor: nwse-resize;
+            pointer-events: none;
         }
 
         .modal-close {
@@ -481,10 +498,83 @@
         }
 
         .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
             margin-top: 20px;
+        }
+        
+        /* 左右分栏布局 */
+        .detail-grid.split-layout {
+            flex-direction: row;
+            gap: 0;
+            align-items: stretch;
+            max-height: calc(90vh - 200px);
+        }
+        
+        .detail-grid.split-layout #leftColumn {
+            flex: 0 0 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-right: 10px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        
+        .detail-grid.split-layout #rightColumn {
+            flex: 1;
+            padding-left: 10px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        
+        /* 滚动条样式优化 */
+        .detail-grid.split-layout #leftColumn::-webkit-scrollbar,
+        .detail-grid.split-layout #rightColumn::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .detail-grid.split-layout #leftColumn::-webkit-scrollbar-track,
+        .detail-grid.split-layout #rightColumn::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .detail-grid.split-layout #leftColumn::-webkit-scrollbar-thumb,
+        .detail-grid.split-layout #rightColumn::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .detail-grid.split-layout #leftColumn::-webkit-scrollbar-thumb:hover,
+        .detail-grid.split-layout #rightColumn::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* 拖动分隔线 */
+        .resizer {
+            width: 6px;
+            cursor: col-resize;
+            background: linear-gradient(90deg, transparent 0%, #ddd 40%, #ddd 60%, transparent 100%);
+            position: relative;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        
+        .resizer:hover {
+            background: linear-gradient(90deg, transparent 0%, #4CAF50 40%, #4CAF50 60%, transparent 100%);
+        }
+        
+        .resizer::after {
+            content: '⋮';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #999;
+            font-size: 16px;
+            pointer-events: none;
         }
 
         .detail-section h4 {
@@ -494,14 +584,16 @@
             padding-bottom: 5px;
         }
         
+        .detail-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
         .detail-section p {
             white-space: pre-wrap; /* 保留换行符和空格 */
             word-wrap: break-word; /* 长单词自动换行 */
             line-height: 1.6; /* 增加行高提升可读性 */
-        }
-
-        @media (max-width: 768px) {
-            .detail-grid { grid-template-columns: 1fr; }
         }
         
         /* 数学公式样式 */
@@ -518,8 +610,9 @@
         
         /* 方法论卡片样式 */
         .methodology-modal-content {
-            max-width: 1200px !important;
-            width: 95% !important;
+            max-width: none !important;
+            width: 92% !important;
+            min-width: 800px !important;
         }
         
         .methodology-layout {
@@ -680,8 +773,8 @@
         .markdown-content h2,
         .markdown-content h3,
         .markdown-content h4 {
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 15px;
+            margin-bottom: 8px;
             color: var(--primary-color);
         }
         
@@ -691,17 +784,19 @@
         .markdown-content h4 { font-size: 1.1em; }
         
         .markdown-content p {
-            margin: 10px 0;
+            margin: 5px 0;
+            line-height: 1.6;
         }
         
         .markdown-content ul,
         .markdown-content ol {
-            margin: 10px 0;
+            margin: 8px 0;
             padding-left: 25px;
         }
         
         .markdown-content li {
-            margin: 5px 0;
+            margin: 3px 0;
+            line-height: 1.6;
         }
         
         .markdown-content code {
@@ -993,7 +1088,15 @@
                 </div>
 
                 <div class="form-group">
-                    <label>题目描述</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label style="margin: 0;">题目描述</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="aiStatus" style="color: #666; font-size: 14px; display: none;">⏳ AI处理中...</span>
+                            <button type="button" class="btn btn-secondary" onclick="solveWithAI()" style="padding: 6px 12px; font-size: 14px;">
+                                🤖 AI解答本题
+                            </button>
+                        </div>
+                    </div>
                     <textarea id="description" class="form-control" placeholder="简要描述题目内容..." rows="4"></textarea>
                     <div class="formula-hint">💡 支持数学公式：行内公式用 $公式$ ，独立公式用 $$公式$$。例如：$x^2+1=0$ 或 $$\frac{a}{b}$$</div>
                 </div>
@@ -1007,20 +1110,17 @@
                     <div id="imageGallery" class="image-gallery"></div>
                 </div>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>错误原因</label>
-                        <textarea id="errorReason" class="form-control" placeholder="为什么做错了？（计算错误、概念不清等）" rows="4"></textarea>
-                        <div class="formula-hint">💡 支持数学公式：$x^2$ 或 $$\int_0^1 f(x)dx$$</div>
-                    </div>
-                    <div class="form-group">
-                        <label>正确解题思路</label>
-                        <textarea id="correctSolution" class="form-control" placeholder="简述正确的解法和关键点..." rows="4"></textarea>
-                        <div class="formula-hint">💡 支持数学公式：$\frac{dy}{dx}$ 或 $$\lim_{x\to 0}$$</div>
-                        <button type="button" class="btn btn-secondary" onclick="solveWithAI()" style="margin-top: 10px; width: 100%;">
-                            🤖 AI解答本题
-                        </button>
-                    </div>
+
+                <div class="form-group">
+                    <label>错误原因</label>
+                    <textarea id="errorReason" class="form-control" placeholder="为什么做错了？（计算错误、概念不清等）" rows="4"></textarea>
+                    <div class="formula-hint">💡 支持数学公式：$x^2$ 或 $$\int_0^1 f(x)dx$$</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>正确解题思路</label>
+                    <textarea id="correctSolution" class="form-control" placeholder="简述正确的解法和关键点..." rows="4"></textarea>
+                    <div class="formula-hint">💡 支持数学公式：$\frac{dy}{dx}$ 或 $$\lim_{x\to 0}$$</div>
                 </div>
 
                 <div class="btn-group">
@@ -1134,24 +1234,34 @@
             
             <!-- 查看模式 -->
             <div id="viewMode">
-                <div id="modalTags" style="margin: 15px 0;"></div>
-                <div id="modalImgGallery" class="image-gallery" style="margin-bottom:20px;"></div>
-                <div class="detail-grid">
-                    <div class="detail-section">
-                        <h4>题目描述</h4>
-                        <p id="modalDesc"></p>
-                    </div>
-                    <div class="detail-section">
-                        <h4>错误原因</h4>
-                        <p id="modalReason"></p>
-                    </div>
-                    <div class="detail-section">
-                        <h4>正确解题思路</h4>
-                        <p id="modalSolution"></p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div id="modalTags"></div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" id="toggleLayoutBtn" onclick="toggleLayout()" style="padding: 6px 12px; font-size: 14px;">
+                            ⬇️ 上下显示
+                        </button>
+                        <button class="btn btn-primary" onclick="enterEditMode()" style="padding: 6px 12px; font-size: 14px;">✏️ 编辑</button>
                     </div>
                 </div>
-                <div class="btn-group" style="margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="enterEditMode()">✏️ 编辑</button>
+                <div class="detail-grid split-layout" id="detailGrid">
+                    <div id="leftColumn">
+                        <div class="detail-section">
+                            <h4>题目描述</h4>
+                            <p id="modalDesc"></p>
+                        </div>
+                        <div id="modalImgGallery" class="image-gallery" style="margin-bottom:20px;"></div>
+                        <div class="detail-section">
+                            <h4>错误原因</h4>
+                            <p id="modalReason"></p>
+                        </div>
+                    </div>
+                    <div id="resizer" class="resizer"></div>
+                    <div id="rightColumn">
+                        <div class="detail-section">
+                            <h4>正确解题思路</h4>
+                            <p id="modalSolution"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -1180,7 +1290,15 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>题目描述</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label style="margin: 0;">题目描述</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="editAiStatus" style="color: #666; font-size: 14px; display: none;">⏳ AI处理中...</span>
+                            <button type="button" class="btn btn-secondary" onclick="solveWithAIEdit()" style="padding: 6px 12px; font-size: 14px;">
+                                🤖 AI解答本题
+                            </button>
+                        </div>
+                    </div>
                     <textarea id="editDesc" class="form-control" rows="4"></textarea>
                     <div class="formula-hint">💡 支持数学公式：$公式$ 或 $$公式$$</div>
                 </div>
@@ -1221,8 +1339,8 @@
         // ============== 豆包API配置 ==============
         // 请在这里填入你的豆包API配置
         const DOUBAO_CONFIG = {
-            apiKey: '', // 填入你的API Key
-            endpointId: '', // 填入你的推理接入点ID（在火山引擎控制台获取）
+            apiKey: 'ab68ac84-2f2b-4169-b9ff-a64f50eec2c8', // 填入你的API Key
+            endpointId: 'ep-20260130001219-rpkc4', // 填入你的推理接入点ID（在火山引擎控制台获取）
             // endpoint会根据endpointId自动构建
             get endpoint() {
                 return `https://ark.cn-beijing.volces.com/api/v3/chat/completions`;
@@ -1385,6 +1503,7 @@
         async function solveWithAI() {
             // 获取题目描述
             const questionText = document.getElementById('description').value.trim();
+            const aiStatus = document.getElementById('aiStatus');
             
             if (!questionText) {
                 alert('⚠️ 请先填写或识别题目描述');
@@ -1403,6 +1522,8 @@
             }
             
             try {
+                // 显示AI处理状态
+                aiStatus.style.display = 'inline';
                 showStatus('info', '🤖 AI正在解答题目，请稍候...');
                 
                 // 准备请求数据
@@ -1500,6 +1621,137 @@ ${questionText}
                 console.error('AI解答失败:', error);
                 alert('❌ AI解答失败\n\n' + error.message + '\n\n请查看浏览器控制台获取详细错误信息');
                 showStatus('error', 'AI解答失败');
+            } finally {
+                // 隐藏AI处理状态
+                aiStatus.style.display = 'none';
+            }
+        }
+        
+        // 编辑模式的AI解答函数
+        async function solveWithAIEdit() {
+            // 获取题目描述
+            const questionText = document.getElementById('editDesc').value.trim();
+            const aiStatus = document.getElementById('editAiStatus');
+            
+            if (!questionText) {
+                alert('⚠️ 请先填写或识别题目描述');
+                return;
+            }
+            
+            // 检查API配置
+            if (!DOUBAO_CONFIG.apiKey || !DOUBAO_CONFIG.endpointId) {
+                alert('⚠️ 请先配置豆包API\n\n' +
+                      '操作步骤：\n' +
+                      '1. 访问 https://console.volcengine.com/ark\n' +
+                      '2. 在"在线服务-推理"中创建一个接入点\n' +
+                      '3. 复制接入点ID和API Key\n' +
+                      '4. 在代码中找到 DOUBAO_CONFIG 填入配置');
+                return;
+            }
+            
+            try {
+                // 显示AI处理状态
+                aiStatus.style.display = 'inline';
+                showStatus('info', '🤖 AI正在解答题目，请稍候...');
+                
+                // 准备请求数据
+                const requestBody = {
+                    model: DOUBAO_CONFIG.model,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: `你是一位经验丰富的高中数学老师，请用高中生能理解的语言解答下面这道数学题。
+
+题目：
+${questionText}
+
+请按照以下格式回答：
+
+## 📖 解题思路
+（用通俗易懂的语言，从高中生的角度分析这道题）
+
+## 📝 详细步骤
+（列出清晰的解题步骤，每一步都要解释为什么这样做）
+
+## ✅ 最终答案
+（给出最终结果）
+
+## 💡 知识点总结
+（总结这道题涉及的关键知识点和注意事项）
+
+注意：
+1. 使用LaTeX格式表示数学公式，例如 $x^2$, $\\frac{a}{b}$, $$\\int_0^1 f(x)dx$$
+2. 步骤要详细，让高中生能看懂每一步
+3. 语言要通俗易懂，避免过于专业的术语
+4. 如果有多种解法，可以简要提及`
+                        }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 3000
+                };
+                
+                console.log('调用豆包API解答题目（编辑模式）');
+                
+                // 调用豆包API
+                const response = await fetch(DOUBAO_CONFIG.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DOUBAO_CONFIG.apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    let errorMsg = `HTTP ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        console.error('API错误详情:', errorData);
+                        errorMsg = errorData.error?.message || errorData.message || errorMsg;
+                    } catch (e) {
+                        console.error('解析错误响应失败:', e);
+                    }
+                    throw new Error(errorMsg);
+                }
+                
+                const data = await response.json();
+                console.log('AI解答返回数据:', data);
+                
+                const solution = data.choices?.[0]?.message?.content;
+                
+                if (!solution) {
+                    showStatus('warning', '⚠️ AI未能生成解答');
+                    return;
+                }
+                
+                // 将解答填入"正确解题思路"文本框
+                const solutionTextarea = document.getElementById('editSolution');
+                const currentSolution = solutionTextarea.value.trim();
+                
+                // 如果当前已有内容，询问是否覆盖
+                if (currentSolution) {
+                    if (!confirm('当前已有解题思路，是否用AI解答覆盖？\n\n点击"确定"覆盖，点击"取消"追加到末尾')) {
+                        solutionTextarea.value = currentSolution + '\n\n---\n\n' + solution;
+                    } else {
+                        solutionTextarea.value = solution;
+                    }
+                } else {
+                    solutionTextarea.value = solution;
+                }
+                
+                // 自动滚动到解题思路区域
+                solutionTextarea.focus();
+                solutionTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                showStatus('success', '✅ AI解答完成！');
+                
+            } catch (error) {
+                console.error('AI解答失败:', error);
+                alert('❌ AI解答失败\n\n' + error.message + '\n\n请查看浏览器控制台获取详细错误信息');
+                showStatus('error', 'AI解答失败');
+            } finally {
+                // 隐藏AI处理状态
+                aiStatus.style.display = 'none';
             }
         }
         
@@ -2496,7 +2748,61 @@ ${questionText}
             
             descEl.innerHTML = record['题目描述'] || '无';
             reasonEl.innerHTML = record['错误原因'] || '未填写';
-            solutionEl.innerHTML = record['正确解题思路'] || '未填写';
+            
+            // 正确解题思路支持Markdown渲染
+            const solutionText = record['正确解题思路'] || '未填写';
+            try {
+                // 保护数学公式（在Markdown解析前临时替换）
+                const mathPlaceholders = [];
+                let protectedText = solutionText;
+                
+                // 保护块级公式 $$...$$ （必须先处理，避免被 $...$ 误匹配）
+                protectedText = protectedText.replace(/\$\$([\s\S]+?)\$\$/g, (match) => {
+                    const placeholder = `MATH_BLOCK_${mathPlaceholders.length}`;
+                    mathPlaceholders.push({ type: 'block', formula: match });
+                    return placeholder;
+                });
+                
+                // 保护块级公式 \[...\]
+                protectedText = protectedText.replace(/\\\[([\s\S]+?)\\\]/g, (match) => {
+                    const placeholder = `MATH_BLOCK_${mathPlaceholders.length}`;
+                    mathPlaceholders.push({ type: 'block', formula: match });
+                    return placeholder;
+                });
+                
+                // 保护行内公式 $...$
+                protectedText = protectedText.replace(/\$([^\$\n]+?)\$/g, (match) => {
+                    const placeholder = `MATH_INLINE_${mathPlaceholders.length}`;
+                    mathPlaceholders.push({ type: 'inline', formula: match });
+                    return placeholder;
+                });
+                
+                // 保护行内公式 \(...\)
+                protectedText = protectedText.replace(/\\\(([\s\S]+?)\\\)/g, (match) => {
+                    const placeholder = `MATH_INLINE_${mathPlaceholders.length}`;
+                    mathPlaceholders.push({ type: 'inline', formula: match });
+                    return placeholder;
+                });
+                
+                // 使用marked.js渲染Markdown
+                let renderedHtml = marked.parse(protectedText);
+                
+                // 恢复数学公式
+                mathPlaceholders.forEach((item, index) => {
+                    if (item.type === 'inline') {
+                        renderedHtml = renderedHtml.replace(`MATH_INLINE_${index}`, item.formula);
+                    } else {
+                        renderedHtml = renderedHtml.replace(`MATH_BLOCK_${index}`, item.formula);
+                    }
+                });
+                
+                solutionEl.innerHTML = renderedHtml;
+                // 为渲染后的内容添加markdown-content类以应用样式
+                solutionEl.classList.add('markdown-content');
+            } catch (e) {
+                console.error('Markdown渲染失败:', e);
+                solutionEl.innerHTML = solutionText;
+            }
             
             // 使用MathJax渲染公式
             if (window.MathJax) {
@@ -2509,9 +2815,88 @@ ${questionText}
             document.getElementById('viewMode').classList.remove('hidden');
             document.getElementById('editMode').classList.add('hidden');
             
+            // 默认为左右布局，并初始化拖动功能
+            document.getElementById('detailGrid').classList.add('split-layout');
+            document.getElementById('resizer').style.display = 'block';
+            document.getElementById('toggleLayoutBtn').textContent = '⬇️ 上下显示';
+            
+            // 初始化拖动功能
+            initResizer();
+            
             document.getElementById('detailModal').style.display = 'flex';
             // 阻止背景滚动
             document.body.classList.add('modal-open');
+        }
+        
+        // 切换单列/双列布局
+        window.toggleLayout = function() {
+            const detailGrid = document.getElementById('detailGrid');
+            const resizer = document.getElementById('resizer');
+            const btn = document.getElementById('toggleLayoutBtn');
+            
+            if (detailGrid.classList.contains('split-layout')) {
+                // 切换到单列
+                detailGrid.classList.remove('split-layout');
+                resizer.style.display = 'none';
+                btn.textContent = '↔️ 左右显示';
+            } else {
+                // 切换到双列
+                detailGrid.classList.add('split-layout');
+                resizer.style.display = 'block';
+                btn.textContent = '⬇️ 上下显示';
+                
+                // 初始化拖动功能
+                initResizer();
+            }
+        }
+        
+        // 初始化拖动分隔线功能（使用标记避免重复绑定）
+        let resizerInitialized = false;
+        
+        function initResizer() {
+            if (resizerInitialized) return; // 已经初始化过，直接返回
+            
+            const resizer = document.getElementById('resizer');
+            const leftColumn = document.getElementById('leftColumn');
+            const rightColumn = document.getElementById('rightColumn');
+            const detailGrid = document.getElementById('detailGrid');
+            
+            let isResizing = false;
+            
+            const onMouseDown = function(e) {
+                isResizing = true;
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            };
+            
+            const onMouseMove = function(e) {
+                if (!isResizing) return;
+                
+                const containerRect = detailGrid.getBoundingClientRect();
+                const containerWidth = containerRect.width;
+                const mouseX = e.clientX - containerRect.left;
+                
+                // 计算百分比（限制在 20% 到 80% 之间）
+                let leftPercent = (mouseX / containerWidth) * 100;
+                leftPercent = Math.max(20, Math.min(80, leftPercent));
+                
+                // 更新宽度
+                leftColumn.style.flex = `0 0 ${leftPercent}%`;
+            };
+            
+            const onMouseUp = function() {
+                if (isResizing) {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+            };
+            
+            resizer.addEventListener('mousedown', onMouseDown);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+            
+            resizerInitialized = true;
         }
 
         window.enterEditMode = function() {
