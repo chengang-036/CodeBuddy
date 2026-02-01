@@ -1134,7 +1134,8 @@
             <div class="list-header">
                 <h3>错题记录列表</h3>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                    <div id="filterGroup" style="display: flex; gap: 10px;">
+                    <div id="filterGroup" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input id="filterChapter" class="filter-select" style="width: 180px;" type="text" placeholder="按章节/知识点筛选" oninput="renderList()">
                         <select id="filterDifficulty" class="filter-select" onchange="renderList()">
                             <option value="all">所有难度</option>
                             <option value="基础">基础</option>
@@ -1148,6 +1149,7 @@
                             <option value="已掌握">已掌握</option>
                         </select>
                     </div>
+                    <button class="btn" onclick="exportPdfRedo()" style="padding: 8px 16px; font-size: 14px; background:#6c5ce7; color:white;">📝 导出错题PDF-重新做</button>
                     <button class="btn btn-success" onclick="exportWorkbook()" style="padding: 8px 16px; font-size: 14px;">💾 导出Excel</button>
                     <button class="btn btn-primary" onclick="exportWithImages()" style="padding: 8px 16px; font-size: 14px;">📦 导出完整包(含图片)</button>
                 </div>
@@ -2208,9 +2210,11 @@ ${questionText}
             }
         });
 
-        // 粘贴图片支持
+        // 粘贴图片支持（优先编辑模式，以免误贴到新增区域）
         window.addEventListener('paste', async (e) => {
-            if (actionCard.classList.contains('hidden') && document.getElementById('editMode').classList.contains('hidden')) return;
+            const editVisible = !document.getElementById('editMode').classList.contains('hidden');
+            const createVisible = !actionCard.classList.contains('hidden');
+            if (!editVisible && !createVisible) return;
             
             const items = e.clipboardData.items;
             for (let i = 0; i < items.length; i++) {
@@ -2218,11 +2222,11 @@ ${questionText}
                     const blob = items[i].getAsFile();
                     const reader = new FileReader();
                     reader.onload = async (event) => {
-                        // 判断是录入模式还是编辑模式
-                        if (!actionCard.classList.contains('hidden')) {
-                            await addImageToGallery(event.target.result);
-                        } else if (!document.getElementById('editMode').classList.contains('hidden')) {
+                        // 优先编辑模式
+                        if (editVisible) {
                             await addImageToEditGallery(event.target.result);
+                        } else if (createVisible) {
+                            await addImageToGallery(event.target.result);
                         }
                     };
                     reader.readAsDataURL(blob);
@@ -2286,8 +2290,8 @@ ${questionText}
                 item.className = 'image-item';
                 item.innerHTML = `
                     <img src="${img}">
-                    <button class="image-item-delete" onclick="removeImage(${index})">×</button>
-                    <button class="image-item-recognize" onclick="recognizeAndFillQuestion(${index})" title="识别题目">
+                    <button type="button" class="image-item-delete" onclick="removeImage(${index})">×</button>
+                    <button type="button" class="image-item-recognize" onclick="recognizeAndFillQuestion(${index})" title="识别题目">
                         🔍
                     </button>
                 `;
@@ -2320,15 +2324,15 @@ ${questionText}
             gallery.innerHTML = '';
             document.getElementById('editImageCount').textContent = `${editImages.length}/10`;
             
-            editImages.forEach((img, index) => {
-                const item = document.createElement('div');
-                item.className = 'image-item';
-                item.innerHTML = `
+                editImages.forEach((img, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'image-item';
+                    item.innerHTML = `
                     <img src="${img}">
-                    <button class="image-item-delete" onclick="removeEditImage(${index})">×</button>
+                    <button type="button" class="image-item-delete" onclick="removeEditImage(${index})">×</button>
                 `;
-                gallery.appendChild(item);
-            });
+                    gallery.appendChild(item);
+                });
         }
 
         // 删除编辑图片
@@ -2633,11 +2637,14 @@ ${questionText}
         function renderList() {
             const filterDifficulty = document.getElementById('filterDifficulty').value;
             const filterMastery = document.getElementById('filterMastery').value;
+            const filterChapter = document.getElementById('filterChapter').value.trim().toLowerCase();
 
             const filtered = records.filter(r => {
                 const dMatch = filterDifficulty === 'all' || r['难度等级'] === filterDifficulty;
                 const mMatch = filterMastery === 'all' || r['掌握程度'] === filterMastery;
-                return dMatch && mMatch;
+                const chapterText = (r['章节/知识点'] || '').toLowerCase();
+                const cMatch = !filterChapter || chapterText.includes(filterChapter);
+                return dMatch && mMatch && cMatch;
             });
 
             errorList.innerHTML = '';
@@ -3059,12 +3066,14 @@ ${questionText}
             // 获取当前筛选条件
             const filterDifficulty = document.getElementById('filterDifficulty').value;
             const filterMastery = document.getElementById('filterMastery').value;
+            const filterChapter = document.getElementById('filterChapter').value.trim().toLowerCase();
             
             // 根据筛选条件过滤数据
             const filteredRecords = records.filter(r => {
                 const dMatch = filterDifficulty === 'all' || r['难度等级'] === filterDifficulty;
                 const mMatch = filterMastery === 'all' || r['掌握程度'] === filterMastery;
-                return dMatch && mMatch;
+                const cMatch = !filterChapter || (r['章节/知识点'] || '').toLowerCase().includes(filterChapter);
+                return dMatch && mMatch && cMatch;
             });
             
             // 检查是否有数据
@@ -3168,12 +3177,14 @@ ${questionText}
             // 获取当前筛选条件
             const filterDifficulty = document.getElementById('filterDifficulty').value;
             const filterMastery = document.getElementById('filterMastery').value;
+            const filterChapter = document.getElementById('filterChapter').value.trim().toLowerCase();
             
             // 根据筛选条件过滤数据
             const filteredRecords = records.filter(r => {
                 const dMatch = filterDifficulty === 'all' || r['难度等级'] === filterDifficulty;
                 const mMatch = filterMastery === 'all' || r['掌握程度'] === filterMastery;
-                return dMatch && mMatch;
+                const cMatch = !filterChapter || (r['章节/知识点'] || '').toLowerCase().includes(filterChapter);
+                return dMatch && mMatch && cMatch;
             });
             
             // 检查是否有数据
@@ -3316,6 +3327,382 @@ iCloud云盘/文稿/17-CodeBuddy/0013-StudyShuXue/备份/
                 console.error('导出失败:', err);
                 showStatus('error', '导出失败：' + err.message);
             }
+        }
+
+        // 导出错题PDF-重新做（按当前筛选条件，仅导出题目描述，题目之间空两行，支持数学公式）
+        async function exportPdfRedo() {
+            const filterDifficulty = document.getElementById('filterDifficulty').value;
+            const filterMastery = document.getElementById('filterMastery').value;
+            const filterChapter = document.getElementById('filterChapter').value.trim().toLowerCase();
+            
+            const filteredRecords = records.filter(r => {
+                const dMatch = filterDifficulty === 'all' || r['难度等级'] === filterDifficulty;
+                const mMatch = filterMastery === 'all' || r['掌握程度'] === filterMastery;
+                const cMatch = !filterChapter || (r['章节/知识点'] || '').toLowerCase().includes(filterChapter);
+                return dMatch && mMatch && cMatch;
+            });
+            
+            if (filteredRecords.length === 0) {
+                alert('当前筛选条件下没有错题记录，无法导出');
+                showStatus('warning', '没有数据可以导出');
+                return;
+            }
+
+            try {
+                // 确保依赖加载（使用dom-to-image替代html2canvas）
+                await Promise.all([loadMathJax(), loadDomToImage(), loadJsPDF()]);
+                
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 10;
+                let currentY = margin;
+                let isFirstItem = true;
+                
+                console.log(`开始导出 ${filteredRecords.length} 道题目...`);
+                
+                for (let i = 0; i < filteredRecords.length; i++) {
+                    const r = filteredRecords[i];
+                    let desc = (r['题目描述'] || '（无题目描述）').trim();
+                    
+                    // 转义HTML特殊字符但保留LaTeX公式
+                    desc = desc.replace(/&/g, '&amp;')
+                               .replace(/</g, '&lt;')
+                               .replace(/>/g, '&gt;')
+                               .replace(/"/g, '&quot;')
+                               .replace(/'/g, '&#039;')
+                               .replace(/\n/g, '<br>');
+                    
+                    // 创建单个题目容器（必须完全可见才能正确截图）
+                    const itemContainer = document.createElement('div');
+                    itemContainer.style.cssText = `
+                        position: fixed;
+                        left: 0;
+                        top: 0;
+                        width: ${(pageWidth - margin * 2) * 3.78}px;
+                        background: #fff;
+                        padding: 10px;
+                        box-sizing: border-box;
+                        z-index: -1;
+                        opacity: 0.01;
+                    `;
+                    
+                    itemContainer.innerHTML = `
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .item-wrapper { 
+    display: block; 
+    font-size: 14px; 
+    line-height: 1.8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  }
+  .item-index { 
+    float: left; 
+    width: 30px; 
+    font-weight: 600; 
+    text-align: right; 
+    padding-right: 8px; 
+  }
+  .item-content { 
+    display: block; 
+    overflow: hidden;
+  }
+  /* MathJax样式优化 */
+  mjx-container {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    line-height: 1.2 !important;
+    margin: 0 2px !important;
+  }
+  mjx-container[display="true"] {
+    display: block !important;
+    margin: 0.5em 0 !important;
+    text-align: center;
+  }
+  mjx-math {
+    display: inline-block !important;
+  }
+</style>
+<div class="item-wrapper">
+    <span class="item-index">${i + 1}.</span>
+    <div class="item-content">${desc}</div>
+</div>
+`;
+                    
+                    document.body.appendChild(itemContainer);
+                    
+                    // MathJax渲染公式 - 确保完全渲染
+                    if (window.MathJax && window.MathJax.typesetPromise) {
+                        try {
+                            console.log(`开始渲染题目 ${i + 1}...`);
+                            
+                            // 第一次渲染
+                            await window.MathJax.typesetPromise([itemContainer]);
+                            console.log(`题目 ${i + 1} MathJax第一次渲染完成`);
+                            
+                            // 等待DOM更新
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                            
+                            // 再次渲染确保所有公式都被处理
+                            await window.MathJax.typesetPromise([itemContainer]);
+                            console.log(`题目 ${i + 1} MathJax第二次渲染完成`);
+                            
+                            // 额外等待确保浏览器完成布局
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                            
+                            console.log(`题目 ${i + 1} 渲染完毕，准备截图`);
+                        } catch (mathError) {
+                            console.error(`题目 ${i + 1} MathJax渲染错误:`, mathError);
+                        }
+                    } else {
+                        console.warn('MathJax未加载，跳过公式渲染');
+                        // 即使没有公式也要等待DOM稳定
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                    }
+                    
+                    // 使用dom-to-image渲染为PNG
+                    try {
+                        // 截图前确保元素完全可见
+                        itemContainer.style.opacity = '1';
+                        itemContainer.style.zIndex = '9999';
+                        
+                        console.log(`准备截图题目 ${i + 1}，容器尺寸: ${itemContainer.offsetWidth}x${itemContainer.scrollHeight}`);
+                        
+                        const dataUrl = await domtoimage.toPng(itemContainer, {
+                            bgcolor: '#ffffff',
+                            width: itemContainer.offsetWidth,
+                            height: itemContainer.scrollHeight,
+                            style: {
+                                'transform': 'none',
+                                'overflow': 'visible',
+                                'opacity': '1'
+                            }
+                        });
+                        
+                        console.log(`题目 ${i + 1} 截图完成，dataUrl长度: ${dataUrl.length}`);
+                        
+                        // 将dataUrl转换为canvas
+                        const canvas = await new Promise((resolve, reject) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0);
+                                console.log(`题目 ${i + 1} canvas尺寸: ${canvas.width}x${canvas.height}`);
+                                resolve(canvas);
+                            };
+                            img.onerror = (err) => {
+                                console.error(`题目 ${i + 1} 图片加载失败:`, err);
+                                reject(err);
+                            };
+                            img.src = dataUrl;
+                        });
+                        
+                        document.body.removeChild(itemContainer);
+                        
+                        // 检查canvas是否为空
+                        if (canvas.width === 0 || canvas.height === 0) {
+                            console.error(`题目 ${i + 1} canvas为空！`);
+                            continue; // 跳过这个题目
+                        }
+                        
+                        // 计算图片尺寸
+                        const imgWidth = pageWidth - margin * 2;
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        
+                        // 检查是否需要新页面
+                        if (!isFirstItem && currentY + imgHeight > pageHeight - margin) {
+                            pdf.addPage();
+                            currentY = margin;
+                        }
+                        
+                        // 添加到PDF
+                        const imgData = canvas.toDataURL('image/png');
+                        pdf.addImage(imgData, 'PNG', margin, currentY, imgWidth, imgHeight);
+                        
+                        currentY += imgHeight + 8; // 题目间距8mm
+                        isFirstItem = false;
+                        
+                        console.log(`题目 ${i + 1} 已添加到PDF`);
+                    } catch (renderError) {
+                        console.error(`题目 ${i + 1} 渲染失败:`, renderError);
+                        if (document.body.contains(itemContainer)) {
+                            document.body.removeChild(itemContainer);
+                        }
+                        // 继续处理下一个题目
+                        continue;
+                    }
+                    
+                    // 更新进度
+                    if ((i + 1) % 5 === 0 || i === filteredRecords.length - 1) {
+                        console.log(`已处理 ${i + 1}/${filteredRecords.length} 个题目`);
+                    }
+                }
+                
+                // 生成文件名，避免重名：使用 localStorage 计数
+                const baseName = '错题-重新做';
+                let suffix = '';
+                try {
+                    const key = 'pdfRedoCounter';
+                    const count = parseInt(localStorage.getItem(key) || '0', 10);
+                    if (count > 0) suffix = `-${count}`;
+                    localStorage.setItem(key, String(count + 1));
+                } catch (e) {
+                    console.warn('localStorage不可用，使用基础文件名');
+                }
+                const fileName = `${baseName}${suffix}.pdf`;
+
+                pdf.save(fileName);
+                showStatus('success', `已导出 ${filteredRecords.length} 道题目到 ${fileName}`);
+            } catch (err) {
+                console.error('导出PDF失败:', err);
+                showStatus('error', '导出PDF失败：' + err.message);
+            }
+        }
+
+        // 动态加载 KaTeX、html2canvas、jsPDF（只加载一次）
+        let katexLoading = null;
+        function loadKaTeX() {
+            if (window.katex) return Promise.resolve();
+            if (katexLoading) return katexLoading;
+            katexLoading = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('KaTeX加载失败'));
+                document.head.appendChild(script);
+            });
+            return katexLoading;
+        }
+
+        let html2canvasLoading = null;
+        function loadHtml2Canvas() {
+            if (window.html2canvas) return Promise.resolve();
+            if (html2canvasLoading) return html2canvasLoading;
+            html2canvasLoading = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('html2canvas加载失败'));
+                document.head.appendChild(script);
+            });
+            return html2canvasLoading;
+        }
+
+        let domToImageLoading = null;
+        function loadDomToImage() {
+            if (window.domtoimage) return Promise.resolve();
+            if (domToImageLoading) return domToImageLoading;
+            domToImageLoading = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js';
+                script.onload = () => {
+                    console.log('dom-to-image加载完成');
+                    resolve();
+                };
+                script.onerror = () => reject(new Error('dom-to-image加载失败'));
+                document.head.appendChild(script);
+            });
+            return domToImageLoading;
+        }
+
+        let jsPDFLoading = null;
+        function loadJsPDF() {
+            if (window.jspdf) return Promise.resolve();
+            if (jsPDFLoading) return jsPDFLoading;
+            jsPDFLoading = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('jsPDF加载失败'));
+                document.head.appendChild(script);
+            });
+            return jsPDFLoading;
+        }
+
+        let mathJaxLoading = null;
+        function loadMathJax() {
+            if (window.MathJax && window.MathJax.typesetPromise) return Promise.resolve();
+            if (mathJaxLoading) return mathJaxLoading;
+            
+            mathJaxLoading = new Promise((resolve, reject) => {
+                // 先配置MathJax，再加载脚本
+                window.MathJax = {
+                    tex: {
+                        inlineMath: [['$', '$'], ['\\(', '\\)']],
+                        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                        processEscapes: true,
+                        processEnvironments: true
+                    },
+                    options: {
+                        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                        ignoreHtmlClass: 'tex-ignore'
+                    },
+                    startup: {
+                        typeset: false, // 不自动渲染
+                        ready: () => {
+                            window.MathJax.startup.defaultReady();
+                            console.log('MathJax加载完成');
+                            resolve();
+                        }
+                    }
+                };
+                
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js';
+                script.async = true;
+                script.onerror = () => reject(new Error('MathJax加载失败'));
+                document.head.appendChild(script);
+            });
+            return mathJaxLoading;
+        }
+
+        // HTML转义
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, (c) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[c] || c));
+        }
+
+        // 提取公式，再由 MathJax 处理（先占位再转义文本，最后恢复 TeX）
+        function renderMathToHtml(text) {
+            if (!text) return '';
+
+            const placeholders = [];
+            let idx = 0;
+            let work = text; // 原文，不先转义
+
+            // 提取公式为占位符（顺序：块级$$ -> \[\] -> 行内$ -> \(\)）
+            const extract = (regex) => {
+                work = work.replace(regex, (match, p1) => {
+                    const key = `__MATH_${idx++}__`;
+                    placeholders.push({ key, formula: p1, raw: match });
+                    return key;
+                });
+            };
+            extract(/\$\$([\s\S]+?)\$\$/g);
+            extract(/\\\[([\s\S]+?)\\\]/g);
+            extract(/\$([^\$\n]+?)\$/g);
+            extract(/\\\(([\s\S]+?)\\\)/g);
+
+            // 转义剩余文本（非公式部分）
+            work = escapeHtml(work);
+
+            // 恢复公式占位符为原始 TeX（留给 MathJax 渲染）
+            placeholders.forEach(({ key, formula, raw }) => {
+                work = work.replace(key, raw);
+            });
+
+            // 换行
+            work = work.replace(/\n/g, '<br>');
+            return work;
         }
 
         // 点击外部关闭模态框
