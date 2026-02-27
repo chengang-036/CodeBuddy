@@ -75,6 +75,8 @@
             font-size: 0.9rem;
             transition: all 0.3s;
             white-space: nowrap;
+            -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+            touch-action: manipulation;
         }
         
         .header-btn:hover {
@@ -197,6 +199,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: rgba(0,0,0,0.05);
+            touch-action: manipulation;
             gap: 8px;
         }
 
@@ -270,6 +274,8 @@
             transition: transform 0.3s;
             border: 1px solid #eee;
             cursor: pointer;
+            -webkit-tap-highlight-color: rgba(0,0,0,0.05);
+            touch-action: manipulation;
         }
 
         .error-item:hover {
@@ -473,6 +479,18 @@
             min-width: 600px;
             min-height: 400px;
             overflow: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                resize: none;
+                min-width: unset;
+                width: 100%;
+                min-height: unset;
+                max-height: 85vh;
+                padding: 20px 15px;
+                border-radius: 12px;
+            }
         }
         
         /* 拖动手柄提示（右下角同时提示可横向与纵向拖动） */
@@ -1019,9 +1037,9 @@
                 <p>整理错题，查漏补缺，稳步提升</p>
             </div>
             <div class="header-actions">
-                <button class="header-btn" onclick="showMethodologyModal()">📖 学习方法论</button>
-                <button class="header-btn" onclick="document.getElementById('importZipInput').click()">📦 导入ZIP</button>
-                <button class="header-btn danger" onclick="confirmClearAll()">🗑️ 清空数据</button>
+                <button type="button" class="header-btn" onclick="showMethodologyModal()">📖 学习方法论</button>
+                <button type="button" class="header-btn" onclick="document.getElementById('importZipInput').click()">📦 导入ZIP</button>
+                <button type="button" class="header-btn danger" onclick="confirmClearAll()">🗑️ 清空数据</button>
                 <input type="file" id="importZipInput" accept=".zip" class="hidden">
             </div>
         </div>
@@ -1102,7 +1120,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>题目图片 <span class="image-count-badge" id="imageCount">0/10</span> (支持剪贴板粘贴 Ctrl+V)</label>
+                    <label>题目图片 <span class="image-count-badge" id="imageCount">0/10</span> <span style="font-weight:normal;color:#888;">(Mac: ⌘V 粘贴 / 手机: 长按选择粘贴)</span></label>
                     <div class="upload-section" id="imgUploadBtn" style="padding: 20px;">
                         <span id="imgBtnText">点击选择或直接粘贴截图（可多选）</span>
                         <input type="file" id="imgInput" accept="image/*" multiple class="hidden">
@@ -2211,27 +2229,37 @@ ${questionText}
         });
 
         // 粘贴图片支持（优先编辑模式，以免误贴到新增区域）
-        window.addEventListener('paste', async (e) => {
+        window.addEventListener('paste', (e) => {
             const editVisible = !document.getElementById('editMode').classList.contains('hidden');
             const createVisible = !actionCard.classList.contains('hidden');
             if (!editVisible && !createVisible) return;
             
-            const items = e.clipboardData.items;
+            // 同步提取所有图片blob（必须在paste事件同步阶段完成，Safari要求）
+            const imageBlobs = [];
+            const items = e.clipboardData && e.clipboardData.items;
+            if (!items) return;
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
                     const blob = items[i].getAsFile();
-                    const reader = new FileReader();
-                    reader.onload = async (event) => {
-                        // 优先编辑模式
-                        if (editVisible) {
-                            await addImageToEditGallery(event.target.result);
-                        } else if (createVisible) {
-                            await addImageToGallery(event.target.result);
-                        }
-                    };
-                    reader.readAsDataURL(blob);
+                    if (blob) imageBlobs.push(blob);
                 }
             }
+            
+            if (imageBlobs.length === 0) return;
+            e.preventDefault();
+            
+            // 异步处理（blob已在上面同步获取，不受Safari时间限制）
+            imageBlobs.forEach(blob => {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    if (editVisible) {
+                        await addImageToEditGallery(event.target.result);
+                    } else if (createVisible) {
+                        await addImageToGallery(event.target.result);
+                    }
+                };
+                reader.readAsDataURL(blob);
+            });
         });
 
         // 压缩图片
@@ -2515,7 +2543,7 @@ ${questionText}
         }
         
         // 确认清空所有数据
-        async function confirmClearAll() {
+        window.confirmClearAll = async function confirmClearAll() {
             if (!confirm('⚠️ 确定要清空所有错题数据和学习方法论吗？\n此操作不可恢复！建议先导出备份。')) {
                 return;
             }
@@ -2601,6 +2629,12 @@ ${questionText}
                 renderImageGallery();
                 showStatus('success', '错题保存成功！');
                 
+                // 保存后重新聚焦到题目描述输入框，确保下次粘贴功能正常（Safari需要可编辑元素有焦点）
+                setTimeout(() => {
+                    const descEl = document.getElementById('description');
+                    if (descEl) descEl.focus();
+                }, 100);
+                
                 // 更新存储空间显示
                 await calculateStorageUsage();
             } catch (err) {
@@ -2661,7 +2695,16 @@ ${questionText}
             filtered.forEach((record, index) => {
                 const card = document.createElement('div');
                 card.className = 'error-item';
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
                 card.onclick = () => showDetail(record);
+                card.addEventListener('touchend', (e) => {
+                    // Safari iOS 需要 touchend 触发点击
+                    if (!e.target.closest('button') && !e.target.closest('img[onclick]')) {
+                        e.preventDefault();
+                        showDetail(record);
+                    }
+                }, { passive: false });
                 
                 // 解析图片数组
                 let images = [];
