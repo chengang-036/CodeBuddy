@@ -1240,6 +1240,28 @@
             .upload-section {
                 padding: 20px 15px;
             }
+
+            /* ---- 关闭按钮（手机端）---- */
+            .modal-close {
+                top: 14px;
+                right: 14px;
+                font-size: 0;           /* 隐藏原来的 × 字符 */
+                background: rgba(0,0,0,0.12);
+                border-radius: 20px;
+                padding: 6px 16px;
+                color: #333;
+                min-width: 56px;
+                text-align: center;
+                line-height: 1;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .modal-close::after {
+                content: '关闭';
+                font-size: 15px;
+                font-weight: 500;
+                color: #333;
+                letter-spacing: 1px;
+            }
         }
     </style>
     
@@ -2942,14 +2964,38 @@ ${questionText}
                 card.className = 'error-item';
                 card.setAttribute('role', 'button');
                 card.setAttribute('tabindex', '0');
+                // Mac/桌面端：单击打开
                 card.onclick = () => showDetail(record);
+                // iPhone/手机端：双击打开（touchend 计时实现）
+                let _lastTap = 0;
                 card.addEventListener('touchend', (e) => {
-                    // Safari iOS 需要 touchend 触发点击
-                    if (!e.target.closest('button') && !e.target.closest('img[onclick]')) {
+                    if (e.target.closest('button') || e.target.closest('img[onclick]')) return;
+                    const now = Date.now();
+                    const gap = now - _lastTap;
+                    _lastTap = now;
+                    if (gap > 0 && gap < 300) {
+                        // 双击
                         e.preventDefault();
                         showDetail(record);
                     }
+                    // 单击不触发（阻止冒泡到 onclick 以防双触）
+                    e.stopPropagation();
                 }, { passive: false });
+                // 阻止手机端 onclick 被 touch 误触发
+                card.addEventListener('touchstart', (e) => {
+                    if (!e.target.closest('button') && !e.target.closest('img[onclick]')) {
+                        card._touchActive = true;
+                    }
+                }, { passive: true });
+                const _origOnclick = () => showDetail(record);
+                card.onclick = (e) => {
+                    // 若是 touch 设备触发的 click，忽略（由 touchend 双击逻辑控制）
+                    if (e.sourceCapabilities && !e.sourceCapabilities.firesTouchEvents) {
+                        _origOnclick();
+                    } else if (!('ontouchstart' in window)) {
+                        _origOnclick();
+                    }
+                };
                 
                 // 解析图片数组
                 let images = [];
