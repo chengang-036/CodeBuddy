@@ -1008,6 +1008,239 @@
             align-items: center;
             gap: 5px;
         }
+
+        /* =============================================
+           手机端响应式适配 (max-width: 768px)
+           不影响 Mac/桌面端任何展示
+           ============================================= */
+        @media (max-width: 768px) {
+
+            /* ---- Header ---- */
+            .app-header {
+                padding: 20px 15px;
+            }
+            .app-header h1 {
+                font-size: 1.5rem;
+                letter-spacing: 1px;
+                margin-bottom: 5px;
+            }
+            .app-header p {
+                font-size: 0.9rem;
+            }
+            .app-header .header-actions {
+                gap: 8px;
+            }
+            .header-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            /* ---- 容器与卡片 ---- */
+            .container {
+                padding: 0 12px;
+                margin: 12px auto 24px;
+            }
+            .card {
+                padding: 16px 14px;
+                border-radius: 12px;
+                margin-bottom: 16px;
+            }
+
+            /* ---- 统计面板 ---- */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+            .stat-card {
+                padding: 14px 10px;
+            }
+            .stat-card .value {
+                font-size: 20px;
+            }
+
+            /* ---- 录入表单 ---- */
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+                margin-top: 12px;
+            }
+            .form-group {
+                margin-bottom: 14px;
+            }
+            .form-control {
+                font-size: 16px; /* 防止 iOS 自动缩放 */
+            }
+            textarea.form-control {
+                min-height: 80px;
+            }
+            .btn-group {
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 16px;
+            }
+            .btn-group .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .btn {
+                font-size: 14px;
+                padding: 10px 16px;
+            }
+            .formula-hint {
+                font-size: 0.78rem;
+            }
+
+            /* ---- 图片画廊 ---- */
+            .image-gallery {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            /* ---- 错题列表 ---- */
+            .list-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                margin-bottom: 14px;
+            }
+            .list-header h3 {
+                font-size: 1rem;
+            }
+            /* 筛选组 + 导出按钮总容器 */
+            .list-toolbar {
+                width: 100%;
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            #filterGroup {
+                width: 100%;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .filter-select {
+                width: 100% !important;
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+            /* 导出按钮组 */
+            .list-export-btns {
+                width: 100%;
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            .list-export-btns .btn {
+                width: 100% !important;
+                justify-content: center;
+                text-align: center;
+                padding: 10px 16px !important;
+                font-size: 14px !important;
+            }
+
+            /* 错题卡片：手机单列 */
+            .error-list {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .error-img {
+                height: 160px;
+            }
+            .error-content {
+                padding: 12px;
+            }
+            .error-desc {
+                font-size: 13px;
+                max-height: 90px;
+            }
+
+            /* ---- 存储信息 ---- */
+            .storage-info {
+                padding: 12px;
+                margin-top: 10px;
+            }
+            .storage-text {
+                font-size: 12px;
+            }
+
+            /* ---- 方法论 Modal ---- */
+            .methodology-modal-content {
+                min-width: unset !important;
+                width: 100% !important;
+            }
+            .methodology-layout {
+                flex-direction: column;
+                height: auto;
+                gap: 12px;
+            }
+            .methodology-sidebar {
+                width: 100%;
+            }
+            .methodology-list-sidebar {
+                max-height: 180px;
+            }
+            .methodology-content-area {
+                min-height: 300px;
+                padding: 15px;
+            }
+            #methodologyContent {
+                min-height: 200px;
+                max-height: 40vh !important;
+            }
+
+            /* ---- 详情 Modal ---- */
+            .modal {
+                padding: 8px;
+                align-items: flex-end; /* 从底部弹出，更贴近手机习惯 */
+            }
+            .modal-content {
+                border-radius: 16px 16px 0 0;
+                max-height: 92vh;
+                padding: 16px 14px;
+                width: 100%;
+            }
+            /* 详情 modal 不从底部弹出（可能有拖动resize，不适合） */
+            #detailModal.modal,
+            #methodologyModal.modal {
+                align-items: center;
+            }
+            #detailModal .modal-content,
+            #methodologyModal .modal-content {
+                border-radius: 12px;
+                max-height: 92vh;
+            }
+            .modal-content::after {
+                display: none; /* 手机不需要拖动提示 */
+            }
+            /* 拆分布局在手机改为单列 */
+            .detail-grid.split-layout {
+                flex-direction: column;
+                max-height: none;
+            }
+            .detail-grid.split-layout #leftColumn,
+            .detail-grid.split-layout #rightColumn {
+                flex: none;
+                max-height: none;
+                overflow-y: visible;
+                padding: 0;
+            }
+            .resizer {
+                display: none; /* 手机无需拖动分隔线 */
+            }
+            /* 详情头部按钮 */
+            .detail-view-header {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            /* 手机隐藏"上下显示"切换按钮（默认单列已是上下） */
+            #toggleLayoutBtn {
+                display: none;
+            }
+
+            /* ---- 上传区域 ---- */
+            .upload-section {
+                padding: 20px 15px;
+            }
+        }
     </style>
     
     <!-- MathJax 配置 -->
@@ -1151,7 +1384,7 @@
         <div id="listCard" class="card hidden">
             <div class="list-header">
                 <h3>错题记录列表</h3>
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div class="list-toolbar" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <div id="filterGroup" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <input id="filterChapter" class="filter-select" style="width: 180px;" type="text" placeholder="按章节/知识点筛选" oninput="renderList()">
                         <select id="filterDifficulty" class="filter-select" onchange="renderList()">
@@ -1167,9 +1400,11 @@
                             <option value="已掌握">已掌握</option>
                         </select>
                     </div>
-                    <button class="btn" onclick="exportPdfRedo()" style="padding: 8px 16px; font-size: 14px; background:#6c5ce7; color:white;">📝 导出错题PDF-重新做</button>
-                    <button class="btn btn-success" onclick="exportWorkbook()" style="padding: 8px 16px; font-size: 14px;">💾 导出Excel</button>
-                    <button class="btn btn-primary" onclick="exportWithImages()" style="padding: 8px 16px; font-size: 14px;">📦 导出完整包(含图片)</button>
+                    <div class="list-export-btns" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn" onclick="exportPdfRedo()" style="padding: 8px 16px; font-size: 14px; background:#6c5ce7; color:white;">📝 导出错题PDF-重新做</button>
+                        <button class="btn btn-success" onclick="exportWorkbook()" style="padding: 8px 16px; font-size: 14px;">💾 导出Excel</button>
+                        <button class="btn btn-primary" onclick="exportWithImages()" style="padding: 8px 16px; font-size: 14px;">📦 导出完整包(含图片)</button>
+                    </div>
                 </div>
             </div>
             <div id="errorList" class="error-list">
@@ -1254,9 +1489,9 @@
             
             <!-- 查看模式 -->
             <div id="viewMode">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div class="detail-view-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px;">
                     <div id="modalTags"></div>
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <button class="btn btn-secondary" id="toggleLayoutBtn" onclick="toggleLayout()" style="padding: 6px 12px; font-size: 14px;">
                             ⬇️ 上下显示
                         </button>
