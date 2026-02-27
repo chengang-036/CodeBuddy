@@ -1783,7 +1783,17 @@ ${questionText}
                     return;
                 }
                 
-                const estimate = await navigator.storage.estimate();
+                // 添加3秒超时，避免iOS Safari下file://协议永久挂起
+                let estimate;
+                try {
+                    estimate = await Promise.race([
+                        navigator.storage.estimate(),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+                    ]);
+                } catch (e) {
+                    document.getElementById('storageText').innerHTML = '存储空间查询不可用（本地文件模式）';
+                    return;
+                }
                 const usage = estimate.usage || 0; // 已使用字节数
                 const quota = estimate.quota || 0; // 总配额字节数
                 
