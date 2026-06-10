@@ -20,6 +20,19 @@ deploy-*.sh
 **/*pack*.sh
 **/部署指南.md
 
-# 临时和打包文件
+# WorkBuddy metadata (do not track)
+.workbuddy/
+
+# Backup files
+backups/
+*_backup_*
+*_pre_*
+
+# CSV exports (sensitive data)
+csv_export/
+
+# Archives & bytecode
 *.tar.gz
 *.zip
+*.pyc
+__pycache__/

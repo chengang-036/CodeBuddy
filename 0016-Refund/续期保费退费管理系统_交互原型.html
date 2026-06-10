@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>续期保费退费管理系统 - 交互原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2E75B6;
+            --primary-dark: #1E5A8A;
+            --success: #52C41A;
+            --warning: #FAAD14;
+            --danger: #FF4D4F;
+            --bg-light: #F5F7FA;
+            --border: #E8E8E8;
+            --text: #333;
+            --text-light: #666;
+            --shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 16px 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 8px;
+            margin-left: 40px;
+        }
+        
+        .nav-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .nav-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+        
+        /* 主容器 */
+        .container {
+            margin-top: 80px;
+            padding: 24px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* 场景选择页面 */
+        .scene-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        
+        .scene-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .scene-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(46,117,182,0.2);
+        }
+        
+        .scene-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .scene-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .scene-card p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        /* 页面框架 */
+        .page-frame {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .page-frame.active {
+            display: block;
+        }
+        
+        .page-header {
+            background: var(--bg-light);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-header h2 {
+            font-size: 16px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .page-content {
+            padding: 24px;
+        }
+        
+        /* 流程步骤 */
+        .flow-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 32px;
+            padding: 0 24px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--border);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .step.active .step-circle {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .step.completed .step-circle {
+            background: var(--success);
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 13px;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+        
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background: var(--border);
+            margin: 0 8px;
+        }
+        
+        .step.completed + .step .step-line,
+        .step-line.active {
+            background: var(--success);
+        }
+        
+        /* 表单样式 */
+        .form-section {
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .form-label {
+            font-size: 13px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        .form-value {
+            font-size: 14px;
+            padding: 10px 12px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+        }
+        
+        .form-value.highlight {
+            background: #E6F7FF;
+            border-color: var(--primary);
+        }
+        
+        .form-value.masked {
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+        
+        input[type="text"],
+        input[type="tel"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46,117,182,0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        
+        .data-table th {
+            background: var(--bg-light);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        
+        .data-table tr:hover {
+            background: #FAFAFA;
+        }
+        
+        .data-table .checkbox-cell {
+            width: 48px;
+            text-align: center;
+        }
+        
+        /* 复选框 */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkbox.checked {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .checkbox::after {
+            content: '✓';
+            font-size: 12px;
+            display: none;
+        }
+        
+        .checkbox.checked::after {
+            display: block;
+        }
+        
+        /* 状态标签 */
+        .status-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-tag.pending {
+            background: #FFF7E6;
+            color: #FA8C16;
+        }
+        
+        .status-tag.processing {
+            background: #E6F7FF;
+            color: var(--primary);
+        }
+        
+        .status-tag.success {
+            background: #F6FFED;
+            color: #52C41A;
+        }
+        
+        .status-tag.failed {
+            background: #FFF1F0;
+            color: #FF4D4F;
+        }
+        
+        /* 按钮 */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        /* 警告提示 */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .alert-warning {
+            background: #FFFBE6;
+            border: 1px solid #FFE58F;
+        }
+        
+        .alert-danger {
+            background: #FFF2F0;
+            border: 1px solid #FFCCC7;
+        }
+        
+        .alert-success {
+            background: #F6FFED;
+            border: 1px solid #B7EB8F;
+        }
+        
+        .alert-icon {
+            font-size: 20px;
+        }
+        
+        .alert-content h4 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .alert-content p {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: auto;
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: 17px;
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-light);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        /* 进度时间线 */
+        .timeline {
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            padding-bottom: 24px;
+            position: relative;
+        }
+        
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 32px;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+        
+        .timeline-item.completed::before {
+            background: var(--success);
+        }
+        
+        .timeline-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .timeline-item.completed .timeline-dot {
+            background: var(--success);
+            color: white;
+        }
+        
+        .timeline-item.active .timeline-dot {
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(46,117,182,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(46,117,182,0); }
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-time {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        
+        .timeline-desc {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        /* 影像上传 */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-light);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: #F0F7FF;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .upload-text {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .upload-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .preview-item {
+            position: relative;
+            aspect-ratio: 3/4;
+            background: var(--bg-light);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+        }
+        
+        .preview-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .preview-label {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        
+        /* 审批卡片 */
+        .approval-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .approval-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(46,117,182,0.1);
+        }
+        
+        .approval-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .approval-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .approval-amount {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        .approval-info {
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .header-nav {
+                display: none;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-steps {
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+            
+            .step-line {
+                display: none;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* 两栏布局 */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        @media (max-width: 900px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 金额统计 */
+        .amount-summary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .amount-summary h4 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .amount-summary .amount {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        /* 列表卡片 */
+        .list-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .list-card:hover {
+            border-color: var(--primary);
+        }
+        
+        .list-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .list-card-title {
+            font-weight: 600;
+        }
+        
+        .list-card-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <h1>
+            📋 续期保费退费管理系统
+            <nav class="header-nav">
+                <button class="nav-btn active" onclick="showScene('home')">🏠 首页</button>
+                <button class="nav-btn" onclick="showScene('95500')">📞 95500坐席</button>
+                <button class="nav-btn" onclick="showScene('counter')">🏢 柜面受理</button>
+                <button class="nav-btn" onclick="showScene('mobile')">📱 移动端</button>
+                <button class="nav-btn" onclick="showScene('dingtalk')">✅ 钉钉审批</button>
+            </nav>
+        </h1>
+    </header>
+    
+    <div class="container">
+        <!-- 场景选择页面 -->
+        <div id="scene-home" class="page-frame active">
+            <div class="page-content">
+                <h2 style="text-align: center; margin-bottom: 8px; font-size: 24px;">续期保费退费管理系统</h2>
+                <p style="text-align: center; color: var(--text-light); margin-bottom: 32px;">交互原型设计 - 请选择一个场景开始体验</p>
+                
+                <div class="scene-grid">
+                    <div class="scene-card" onclick="showScene('95500')">
+                        <div class="scene-icon">📞</div>
+                        <h3>95500电话坐席</h3>
+                        <p>坐席人员接听客户电话，查询保单信息，录入退费申请，发送远程确认链接</p>
+                    </div>
+                    
+                    <div class="scene-card" onclick="showScene('counter')">
+                        <div class="scene-icon">🏢</div>
+                        <h3>柜面受理</h3>
+                        <p>柜员录入保单信息，校验风控规则，受理退费申请，支持撤回、修改、撤销</p>
+                    </div>
+                    
+                    <div class="scene-card" onclick="showScene('mobile')">
+                        <div class="scene-icon">📱</div>
+                        <h3>客户移动端</h3>
+                        <p>客户点击链接进行身份验证，上传影像资料，提交退费确认，查询进度</p>
+                    </div>
+                    
+                    <div class="scene-card" onclick="showScene('dingtalk')">
+                        <div class="scene-icon">✅</div>
+                        <h3>钉钉审批</h3>
+                        <p>审批人员查看待审批工单，进行业务审批或财务审批操作</p>
+                    </div>
+                </div>
+                
+                <!-- 系统概览 -->
+                <div style="margin-top: 48px;">
+                    <h3 style="margin-bottom: 20px; text-align: center;">系统流程概览</h3>
+                    <div style="background: white; padding: 32px; border-radius: 12px; box-shadow: var(--shadow);">
+                        <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div style="background: var(--bg-light); padding: 12px 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 20px;">📞</div>
+                                <div style="font-size: 13px;">95500/柜面受理</div>
+                            </div>
+                            <div style="color: var(--text-light);">→</div>
+                            <div style="background: var(--bg-light); padding: 12px 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 20px;">🔗</div>
+                                <div style="font-size: 13px;">远程确认链接</div>
+                            </div>
+                            <div style="color: var(--text-light);">→</div>
+                            <div style="background: var(--bg-light); padding: 12px 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 20px;">📱</div>
+                                <div style="font-size: 13px;">客户身份验证</div>
+                            </div>
+                            <div style="color: var(--text-light);">→</div>
+                            <div style="background: var(--bg-light); padding: 12px 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 20px;">📤</div>
+                                <div style="font-size: 13px;">影像上传</div>
+                            </div>
+                            <div style="color: var(--text-light);">→</div>
+                            <div style="background: var(--bg-light); padding: 12px 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 20px;">✅</div>
+                                <div style="font-size: 13px;">多级审批</div>
+                            </div>
+                            <div style="color: var(--text-light);">→</div>
+                            <div style="background: #E6F7FF; padding: 12px 20px; border-radius: 8px; text-align: center; border: 1px solid var(--primary);">
+                                <div style="font-size: 20px;">💰</div>
+                                <div style="font-size: 13px; color: var(--primary);">退费完成</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+                            <h4 style="font-size: 14px; margin-bottom: 12px;">风控规则</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <span class="status-tag processing">时效规则</span>
+                                <span class="status-tag processing">9大阻断场景</span>
+                                <span class="status-tag processing">账号规则</span>
+                                <span class="status-tag processing">反洗钱校验</span>
+                                <span class="status-tag processing">贷款校验</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 24px;">
+                            <h4 style="font-size: 14px; margin-bottom: 12px;">审批分层</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                                <div style="background: var(--bg-light); padding: 12px; border-radius: 6px;">
+                                    <div style="font-weight: 600; font-size: 13px;">≤5000元</div>
+                                    <div style="font-size: 12px; color: var(--text-light);">3级审批</div>
+                                </div>
+                                <div style="background: var(--bg-light); padding: 12px; border-radius: 6px;">
+                                    <div style="font-weight: 600; font-size: 13px;">5000-50万</div>
+                                    <div style="font-size: 12px; color: var(--text-light);">5级审批</div>
+                                </div>
+                                <div style="background: var(--bg-light); padding: 12px; border-radius: 6px;">
+                                    <div style="font-weight: 600; font-size: 13px;">>50万</div>
+                                    <div style="font-size: 12px; color: var(--text-light);">9级审批</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 95500坐席端 -->
+        <div id="scene-95500" class="page-frame">
+            <div class="page-header">
+                <h2>📞 95500电话坐席 - 续期退费受理</h2>
+                <button class="back-btn" onclick="showScene('home')">← 返回首页</button>
+            </div>
+            
+            <div class="page-content">
+                <!-- 流程步骤 -->
+                <div class="flow-steps">
+                    <div class="step completed">
+                        <div class="step-circle">1</div>
+                        <span class="step-label">查询保单</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step active">
+                        <div class="step-circle">2</div>
+                        <span class="step-label">信息展示</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <span class="step-label">选择期次</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">4</div>
+                        <span class="step-label">录入原因</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">5</div>
+                        <span class="step-label">提交确认</span>
+                    </div>
+                </div>
+                
+                <!-- 保单查询 -->
+                <div class="form-section">
+                    <div class="form-section-title">🔍 保单查询</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">保单号</label>
+                            <input type="text" id="policyNo-95500" placeholder="请输入15位保单号" value="883512345678901">
+                        </div>
+                        <div class="form-group" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="queryPolicy('95500')">查询</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 保单信息 -->
+                <div class="form-section" id="policyInfo-95500" style="display: none;">
+                    <div class="form-section-title">📋 保单信息</div>
+                    
+                    <div class="alert alert-warning" style="margin-bottom: 16px;">
+                        <div class="alert-icon">ℹ️</div>
+                        <div class="alert-content">
+                            <h4>温馨提示</h4>
+                            <p>以下信息已脱敏处理，仅供核对使用</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">保单号</label>
+                            <div class="form-value highlight">883512345678901</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">保单状态</label>
+                            <div class="form-value">正常</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">主险名称</label>
+                            <div class="form-value">安心相伴定期寿险</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">主险代码</label>
+                            <div class="form-value">A01</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">投保人姓名</label>
+                            <div class="form-value">张明</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">投保人证件号</label>
+                            <div class="form-value masked">310***********1234</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">收费联系电话</label>
+                            <div class="form-value masked">138****1234</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">责任起期</label>
+                            <div class="form-value">2024-01-15</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">责任止期</label>
+                            <div class="form-value">2044-01-14</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">下次缴费日期</label>
+                            <div class="form-value">2025-01-15</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">交费方式</label>
+                            <div class="form-value">年缴</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">保单所属分公司</label>
+                            <div class="form-value">上海分公司</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">保单所属机构</label>
+                            <div class="form-value">普陀支公司</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">收费地址</label>
+                            <div class="form-value">上海市普陀区曹杨路500号</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 缴费信息 -->
+                <div class="form-section" id="paymentInfo-95500" style="display: none;">
+                    <div class="form-section-title">💳 缴费信息</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">缴费账户姓名</label>
+                            <div class="form-value">张明</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">卡号</label>
+                            <div class="form-value masked">622202**********1234</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">银行名称</label>
+                            <div class="form-value">中国工商银行</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 续期交费记录 -->
+                <div class="form-section" id="paymentRecords-95500" style="display: none;">
+                    <div class="form-section-title">📝 续期交费记录（请选择退费期次）</div>
+                    
+                    <div class="amount-summary">
+                        <h4>退费总金额</h4>
+                        <div class="amount">¥3,850.00</div>
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell">
+                                    <div class="checkbox-wrapper">
+                                        <div class="checkbox checked" onclick="toggleAllCheckboxes(this)"></div>
+                                    </div>
+                                </th>
+                                <th>期次</th>
+                                <th>应交日期</th>
+                                <th>实交日期</th>
+                                <th>金额</th>
+                                <th>保费来源</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="checkbox-cell">
+                                    <div class="checkbox-wrapper">
+                                        <div class="checkbox checked"></div>
+                                    </div>
+                                </td>
+                                <td>第2期</td>
+                                <td>2025-01-15</td>
+                                <td>2025-01-18</td>
+                                <td>¥1,925.00</td>
+                                <td>自缴</td>
+                            </tr>
+                            <tr>
+                                <td class="checkbox-cell">
+                                    <div class="checkbox-wrapper">
+                                        <div class="checkbox checked"></div>
+                                    </div>
+                                </td>
+                                <td>第1期</td>
+                                <td>2024-01-15</td>
+                                <td>2024-01-15</td>
+                                <td>¥1,925.00</td>
+                                <td>自缴</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 退费原因 -->
+                <div class="form-section" id="reasonSection-95500" style="display: none;">
+                    <div class="form-section-title">📝 退费原因</div>
+                    <div class="form-group">
+                        <label class="form-label">客户提供的退费原因（必填）</label>
+                        <textarea id="reason-95500" placeholder="请录入客户提供的退费原因...">客户表示经济困难，无力继续缴纳保费，申请退费。</textarea>
+                    </div>
+                </div>
+                
+                <!-- 按钮组 -->
+                <div class="btn-group" id="submitSection-95500" style="display: none;">
+                    <button class="btn btn-secondary" onclick="showScene('home')">取消</button>
+                    <button class="btn btn-primary" onclick="submitApplication('95500')">提交退费申请</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 柜面受理 -->
+        <div id="scene-counter" class="page-frame">
+            <div class="page-header">
+                <h2>🏢 柜面受理 - 续期退费</h2>
+                <button class="back-btn" onclick="showScene('home')">← 返回首页</button>
+            </div>
+            
+            <div class="page-content">
+                <!-- 流程步骤 -->
+                <div class="flow-steps">
+                    <div class="step completed">
+                        <div class="step-circle">1</div>
+                        <span class="step-label">录入保单</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step active">
+                        <div class="step-circle">2</div>
+                        <span class="step-label">规则校验</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <span class="step-label">选择期次</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">4</div>
+                        <span class="step-label">提交确认</span>
+                    </div>
+                </div>
+                
+                <!-- 保单录入 -->
+                <div class="form-section">
+                    <div class="form-section-title">🔍 保单录入</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">保单号</label>
+                            <input type="text" id="policyNo-counter" placeholder="请输入15位保单号" value="883512345678901">
+                        </div>
+                        <div class="form-group" style="align-self: flex-end;">
+                            <button class="btn btn-primary" onclick="queryPolicy('counter')">查询</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 风控校验结果 -->
+                <div class="form-section" id="ruleCheck-counter" style="display: none;">
+                    <div class="form-section-title">🛡️ 风控规则校验</div>
+                    <div class="alert alert-success">
+                        <div class="alert-icon">✅</div>
+                        <div class="alert-content">
+                            <h4>校验通过</h4>
+                            <p>该保单符合续期退费受理条件，可以继续办理</p>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <tbody>
+                            <tr>
+                                <td style="width: 200px;">时效规则</td>
+                                <td><span class="status-tag success">通过</span></td>
+                                <td style="color: var(--text-light);">保费实缴完成30日以内</td>
+                            </tr>
+                            <tr>
+                                <td>理赔/减保校验</td>
+                                <td><span class="status-tag success">通过</span></td>
+                                <td style="color: var(--text-light);">应缴日后未发生理赔/减保</td>
+                            </tr>
+                            <tr>
+                                <td>投保人变更</td>
+                                <td><span class="status-tag success">通过</span></td>
+                                <td style="color: var(--text-light);">未做投保人变更</td>
+                            </tr>
+                            <tr>
+                                <td>贷款校验</td>
+                                <td><span class="status-tag success">通过</span></td>
+                                <td style="color: var(--text-light);">无未结清贷款</td>
+                            </tr>
+                            <tr>
+                                <td>反洗钱校验</td>
+                                <td><span class="status-tag success">通过</span></td>
+                                <td style="color: var(--text-light);">符合反洗钱规则</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 保单信息 -->
+                <div class="form-section" id="policyInfo-counter" style="display: none;">
+                    <div class="form-section-title">📋 保单信息 <span style="font-size: 12px; color: var(--text-light); font-weight: normal;">（隐藏被保险人信息）</span></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">保单号</label>
+                            <div class="form-value">883512345678901</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">保单状态</label>
+                            <div class="form-value">正常</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">主险名称</label>
+                            <div class="form-value">安心相伴定期寿险</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">投保人姓名</label>
+                            <div class="form-value">张明</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">投保人证件号</label>
+                            <div class="form-value masked">310***********1234</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">收费联系电话</label>
+                            <div class="form-value masked">138****1234</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">责任起期</label>
+                            <div class="form-value">2024-01-15</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">下次缴费日期</label>
+                            <div class="form-value">2025-01-15</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">保单所属机构</label>
+                            <div class="form-value">上海分公司-普陀支公司</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 缴费信息 -->
+                <div class="form-section" id="paymentInfo-counter" style="display: none;">
+                    <div class="form-section-title">💳 缴费信息</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">缴费账户姓名</label>
+                            <div class="form-value">张明</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">卡号</label>
+                            <div class="form-value">62220212345678901234</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">银行名称</label>
+                            <div class="form-value">中国工商银行</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 续期交费记录 -->
+                <div class="form-section" id="paymentRecords-counter" style="display: none;">
+                    <div class="form-section-title">📝 续期交费记录</div>
+                    
+                    <div class="amount-summary">
+                        <h4>退费总金额</h4>
+                        <div class="amount">¥3,850.00</div>
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell">
+                                    <div class="checkbox-wrapper">
+                                        <div class="checkbox checked" onclick="toggleAllCheckboxes(this)"></div>
+                                    </div>
+                                </th>
+                                <th>期次</th>
+                                <th>应交日期</th>
+                                <th>实交日期</th>
+                                <th>金额</th>
+                                <th>保费来源</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="checkbox-cell">
+                                    <div class="checkbox-wrapper">
+                                        <div class="checkbox checked"></div>
+                                    </div>
+                                </td>
+                                <td>第2期</td>
+                                <td>2025-01-15</td>
+                                <td>2025-01-18</td>
+                                <td>¥1,925.00</td>
+                                <td>自缴</td>
+                            </tr>
+                            <tr>
+                                <td class="checkbox-cell">
+                                    <div class="checkbox-wrapper">
+                                        <div class="checkbox checked"></div>
+                                    </div>
+                                </td>
+                                <td>第1期</td>
+                                <td>2024-01-15</td>
+                                <td>2024-01-15</td>
+                                <td>¥1,925.00</td>
+                                <td>自缴</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 退费原因 -->
+                <div class="form-section" id="reasonSection-counter" style="display: none;">
+                    <div class="form-section-title">📝 退费原因</div>
+                    <div class="form-group">
+                        <label class="form-label">客户提供的退费原因（必填）</label>
+                        <textarea id="reason-counter" placeholder="请录入客户提供的退费原因..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- 按钮组 -->
+                <div class="btn-group" id="submitSection-counter" style="display: none;">
+                    <button class="btn btn-secondary" onclick="recallApplication()">撤回</button>
+                    <button class="btn btn-danger" onclick="cancelApplication()">撤销</button>
+                    <button class="btn btn-primary" onclick="submitApplication('counter')">提交退费申请</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 移动端 -->
+        <div id="scene-mobile" class="page-frame">
+            <div class="page-header">
+                <h2>📱 客户移动端 - 续期退费确认</h2>
+                <button class="back-btn" onclick="showScene('home')">← 返回首页</button>
+            </div>
+            
+            <div class="page-content">
+                <!-- 流程步骤 -->
+                <div class="flow-steps">
+                    <div class="step completed">
+                        <div class="step-circle">1</div>
+                        <span class="step-label">身份验证</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step active">
+                        <div class="step-circle">2</div>
+                        <span class="step-label">核对信息</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <span class="step-label">上传影像</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">4</div>
+                        <span class="step-label">提交确认</span>
+                    </div>
+                </div>
+                
+                <!-- 身份验证 -->
+                <div class="form-section" id="verifySection-mobile">
+                    <div class="form-section-title">🔐 身份验证</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">保单号</label>
+                            <input type="text" placeholder="请输入保单号">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">证件号</label>
+                            <input type="text" placeholder="请输入证件号">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">手机号</label>
+                            <input type="tel" placeholder="请输入手机号">
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 16px;">
+                        <button class="btn btn-primary" onclick="verifyIdentity()">验证身份</button>
+                    </div>
+                </div>
+                
+                <!-- 保单信息 -->
+                <div class="form-section" id="mobilePolicyInfo" style="display: none;">
+                    <div class="form-section-title">📋 保单信息</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">保单号</label>
+                            <div class="form-value">883512345678901</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">保单状态</label>
+                            <div class="form-value">正常</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">主险名称</label>
+                            <div class="form-value">安心相伴定期寿险</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">投保人</label>
+                            <div class="form-value">张明</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">责任起期</label>
+                            <div class="form-value">2024-01-15</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">责任止期</label>
+                            <div class="form-value">2044-01-14</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 缴费信息 -->
+                <div class="form-section" id="mobilePaymentInfo" style="display: none;">
+                    <div class="form-section-title">💳 缴费信息</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">账户姓名</label>
+                            <div class="form-value">张明</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">卡号</label>
+                            <div class="form-value masked">622202**********1234</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">银行名称</label>
+                        <div class="form-value">中国工商银行</div>
+                    </div>
+                </div>
+                
+                <!-- 交费记录 -->
+                <div class="form-section" id="mobileRecords" style="display: none;">
+                    <div class="form-section-title">📝 续期交费记录</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>期次</th>
+                                <th>金额</th>
+                                <th>应交日期</th>
+                                <th>实交日期</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>第2期</td>
+                                <td>¥1,925.00</td>
+                                <td>2025-01-15</td>
+                                <td>2025-01-18</td>
+                            </tr>
+                            <tr>
+                                <td>第1期</td>
+                                <td>¥1,925.00</td>
+                                <td>2024-01-15</td>
+                                <td>2024-01-15</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 退费原因（可修改） -->
+                <div class="form-section" id="mobileReason" style="display: none;">
+                    <div class="form-section-title">📝 退费原因 <span style="font-size: 12px; color: var(--text-light); font-weight: normal;">（可修改）</span></div>
+                    <div class="form-group">
+                        <textarea placeholder="请确认或修改退费原因...">客户表示经济困难，无力继续缴纳保费，申请退费。</textarea>
+                    </div>
+                </div>
+                
+                <!-- 影像上传 -->
+                <div class="form-section" id="mobileUpload" style="display: none;">
+                    <div class="form-section-title">📤 影像上传</div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label">身份证正面</label>
+                        <div class="upload-area" onclick="simulateUpload(this)">
+                            <div class="upload-icon">🪪</div>
+                            <div class="upload-text">点击上传身份证正面</div>
+                        </div>
+                        <div class="upload-preview" style="display: none;">
+                            <div class="preview-item">
+                                <span class="preview-label">已上传</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label">身份证反面</label>
+                        <div class="upload-area" onclick="simulateUpload(this)">
+                            <div class="upload-icon">🪪</div>
+                            <div class="upload-text">点击上传身份证反面</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">银行卡</label>
+                        <div class="upload-area" onclick="simulateUpload(this)">
+                            <div class="upload-icon">💳</div>
+                            <div class="upload-text">点击上传银行卡影像</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 按钮组 -->
+                <div class="btn-group" id="mobileSubmit" style="display: none;">
+                    <button class="btn btn-primary" onclick="submitMobileConfirmation()">提交确认</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 钉钉审批 -->
+        <div id="scene-dingtalk" class="page-frame">
+            <div class="page-header">
+                <h2>✅ 钉钉审批 - 续期退费审批</h2>
+                <button class="back-btn" onclick="showScene('home')">← 返回首页</button>
+            </div>
+            
+            <div class="page-content">
+                <!-- 审批列表 -->
+                <div id="approvalList">
+                    <h3 style="margin-bottom: 16px;">待审批列表</h3>
+                    
+                    <div class="approval-card" onclick="showApprovalDetail('1')">
+                        <div class="approval-header">
+                            <span class="approval-title">续期退费 - 张明</span>
+                            <span class="approval-amount">¥3,850.00</span>
+                        </div>
+                        <div class="approval-info">
+                            <span>📋 883512345678901</span>
+                            <span>📍 上海分公司</span>
+                            <span>📞 柜面受理</span>
+                        </div>
+                    </div>
+                    
+                    <div class="approval-card" onclick="showApprovalDetail('2')">
+                        <div class="approval-header">
+                            <span class="approval-title">续期退费 - 李华</span>
+                            <span class="approval-amount">¥128,500.00</span>
+                        </div>
+                        <div class="approval-info">
+                            <span>📋 883598765432109</span>
+                            <span>📍 北京分公司</span>
+                            <span>📞 95500受理</span>
+                        </div>
+                    </div>
+                    
+                    <div class="approval-card" onclick="showApprovalDetail('3')">
+                        <div class="approval-header">
+                            <span class="approval-title">续期退费 - 王芳</span>
+                            <span class="approval-amount">¥5,200.00</span>
+                        </div>
+                        <div class="approval-info">
+                            <span>📋 883511122223334</span>
+                            <span>📍 深圳分公司</span>
+                            <span>📞 柜面受理</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 审批详情 -->
+                <div id="approvalDetail" style="display: none;">
+                    <button class="back-btn" onclick="showApprovalList()" style="margin-bottom: 16px;">← 返回列表</button>
+                    
+                    <div class="two-column">
+                        <div>
+                            <div class="form-section">
+                                <div class="form-section-title">📋 工单信息</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">业务流水号</label>
+                                        <div class="form-value">RF2025050700001</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">受理渠道</label>
+                                        <div class="form-value">柜面受理</div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">保单号</label>
+                                        <div class="form-value masked">883512345678901</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">退费金额</label>
+                                        <div class="form-value" style="color: var(--danger); font-weight: 600;">¥3,850.00</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">退费原因</label>
+                                    <div class="form-value">客户表示经济困难，无力继续缴纳保费，申请退费。</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <div class="form-section-title">👤 投保人信息</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">姓名</label>
+                                        <div class="form-value">张明</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">证件号</label>
+                                        <div class="form-value masked">310***********1234</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">联系电话</label>
+                                    <div class="form-value masked">138****1234</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="form-section">
+                                <div class="form-section-title">📝 处理进度</div>
+                                <div class="timeline">
+                                    <div class="timeline-item completed">
+                                        <div class="timeline-dot">✓</div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">柜面受理</div>
+                                            <div class="timeline-time">2025-05-07 09:30</div>
+                                            <div class="timeline-desc">柜员：李静</div>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item completed">
+                                        <div class="timeline-dot">✓</div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">远程确认</div>
+                                            <div class="timeline-time">2025-05-07 10:15</div>
+                                            <div class="timeline-desc">客户已完成影像上传</div>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item active">
+                                        <div class="timeline-dot">1</div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">中支业务审批</div>
+                                            <div class="timeline-time">待审批</div>
+                                            <div class="timeline-desc">审批人：待分配</div>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">分公司业务审批</div>
+                                            <div class="timeline-time">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">财务审批</div>
+                                            <div class="timeline-time">-</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <div class="form-section-title">💳 退费账户信息</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">账户姓名</label>
+                                        <div class="form-value">张明</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">银行</label>
+                                        <div class="form-value">中国工商银行</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">卡号</label>
+                                    <div class="form-value masked">622202**********1234</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="showApprovalList()">稍后处理</button>
+                        <button class="btn btn-danger" onclick="rejectApproval()">驳回</button>
+                        <button class="btn btn-success" onclick="approveApplication()">同意</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 进度查询页面 -->
+        <div id="scene-progress" class="page-frame">
+            <div class="page-header">
+                <h2>🔍 退费进度查询</h2>
+                <button class="back-btn" onclick="showScene('home')">← 返回首页</button>
+            </div>
+            
+            <div class="page-content">
+                <div class="form-section">
+                    <div class="form-section-title">🔍 查询条件</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">保单号</label>
+                            <input type="text" placeholder="请输入保单号">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">证件号</label>
+                            <input type="text" placeholder="请输入证件号">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">手机号</label>
+                            <input type="tel" placeholder="请输入手机号">
+                        </div>
+                        <div class="form-group" style="align-self: flex-end;">
+                            <button class="btn btn-primary">查询</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">📋 查询结果</div>
+                    
+                    <div style="background: var(--bg-light); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-weight: 600;">业务流水号：RF2025050700001</span>
+                            <span class="status-tag processing">审批中</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-light);">
+                            保单号：883512345678901 | 退费金额：¥3,850.00
+                        </div>
+                    </div>
+                    
+                    <div class="timeline">
+                        <div class="timeline-item completed">
+                            <div class="timeline-dot">✓</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">柜面受理</div>
+                                <div class="timeline-time">2025-05-07 09:30</div>
+                                <div class="timeline-desc">提交成功</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item completed">
+                            <div class="timeline-dot">✓</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">远程申请确认</div>
+                                <div class="timeline-time">2025-05-07 10:15</div>
+                                <div class="timeline-desc">已完成</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item active">
+                            <div class="timeline-dot">⏳</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">业务审批中</div>
+                                <div class="timeline-time">当前环节</div>
+                                <div class="timeline-desc">中支业务审批</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">财务审批</div>
+                                <div class="timeline-time">待进行</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">退费操作</div>
+                                <div class="timeline-time">待进行</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模态框 -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">提示</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 动态内容 -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="closeModal()">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 场景切换
+        function showScene(scene) {
+            document.querySelectorAll('.page-frame').forEach(p => p.classList.remove('active'));
+            document.getElementById('scene-' + scene).classList.add('active');
+            
+            // 更新导航状态
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            const navMap = {
+                'home': 0,
+                '95500': 1,
+                'counter': 2,
+                'mobile': 3,
+                'dingtalk': 4
+            };
+            if (navMap[scene] !== undefined) {
+                document.querySelectorAll('.nav-btn')[navMap[scene]].classList.add('active');
+            }
+            
+            window.scrollTo(0, 0);
+        }
+        
+        // 查询保单
+        function queryPolicy(channel) {
+            const policyNo = document.getElementById('policyNo-' + channel).value;
+            
+            if (!policyNo || policyNo.length < 15) {
+                showModal('提示', '<p>请输入正确的15位保单号</p>', [
+                    { text: '确定', class: 'btn-primary', onClick: closeModal }
+                ]);
+                return;
+            }
+            
+            // 显示保单信息
+            document.getElementById('policyInfo-' + channel).style.display = 'block';
+            document.getElementById('paymentInfo-' + channel).style.display = 'block';
+            document.getElementById('paymentRecords-' + channel).style.display = 'block';
+            document.getElementById('reasonSection-' + channel).style.display = 'block';
+            document.getElementById('submitSection-' + channel).style.display = 'flex';
+            
+            if (channel === 'counter') {
+                document.getElementById('ruleCheck-counter').style.display = 'block';
+            }
+        }
+        
+        // 复选框切换
+        function toggleAllCheckboxes(el) {
+            const container = el.closest('table');
+            const checkboxes = container.querySelectorAll('.checkbox');
+            const isChecked = el.classList.toggle('checked');
+            checkboxes.forEach(cb => {
+                if (isChecked) cb.classList.add('checked');
+                else cb.classList.remove('checked');
+            });
+        }
+        
+        document.querySelectorAll('.checkbox').forEach(cb => {
+            cb.addEventListener('click', function() {
+                this.classList.toggle('checked');
+            });
+        });
+        
+        // 提交申请
+        function submitApplication(channel) {
+            const reason = document.getElementById('reason-' + channel);
+            
+            if (!reason || !reason.value.trim()) {
+                showModal('提示', '<p>请录入退费原因</p>', [
+                    { text: '确定', class: 'btn-primary', onClick: closeModal }
+                ]);
+                return;
+            }
+            
+            showModal('提交成功', `
+                <div style="text-align: center; padding: 20px 0;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+                    <h4 style="margin-bottom: 8px;">提交成功！</h4>
+                    <p style="color: var(--text-light); font-size: 14px;">
+                        请通知客户在手机上确认<br>
+                        远程确认链接已生成（24小时有效）
+                    </p>
+                    <div style="background: var(--bg-light); padding: 12px; border-radius: 8px; margin-top: 16px;">
+                        <div style="font-size: 13px; color: var(--text-light);">业务流水号</div>
+                        <div style="font-size: 18px; font-weight: 600; font-family: monospace;">RF2025050700001</div>
+                    </div>
+                </div>
+            `, [
+                { text: '确定', class: 'btn-primary', onClick: function() { closeModal(); showScene('home'); } }
+            ]);
+        }
+        
+        // 撤回申请
+        function recallApplication() {
+            showModal('撤回确认', `
+                <p>确定要撤回此退费申请吗？</p>
+                <p style="color: var(--text-light); font-size: 13px; margin-top: 8px;">撤回后可重新修改并提交</p>
+            `, [
+                { text: '取消', class: 'btn-secondary', onClick: closeModal },
+                { text: '确认撤回', class: 'btn-primary', onClick: function() { closeModal(); showScene('home'); } }
+            ]);
+        }
+        
+        // 撤销申请
+        function cancelApplication() {
+            showModal('撤销申请', `
+                <p>确定要撤销此退费申请吗？</p>
+                <p style="color: var(--danger); font-size: 13px; margin-top: 8px;">撤销后此申请将终止，请谨慎操作</p>
+                <div style="margin-top: 16px;">
+                    <label class="form-label">撤销原因（必填，至少10个字）</label>
+                    <textarea id="cancelReason" placeholder="请输入撤销原因..." style="min-height: 100px;"></textarea>
+                </div>
+            `, [
+                { text: '取消', class: 'btn-secondary', onClick: closeModal },
+                { text: '确认撤销', class: 'btn-danger', onClick: function() {
+                    const reason = document.getElementById('cancelReason').value;
+                    if (reason.length < 10) {
+                        alert('撤销原因至少需要10个汉字');
+                        return;
+                    }
+                    closeModal();
+                    showScene('home');
+                }}
+            ]);
+        }
+        
+        // 移动端身份验证
+        function verifyIdentity() {
+            document.getElementById('mobilePolicyInfo').style.display = 'block';
+            document.getElementById('mobilePaymentInfo').style.display = 'block';
+            document.getElementById('mobileRecords').style.display = 'block';
+            document.getElementById('mobileReason').style.display = 'block';
+            document.getElementById('mobileUpload').style.display = 'block';
+            document.getElementById('mobileSubmit').style.display = 'flex';
+        }
+        
+        // 模拟上传
+        function simulateUpload(el) {
+            el.innerHTML = '<div style="color: var(--success);"><span style="font-size: 24px;">✓</span> 已上传</div>';
+        }
+        
+        // 移动端提交确认
+        function submitMobileConfirmation() {
+            showModal('提交确认', `
+                <div style="text-align: center; padding: 20px 0;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+                    <h4 style="margin-bottom: 8px;">提交成功！</h4>
+                    <p style="color: var(--text-light); font-size: 14px;">
+                        即将进入审批流程<br>
+                        请耐心等待
+                    </p>
+                </div>
+            `, [
+                { text: '确定', class: 'btn-primary', onClick: function() { closeModal(); showScene('home'); } }
+            ]);
+        }
+        
+        // 审批相关
+        function showApprovalList() {
+            document.getElementById('approvalList').style.display = 'block';
+            document.getElementById('approvalDetail').style.display = 'none';
+        }
+        
+        function showApprovalDetail(id) {
+            document.getElementById('approvalList').style.display = 'none';
+            document.getElementById('approvalDetail').style.display = 'block';
+        }
+        
+        function approveApplication() {
+            showModal('审批确认', `
+                <p>确定同意此退费申请吗？</p>
+            `, [
+                { text: '取消', class: 'btn-secondary', onClick: closeModal },
+                { text: '确认同意', class: 'btn-success', onClick: function() { 
+                    closeModal();
+                    showModal('审批成功', `
+                        <div style="text-align: center; padding: 20px 0;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+                            <h4>审批已通过</h4>
+                        </div>
+                    `, [
+                        { text: '确定', class: 'btn-primary', onClick: function() { closeModal(); showApprovalList(); } }
+                    ]);
+                }}
+            ]);
+        }
+        
+        function rejectApproval() {
+            showModal('驳回申请', `
+                <p>确定驳回此退费申请吗？</p>
+                <div style="margin-top: 16px;">
+                    <label class="form-label">驳回原因（必填）</label>
+                    <textarea id="rejectReason" placeholder="请输入驳回原因..."></textarea>
+                </div>
+            `, [
+                { text: '取消', class: 'btn-secondary', onClick: closeModal },
+                { text: '确认驳回', class: 'btn-danger', onClick: function() {
+                    closeModal();
+                    showModal('已驳回', '<p>该申请已被驳回</p>', [
+                        { text: '确定', class: 'btn-primary', onClick: function() { closeModal(); showApprovalList(); } }
+                    ]);
+                }}
+            ]);
+        }
+        
+        // 模态框
+        function showModal(title, content, buttons) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = content;
+            
+            let footerHtml = '';
+            buttons.forEach(btn => {
+                footerHtml += `<button class="btn ${btn.class}" onclick="(${btn.onClick.toString()})()">${btn.text}</button>`;
+            });
+            document.getElementById('modal-footer').innerHTML = footerHtml;
+            
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+        
+        // 点击遮罩关闭
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>

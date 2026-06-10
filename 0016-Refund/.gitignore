@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# WorkBuddy memory (private)
+.workbuddy/
+
+# Backup files
+backups/
+*_backup_*
+*_pre_*
+
+# CSV exports (sensitive data)
+csv_export/
+
+# General
+*.zip
+*.pyc
+__pycache__/
