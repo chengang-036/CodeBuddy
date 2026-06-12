@@ -971,10 +971,12 @@
                 <div class="card-header">
                     <div class="card-title"><span>&#9881;&#65039;</span><span>Admin &#25968;&#25454;&#31649;&#29702;</span></div>
                     <div style="display:flex;gap:12px;">
+                        <button class="btn btn-sm btn-outline" style="color:#6a1b9a;border-color:#6a1b9a;" onclick="adminViewEmbeddedData()">&#128218; &#26597;&#30475;&#20869;&#32622;&#25968;&#25496;</button>
+                        <button class="btn btn-sm btn-outline" style="color:#e65100;border-color:#e65100;" onclick="adminViewMemoryData()">&#128451; &#26597;&#30475;&#20869;&#23384;&#25968;&#25496;</button>
                         <button class="btn btn-sm btn-outline" style="color:#1565c0;border-color:#1565c0;" onclick="adminViewLocalData()">&#128065; &#26597;&#30475;&#26412;&#22320;&#25968;&#25496;</button>
                         <button class="btn btn-sm btn-outline" onclick="adminRefreshData()">&#128260; &#21047;&#26032;&#25968;&#25454;</button>
-                        <button class="btn btn-sm btn-warning" onclick="adminResetToDefault()">&#128229; &#24674;&#22797;&#40664;&#35748;</button>
-                        <button class="btn btn-sm btn-danger" onclick="adminClearAll()">&#128465;&#65039; &#28165;&#31354;&#36864;&#36153;&#35760;&#24405;</button>
+                        <button class="btn btn-sm btn-danger" onclick="adminClearAllData()">&#128465;&#65039; &#28165;&#31354;&#25968;&#25454;</button>
+                        <button class="btn btn-sm btn-warning" onclick="adminResetToDefault()">&#128229; &#20174;csv_export&#33719;&#21462;&#25968;&#25454;</button>
                         <button class="btn btn-sm btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;</button>
                     </div>
                 </div>
@@ -1962,15 +1964,44 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         // ==================== CSV 数据源（从 csv_export/ 同步） ====================
         // 修改 CSV 文件后重新生成此 HTML 即可更新默认数据
         function parseCSV(csvText) {
-            const lines = csvText.trim().split('\n');
+            const text = csvText.trim();
+            if (!text) return [];
+            // 引号感知的CSV行解析（正确处理字段中包含逗号的情况）
+            function parseCSVRow(line) {
+                var result = [];
+                var inQuotes = false;
+                var current = '';
+                for (var i = 0; i < line.length; i++) {
+                    var ch = line[i];
+                    if (inQuotes) {
+                        if (ch === '"') {
+                            if (i + 1 < line.length && line[i + 1] === '"') {
+                                current += '"'; i++;
+                            } else {
+                                inQuotes = false;
+                            }
+                        } else {
+                            current += ch;
+                        }
+                    } else {
+                        if (ch === '"') { inQuotes = true; }
+                        else if (ch === ',') { result.push(current); current = ''; }
+                        else { current += ch; }
+                    }
+                }
+                result.push(current);
+                return result;
+            }
+            const lines = text.split('\n');
             if (lines.length < 2) return [];
-            const headers = lines[0].split(',').map(h => h.trim());
+            const headers = parseCSVRow(lines[0]).map(h => h.trim());
             return lines.slice(1).map(line => {
-                const vals = line.split(',');
+                if (!line.trim()) return null;
+                const vals = parseCSVRow(line);
                 const obj = {};
                 headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
                 return obj;
-            });
+            }).filter(Boolean);
         }
         function parseCSVGrouped(csvText, keyField) {
             const rows = parseCSV(csvText);
@@ -1987,8 +2018,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             });
             return result;
         }
-
-        const EMBEDDED_POLICIES = "保单号,投保人,身份证,身份证脱敏,手机,手机脱敏,主险,险种代码,状态,生效日期,终止日期,应缴日期,缴费方式,分公司,中支,地址,账户名,银行账号,开户行,总保费,销售渠道\nPB20200101001,李明,310101199001011234,310101********1234,13812345678,138****5678,安心定期寿险,MLW004,有效,2020-01-01,2040-01-01,2026-01-01,年缴,上海分公司,-,上海市浦东新区陆家嘴金融贸易区世纪大道1234号,李明,622202***********5678,中国工商银行,25060,个险渠道,PAA\nPB20200101002,王芳,310101198502022345,310101********2345,13900139002,139****9002,健康一生重大疾病保险,HLW001,有效,2019-06-01,2039-06-01,2026-06-01,年缴,北京分公司,-,北京市朝阳区建国门外大街88号,王芳,622203***********1234,中国建设银行,102400,银保渠道,-\nPB20200101003,赵伟,320101199203033456,320101********3456,13712345678,137****5678,安行宝两全保险,AXB002,有效,2024-06-01,2040-06-01,2026-06-01,年缴,浙江分公司,杭州中支,杭州市西湖区文三路258号,赵伟,622201***********9012,中国农业银行,38400,个险渠道,PAA\nPB20200101004,陈静,330101199304044567,330101********4567,13612345678,136****5678,康健医疗保险,KJYL003,有效,2025-04-01,2041-04-01,2026-04-01,年缴,深圳分公司,-,深圳市南山区科技园南路88号,陈静,622204***********3456,中国银行,31600,在线渠道,-\nPB20200101005,刘洋,410101199405055678,410101********5678,13512345678,135****5678,安心定期寿险,MLW004,有效,2025-06-01,2040-06-01,2026-06-01,年缴,四川分公司,成都中支,成都市武侯区人民南路四段66号,刘洋,622205***********7890,招商银行,9000,个险渠道,PSA\nPB20200101006,周涛,420101199506066789,420101********6789,13412345678,134****5678,健康一生重大疾病保险,HLW001,有效,2025-04-04,2039-04-04,2026-04-04,年缴,湖北分公司,武汉中支,武汉市江汉区解放大道888号,周涛,622206***********2345,交通银行,136000,银保渠道,-\nPB20200101007,吴婷,350101199607077890,350101********7890,13312345678,133****5678,安行宝两全保险,AXB002,有效,2025-11-01,2040-11-01,2026-11-01,年缴,广东分公司,广州中支,广州市天河区天河路385号,吴婷,622207***********6789,浦发银行,68900,个险渠道,PSA";
+        const EMBEDDED_POLICIES = "保单号,投保人,身份证,身份证脱敏,手机,手机脱敏,主险,险种代码,状态,责任起期,责任止期,下次缴费日期,缴费方式,分公司,中支,地址,账户名,银行账号,开户行,总保费,销售渠道\nPB20200101001,李明,310101199001011234,310101********1234,13812345678,138****5678,安心定期寿险,MLW004,有效,2020-01-01,2040-01-01,2027-01-01,年缴,上海分公司,-,上海市浦东新区陆家嘴金融贸易区世纪大道1234号,李明,622202***********5678,中国工商银行,25060,个险渠道,PAA\nPB20200101002,王芳,310101198502022345,310101********2345,13900139002,139****9002,健康一生重大疾病保险,HLW001,有效,2019-06-01,2039-06-01,2027-06-01,年缴,北京分公司,-,北京市朝阳区建国门外大街88号,王芳,622203***********1234,中国建设银行,102400,银保渠道,-\nPB20200101003,赵伟,320101199203033456,320101********3456,13712345678,137****5678,安行宝两全保险,AXB002,有效,2024-06-01,2040-06-01,2027-06-01,年缴,浙江分公司,杭州中支,杭州市西湖区文三路258号,赵伟,622201***********9012,中国农业银行,38400,个险渠道,PAA\nPB20200101004,陈静,330101199304044567,330101********4567,13612345678,136****5678,康健医疗保险,KJYL003,有效,2025-04-01,2041-04-01,2027-04-01,年缴,深圳分公司,-,深圳市南山区科技园南路88号,陈静,622204***********3456,中国银行,31600,在线渠道,-\nPB20200101005,刘洋,410101199405055678,410101********5678,13512345678,135****5678,安心定期寿险,MLW004,有效,2025-06-01,2040-06-01,2027-06-01,年缴,四川分公司,成都中支,成都市武侯区人民南路四段66号,刘洋,622205***********7890,招商银行,9000,个险渠道,PSA\nPB20200101006,周涛,420101199506066789,420101********6789,13412345678,134****5678,健康一生重大疾病保险,HLW001,有效,2025-04-04,2039-04-04,2027-04-04,年缴,湖北分公司,武汉中支,武汉市江汉区解放大道888号,周涛,622206***********2345,交通银行,136000,银保渠道,-\nPB20200101007,吴婷,350101199607077890,350101********7890,13312345678,133****5678,安行宝两全保险,AXB002,有效,2025-11-01,2040-11-01,2026-11-01,年缴,广东分公司,广州中支,广州市天河区天河路385号,吴婷,622207***********6789,浦发银行,68900,个险渠道,PSA";
         const EMBEDDED_PAYMENTS = "保单号,期次,金额,应缴日期,实缴日期,来源\nPB20200101001,1,3580.00,2020-01-01,2020-01-02,授权账户\nPB20200101001,2,3580.00,2021-01-01,2021-01-03,授权账户\nPB20200101001,3,3580.00,2022-01-01,2022-02-02,授权账户\nPB20200101001,4,3580.00,2023-01-01,2023-01-02,授权账户\nPB20200101001,5,3580.00,2024-01-01,2024-01-01,授权账户\nPB20200101001,6,3580.00,2025-01-01,2025-02-12,授权账户\nPB20200101001,7,3580.00,2026-01-01,2026-02-02,授权账户\nPB20200101002,1,12800,2019-06-01,2019-06-01,授权账户\nPB20200101002,2,12800,2020-06-01,2020-06-01,授权账户\nPB20200101002,3,12800,2021-06-01,2021-06-01,授权账户\nPB20200101002,4,12800,2022-06-01,2022-06-01,授权账户\nPB20200101002,5,12800,2023-06-01,2023-06-09,授权账户\nPB20200101002,6,12800,2024-06-01,2024-06-03,授权账户\nPB20200101002,7,12800,2025-06-01,2025-06-07,授权账户\nPB20200101002,8,12800,2026-06-01,2026-06-07,授权账户\nPB20200101003,1,12800,2024-06-01,2024-06-05,授权账户\nPB20200101003,2,12800,2025-06-01,2025-06-01,授权账户\nPB20200101003,3,12800,2026-06-01,2026-06-03,授权账户\nPB20200101004,1,15800.00,2025-04-01,2025-04-01,授权账户\nPB20200101004,2,15800.00,2026-04-01,2026-05-01,授权账户\nPB20200101005,1,4500.00,2025-06-01,2025-06-01,授权账户\nPB20200101005,2,4500.00,2026-06-01,2026-06-04,授权账户\nPB20200101006,1,68000.00,2025-04-04,2025-04-04,授权账户\nPB20200101006,2,68000.00,2026-04-04,2026-06-03,授权账户\nPB20200101007,1,8500.00,2025-11-01,2025-11-01,授权账户";
         const EMBEDDED_NATURALPERSONS = "保单号,姓名,性别,国籍,职业,地址,联系方式,身份证件种类,身份证件号码,有效期限,是否关注太平洋寿险官微\nPB20200101001,李明,男,中国,企业职员,上海市浦东新区陆家嘴金融贸易区世纪大道1234号,13812345678,居民身份证,310101199001011234,2036-05-01,是\nPB20200101002,王芳,女,中国,教师,北京市朝阳区建国门外大街88号,13900139002,居民身份证,310101198502022345,2026-03-15,否\nPB20200101003,赵伟,男,中国,医生,广州市天河区天河路385号,13712345678,居民身份证,320101199203033456,2035-03-20,是\nPB20200101004,陈静,女,中国,律师,深圳市南山区科技园南路88号,13612345678,居民身份证,330101199304044567,2037-10-01,否";
         const EMBEDDED_SCENARIOS = "保单号,应缴日后有理赔,应缴日后有减保,已做投保人变更,存在未结清贷款,是否发放续期佣金,是否垫缴退费\nPB20200101001,否,否,否,否,是,否\nPB20200101002,否,是,是,否,是,否\nPB20200101003,是,否,否,是,否,是\nPB20200101004,否,否,否,否,是,否\nPB20200101005,是,是,否,否,否,是\nPB20200101006,否,否,是,否,是,否\nPB20200101007,否,否,否,是,否,是";
@@ -1997,6 +2027,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         const EMBEDDED_ROLE_PERMS = "角色ID,权限ID\nJ1,Q6\nJ1,Q7\nJ2,Q1\nJ2,Q2\nJ4,Q2\nJ4,Q3\nJ4,Q4\nJ4,Q5\nJ4,Q9\nJ5,Q3\nJ6,Q2\nJ7,Q2\nJ8,Q1\nJ8,Q2\nJ8,Q3\nJ8,Q4\nJ8,Q5\nJ8,Q6\nJ8,Q7\nJ8,Q8\nJ8,Q9";
         const EMBEDDED_USERS = "用户ID,用户姓名,用户名,口令\nU1,张晓燕,zhangxiaoyan,123456\nU2,陈刚,chengang,123456\nU3,邓暾,duntun,123456\nU4,薛韶旻,xueshaomin,123456\nU5,李彬彬,ibinbin,123456\nU6,薛鑫睿,xuexinrui,123456\nU7,孙伟祎,sunweiyi,123456\nU8,徐佳,xujia,123456\nU9,唐传香,tangchuanxiang,123456\nU10,孙增云,sunzengyun,123456\nU11,高琪,gaoqi,123456\nU12,瓮恒涛,wenghentao,123456\nU13,黄凌云,huanglinyun,123456\nU15,邱丽霞,qiulixia,123456";
         const EMBEDDED_USER_ROLES = "用户ID,角色ID\nU1,J2\nU2,J8\nU3,J4\nU4,J5\nU5,J5\nU6,J5\nU7,J5\nU8,J5\nU9,J5\nU10,J5\nU11,J5\nU12,J5\nU13,J5\nU12,J6\nU15,J7";
+        const EMBEDDED_BRANCHES = "分公司名称\n上海分公司\n北京分公司\n广东分公司\n深圳分公司\n四川分公司\n湖北分公司\n浙江分公司\n江苏分公司\n陕西分公司\n山西分公司\n常州分公司\n苏州分公司\n大连分公司\n黑龙江分公司\n无锡分公司\n天津分公司\n辽宁分公司\n吉林省分公司\n河北分公司\n内蒙古分公司\n海南分公司\n宁波分公司\n湖南分公司\n宁夏分公司\n重庆分公司\n江西分公司\n厦门分公司\n福建分公司\n甘肃分公司\n贵州分公司\n新疆分公司\n安徽分公司\n青海分公司\n青岛分公司\n山东分公司\n云南分公司\n广西分公司\n河南分公司";
+        const EMBEDDED_BRANCHINSTS = "所属分公司,机构名称\n上海分公司,-\n北京分公司,-\n广东分公司,广州中支\n深圳分公司,-\n四川分公司,成都中支\n湖北分公司,武汉中支\n浙江分公司,杭州中支";
         const EMBEDDED_REFUNDS = "[{\"id\":\"RF20250507001\",\"policyNo\":\"PB20200101001\",\"holderName\":\"李明\",\"holderId\":\"310101199001011234\",\"phone\":\"13812345678\",\"amount\":3580,\"status\":5,\"statusName\":\"待客户补材料\",\"acceptChannel\":\"95500电话\",\"acceptTime\":\"2025-05-07 09:30:00\",\"acceptor\":\"张晓燕\",\"refundPeriods\":\"2025年度第1期\",\"refundReason\":\"客户经济原因申请退费\",\"isAutoApproval\":true,\"isOriginalCard\":false,\"payments\":[{\"period\":\"2025年度第1期\",\"amount\":3580,\"shouldPayDate\":\"2025-05-01\",\"actualPayDate\":\"2025-05-02\",\"source\":\"银行转账\"},{\"period\":\"2025年度第2期\",\"amount\":3580,\"shouldPayDate\":\"2025-06-01\",\"actualPayDate\":\"2025-06-01\",\"source\":\"银行转账\"}],\"logs\":[{\"time\":\"2025-05-07 09:30:00\",\"action\":\"受理\",\"operator\":\"张晓燕\",\"detail\":\"95500坐席受理\"},{\"time\":\"2025-05-07 09:31:00\",\"action\":\"系统自动审批\",\"operator\":\"系统\",\"detail\":\"免审批通过\"},{\"time\":\"2025-05-07 09:31:05\",\"action\":\"发送材料补充链接\",\"operator\":\"系统\",\"detail\":\"非原卡原退，需客户补充材料\"}],\"materialDeadline\":\"2025-05-08 09:31:05\",\"failureReason\":null,\"salesChannel\":\"个险渠道\",\"subChannel\":\"PAA\",\"branch\":\"上海分公司\",\"subBranch\":\"-\"},{\"id\":\"RF20250507002\",\"policyNo\":\"PB20200101002\",\"holderName\":\"王芳\",\"holderId\":\"310101198502022345\",\"phone\":\"13900139002\",\"amount\":12800,\"status\":3,\"statusName\":\"审批未完成\",\"acceptChannel\":\"95500电话\",\"acceptTime\":\"2025-05-06 14:20:00\",\"acceptor\":\"张晓燕\",\"refundPeriods\":\"2025年度第1期\",\"refundReason\":\"客户资金周转需要\",\"isAutoApproval\":false,\"isOriginalCard\":true,\"payments\":[{\"period\":\"2025年度第1期\",\"amount\":12800,\"shouldPayDate\":\"2025-03-01\",\"actualPayDate\":\"2025-03-02\",\"source\":\"银行转账\"}],\"logs\":[{\"time\":\"2025-05-06 14:20:00\",\"action\":\"受理\",\"operator\":\"张晓燕\",\"detail\":\"95500坐席受理\"},{\"time\":\"2025-05-06 14:21:00\",\"action\":\"提交审批\",\"operator\":\"系统\",\"detail\":\"需人工审批，金额12800元\"},{\"time\":\"2025-05-06 14:25:00\",\"action\":\"中支内勤审批\",\"operator\":\"刘伟\",\"detail\":\"审批中\"}],\"approvalLevel\":2,\"approvalNodes\":[{\"name\":\"中支业务内勤\",\"status\":\"completed\",\"operator\":\"刘伟\",\"time\":\"2025-05-06 14:25\"},{\"name\":\"中支业务负责人\",\"status\":\"pending\",\"operator\":\"-\",\"time\":\"-\"},{\"name\":\"分公司财务\",\"status\":\"pending\",\"operator\":\"-\",\"time\":\"-\"}],\"failureReason\":null,\"salesChannel\":\"银保渠道\",\"subChannel\":\"-\",\"branch\":\"上海分公司\",\"subBranch\":\"-\"},{\"id\":\"RF20250507003\",\"policyNo\":\"PB20200101003\",\"holderName\":\"赵伟\",\"holderId\":\"310103199208081234\",\"phone\":\"13734567890\",\"amount\":2800,\"status\":10,\"statusName\":\"退费失败\",\"acceptChannel\":\"95500电话\",\"acceptTime\":\"2025-05-05 10:15:00\",\"acceptor\":\"张晓燕\",\"refundPeriods\":\"2025年度第1期\",\"refundReason\":\"客户不需要此保险\",\"isAutoApproval\":true,\"isOriginalCard\":true,\"payments\":[{\"period\":\"2025年度第1期\",\"amount\":2800,\"shouldPayDate\":\"2025-03-01\",\"actualPayDate\":\"2025-03-01\",\"source\":\"银行转账\"}],\"logs\":[{\"time\":\"2025-05-05 10:15:00\",\"action\":\"受理\",\"operator\":\"张晓燕\",\"detail\":\"95500坐席受理\"},{\"time\":\"2025-05-05 10:16:00\",\"action\":\"系统自动审批\",\"operator\":\"系统\",\"detail\":\"免审批通过\"},{\"time\":\"2025-05-05 10:16:05\",\"action\":\"提交核心退费\",\"operator\":\"系统\",\"detail\":\"进入退费流程\"},{\"time\":\"2025-05-05 15:30:00\",\"action\":\"退费失败\",\"operator\":\"核心系统\",\"detail\":\"账号错误：卡号已注销\"}],\"failureReason\":\"账号错误：卡号已注销\",\"failureType\":\"account\",\"salesChannel\":\"个险渠道\",\"subChannel\":\"PAA\",\"branch\":\"上海分公司\",\"subBranch\":\"-\"},{\"id\":\"RF20250507004\",\"policyNo\":\"PB20200101004\",\"holderName\":\"陈静\",\"holderId\":\"310104199505121567\",\"phone\":\"13645678901\",\"amount\":15800,\"status\":9,\"statusName\":\"退费完成\",\"acceptChannel\":\"95500电话\",\"acceptTime\":\"2025-05-04 11:00:00\",\"acceptor\":\"张晓燕\",\"refundPeriods\":\"2025年度第1期\",\"refundReason\":\"产品不符合预期\",\"isAutoApproval\":false,\"isOriginalCard\":true,\"payments\":[{\"period\":\"2025年度第1期\",\"amount\":15800,\"shouldPayDate\":\"2025-03-01\",\"actualPayDate\":\"2025-03-01\",\"source\":\"银行转账\"}],\"logs\":[{\"time\":\"2025-05-04 11:00:00\",\"action\":\"受理\",\"operator\":\"张晓燕\",\"detail\":\"95500坐席受理\"},{\"time\":\"2025-05-04 11:01:00\",\"action\":\"提交审批\",\"operator\":\"系统\",\"detail\":\"需人工审批\"},{\"time\":\"2025-05-04 14:30:00\",\"action\":\"中支内勤审批\",\"operator\":\"刘伟\",\"detail\":\"同意\"},{\"time\":\"2025-05-04 16:00:00\",\"action\":\"中支负责人审批\",\"operator\":\"王强\",\"detail\":\"同意\"},{\"time\":\"2025-05-04 17:30:00\",\"action\":\"分公司财务审批\",\"operator\":\"李华\",\"detail\":\"同意，审批完成\"},{\"time\":\"2025-05-04 17:35:00\",\"action\":\"提交核心退费\",\"operator\":\"系统\",\"detail\":\"进入退费流程\"},{\"time\":\"2025-05-05 10:00:00\",\"action\":\"退费完成\",\"operator\":\"核心系统\",\"detail\":\"退费成功，金额15800元\"}],\"failureReason\":null,\"salesChannel\":\"在线渠道\",\"subChannel\":\"-\",\"branch\":\"上海分公司\",\"subBranch\":\"-\"},{\"id\":\"RF20250507005\",\"policyNo\":\"PB20200101005\",\"holderName\":\"刘洋\",\"holderId\":\"310105199010101890\",\"phone\":\"13556789012\",\"amount\":4500,\"status\":6,\"statusName\":\"客户已完成远程材料补充\",\"acceptChannel\":\"95500电话\",\"acceptTime\":\"2025-05-07 08:00:00\",\"acceptor\":\"张晓燕\",\"refundPeriods\":\"2025年度第1期\",\"refundReason\":\"经济压力较大\",\"isAutoApproval\":true,\"isOriginalCard\":false,\"payments\":[{\"period\":\"2025年度第1期\",\"amount\":4500,\"shouldPayDate\":\"2025-03-01\",\"actualPayDate\":\"2025-03-01\",\"source\":\"银行转账\"}],\"logs\":[{\"time\":\"2025-05-07 08:00:00\",\"action\":\"受理\",\"operator\":\"张晓燕\",\"detail\":\"95500坐席受理\"},{\"time\":\"2025-05-07 08:01:00\",\"action\":\"系统自动审批\",\"operator\":\"系统\",\"detail\":\"免审批通过\"},{\"time\":\"2025-05-07 08:01:05\",\"action\":\"发送材料补充链接\",\"operator\":\"系统\",\"detail\":\"非原卡原退\"},{\"time\":\"2025-05-07 10:30:00\",\"action\":\"客户提交材料\",\"operator\":\"刘洋\",\"detail\":\"身份证、银行卡已上传\"}],\"materialDeadline\":\"2025-05-08 08:01:05\",\"failureReason\":null,\"salesChannel\":\"个险渠道\",\"subChannel\":\"PAA\",\"branch\":\"上海分公司\",\"subBranch\":\"-\"},{\"id\":\"RF20250507006\",\"policyNo\":\"PB20200101006\",\"holderName\":\"周涛\",\"holderId\":\"310106198808081234\",\"phone\":\"13312345678\",\"amount\":68000,\"status\":3,\"statusName\":\"审批未完成\",\"acceptChannel\":\"95500电话\",\"acceptTime\":\"2025-05-06 09:00:00\",\"acceptor\":\"张晓燕\",\"refundPeriods\":\"2025年度第1期\",\"refundReason\":\"产品收益不达预期\",\"isAutoApproval\":false,\"isOriginalCard\":false,\"payments\":[{\"period\":\"2025年度第1期\",\"amount\":68000,\"shouldPayDate\":\"2025-03-01\",\"actualPayDate\":\"2025-03-01\",\"source\":\"银行转账\"}],\"logs\":[{\"time\":\"2025-05-06 09:00:00\",\"action\":\"受理\",\"operator\":\"张晓燕\",\"detail\":\"95500坐席受理\"},{\"time\":\"2025-05-06 09:01:00\",\"action\":\"提交审批\",\"operator\":\"系统\",\"detail\":\"需人工审批，金额68000元\"},{\"time\":\"2025-05-06 10:00:00\",\"action\":\"中支业务内勤审批\",\"operator\":\"刘伟\",\"detail\":\"同意，请客户补充材料\"},{\"time\":\"2025-05-06 11:00:00\",\"action\":\"中支业务负责人审批\",\"operator\":\"王强\",\"detail\":\"同意\"},{\"time\":\"2025-05-06 14:00:00\",\"action\":\"分公司财务审批\",\"operator\":\"李华\",\"detail\":\"同意，审批完成，将发送材料补充链接\"}],\"approvalNodes\":[{\"name\":\"中支业务内勤\",\"status\":\"completed\",\"operator\":\"刘伟\",\"time\":\"2025-05-06 10:00\"},{\"name\":\"中支业务负责人\",\"status\":\"completed\",\"operator\":\"王强\",\"time\":\"2025-05-06 11:00\"},{\"name\":\"分公司财务（最终节点）\",\"status\":\"completed\",\"operator\":\"李华\",\"time\":\"2025-05-06 14:00\"},{\"name\":\"待客户补材料（非原卡原退）\",\"status\":\"pending\",\"operator\":\"-\",\"time\":\"-\"}],\"failureReason\":null,\"salesChannel\":\"银保渠道\",\"subChannel\":\"-\",\"branch\":\"上海分公司\",\"subBranch\":\"-\"},{\"id\":\"RF20250507007\",\"policyNo\":\"PB20200101007\",\"holderName\":\"吴婷\",\"holderId\":\"310107199303031234\",\"phone\":\"13456789012\",\"amount\":8500,\"status\":8,\"statusName\":\"进入退费流程\",\"acceptChannel\":\"95500电话\",\"acceptTime\":\"2025-05-05 10:00:00\",\"acceptor\":\"张晓燕\",\"refundPeriods\":\"2025年度第1期\",\"refundReason\":\"客户资金周转\",\"isAutoApproval\":false,\"isOriginalCard\":true,\"payments\":[{\"period\":\"2025年度第1期\",\"amount\":8500,\"shouldPayDate\":\"2025-03-01\",\"actualPayDate\":\"2025-03-01\",\"source\":\"银行转账\"}],\"logs\":[{\"time\":\"2025-05-05 10:00:00\",\"action\":\"受理\",\"operator\":\"张晓燕\",\"detail\":\"95500坐席受理\"},{\"time\":\"2025-05-05 10:01:00\",\"action\":\"提交审批\",\"operator\":\"系统\",\"detail\":\"需人工审批，金额8500元，原卡原退\"},{\"time\":\"2025-05-05 11:00:00\",\"action\":\"中支业务内勤审批\",\"operator\":\"刘伟\",\"detail\":\"同意\"},{\"time\":\"2025-05-05 14:00:00\",\"action\":\"中支业务负责人审批\",\"operator\":\"王强\",\"detail\":\"同意，原卡原退，审批通过即发起退费\"},{\"time\":\"2025-05-05 14:05:00\",\"action\":\"提交核心退费\",\"operator\":\"系统\",\"detail\":\"原卡原退，审批完成，直接发起退费\"}],\"approvalNodes\":[{\"name\":\"中支业务内勤\",\"status\":\"completed\",\"operator\":\"刘伟\",\"time\":\"2025-05-05 11:00\"},{\"name\":\"中支业务负责人（最终节点）\",\"status\":\"completed\",\"operator\":\"王强\",\"time\":\"2025-05-05 14:00\"}],\"failureReason\":null,\"salesChannel\":\"个险渠道\",\"subChannel\":\"PAA\",\"branch\":\"上海分公司\",\"subBranch\":\"-\"}]";
 
         // ==================== 审批流定义（渠道 × 金额区间） ====================
@@ -2248,16 +2280,18 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fetch(BASE + '09_用户管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
                 fetch(BASE + '10_用户角色管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
                 fetch(BASE + '11_短信发送记录.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
-                fetch(BASE + '12_微信发送记录.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+                fetch(BASE + '12_微信发送记录.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '14_分公司管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '15_所属机构管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
             ]);
-            const [policies, payments, naturalPersons, scenarios, refunds, roles, permissions, rolePerms, users, userRoles, smsRecords, wechatRecords] = results.map(r => r.status === 'fulfilled' ? r.value : '');
+            const [policies, payments, naturalPersons, scenarios, refunds, roles, permissions, rolePerms, users, userRoles, smsRecords, wechatRecords, branches, branchInsts] = results.map(r => r.status === 'fulfilled' ? r.value : '');
             // 退费记录特殊情况：如果为空字符串（文件空或fetch失败），获取默认值时会回退到内置数据
-            FETCHED_DEFAULTS = { policies, payments, naturalPersons, scenarios, refunds, roles, permissions, rolePerms, users, userRoles, smsRecords, wechatRecords };
+            FETCHED_DEFAULTS = { policies, payments, naturalPersons, scenarios, refunds, roles, permissions, rolePerms, users, userRoles, smsRecords, wechatRecords, branches, branchInsts };
             // 检查是否有文件未成功加载
             var failedFiles = [];
             results.forEach((r, i) => {
                 if (r.status === 'rejected') {
-                    var names = ['保单信息','缴费记录','自然人信息','场景管理','退费受理记录','角色管理','权限管理','角色对应权限管理','用户管理','用户角色管理','短信发送记录','微信发送记录'];
+                    var names = ['保单信息','缴费记录','自然人信息','场景管理','退费受理记录','角色管理','权限管理','角色对应权限管理','用户管理','用户角色管理','短信发送记录','微信发送记录','分公司管理','所属机构管理'];
                     failedFiles.push(names[i] + '(' + (r.reason && r.reason.message || '未知') + ')');
                 }
             });
@@ -2682,20 +2716,53 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
         // ==================== 保单信息存储 ====================
         function getDefaultPolicyData() {
-            const csv = (FETCHED_DEFAULTS && FETCHED_DEFAULTS.policies) ? FETCHED_DEFAULTS.policies : EMBEDDED_POLICIES;
+            const csvRaw = (FETCHED_DEFAULTS && FETCHED_DEFAULTS.policies) ? FETCHED_DEFAULTS.policies : EMBEDDED_POLICIES;
+            // Strip BOM if present (csv_export files may have UTF-8 BOM)
+            const csv = csvRaw.replace(/^\uFEFF/, '');
             const rows = parseCSV(csv);
             const result = {};
+            // 将 YYYY/M/D 或 YYYY.MM.DD 转为 YYYY-MM-DD（兼容各种日期格式）
+            function normalizeDate(d) {
+                if (!d) return '';
+                var m = String(d).trim().match(/^(\d{4})[\/\.\-](\d{1,2})[\/\.\-](\d{1,2})$/);
+                if (m) return m[1] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[3]).padStart(2, '0');
+                return String(d).trim();
+            }
             rows.forEach(r => {
-                result[r['保单号']] = {
-                    holderName: r['投保人'], holderId: r['身份证'], holderIdMasked: r['身份证脱敏'],
-                    phone: r['手机'], phoneMasked: r['手机脱敏'],
-                    mainRisk: r['主险'], riskCode: r['险种代码'], status: r['状态'],
-                    startDate: r['生效日期'], endDate: r['终止日期'], nextPayDate: r['应缴日期'],
-                    payMethod: r['缴费方式'], branch: r['分公司'], subBranch: r['中支'],
-                    chargeAddress: r['地址'],
-                    accountName: r['账户名'],
-                    bankAccount: r['银行账号'], bankName: r['开户行'],
-                    totalPremium: r['总保费'], salesChannel: r['销售渠道'], subChannel: r['销售子渠道'] || '-'
+                // Support both CSV file columns and EMBEDDED constant columns
+                var holderName  = r['投保人']        || '';
+                var holderId    = r['身份证']        || r['证件号']     || '';
+                var holderIdMasked = r['身份证脱敏']   || '';
+                var phone       = r['手机']          || r['手机号']     || '';
+                var phoneMasked = r['手机脱敏']       || '';
+                var mainRisk    = r['主险']          || r['主险名称']   || '';
+                var riskCode    = r['险种代码']       || r['主险代码']   || '';
+                var status      = r['状态']          || r['保单状态']   || '';
+                var startDate   = normalizeDate(r['责任起期']);
+                var endDate     = normalizeDate(r['责任止期']);
+                var nextPayDate = normalizeDate(r['下次缴费日期']);
+                var payMethod   = r['缴费方式']       || '';
+                var branch      = r['分公司']         || r['所属分公司']  || '';
+                var subBranch   = r['中支']          || r['所属机构']   || '';
+                var chargeAddress = r['地址']        || r['收费地址']   || '';
+                var accountName = r['账户名']         || '';
+                var bankAccount = r['银行账号']       || r['银行卡号']   || '';
+                var bankName    = r['开户行']         || r['银行名称']   || '';
+                var totalPremium = r['总保费']        || '';
+                var salesChannel = r['销售渠道']       || '';
+                var subChannel  = r['销售子渠道']      || '-';
+                var pno = r['保单号'] || '';
+                if (!pno) return;
+                result[pno] = {
+                    holderName: holderName, holderId: holderId, holderIdMasked: holderIdMasked,
+                    phone: phone, phoneMasked: phoneMasked,
+                    mainRisk: mainRisk, riskCode: riskCode, status: status,
+                    startDate: startDate, endDate: endDate, nextPayDate: nextPayDate,
+                    payMethod: payMethod, branch: branch, subBranch: subBranch,
+                    chargeAddress: chargeAddress,
+                    accountName: accountName,
+                    bankAccount: bankAccount, bankName: bankName,
+                    totalPremium: totalPremium, salesChannel: salesChannel, subChannel: subChannel || '-'
                 };
             });
             return result;
@@ -2711,16 +2778,16 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const result = {};
             for (const [pno, rows] of Object.entries(grouped)) {
                 result[pno] = rows.map(r => ({
-                    period: r['期次'],
-                    amount: parseFloat(r['金额']),
-                    shouldPayDate: r['应缴日期'],
-                    actualPayDate: r['实缴日期'],
-                    source: r['来源']
+                    period: (r['期次'] || r['缴费期次'] || ''),
+                    amount: parseFloat(r['金额'] || r['缴费金额'] || '0'),
+                    shouldPayDate: (r['应缴日期'] || ''),
+                    actualPayDate: (r['实缴日期'] || ''),
+                    source: (r['来源'] || r['保费来源'] || '')
                 }));
             }
             return result;
         }
-        function getPolicyPaymentStore() { return JSON.parse(localStorage.getItem(POLICY_PAYMENT_KEY)) || getDefaultPolicyPayments(); }
+        function getPolicyPaymentStore() { return JSON.parse(localStorage.getItem(POLICY_PAYMENT_KEY)) || []; }
         function savePolicyPaymentStore(data) {
             // Coerce all amounts to numbers to prevent string concatenation
             for (var pno in data) {
@@ -2786,7 +2853,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             if (!csv || !csv.trim()) return [];
             return parseCSV(csv);
         }
-        function getSmsStore() { try { return JSON.parse(localStorage.getItem(SMS_STORAGE_KEY)) || getDefaultSmsData(); } catch(e) { localStorage.removeItem(SMS_STORAGE_KEY); return getDefaultSmsData(); } }
+        function getSmsStore() { try { return JSON.parse(localStorage.getItem(SMS_STORAGE_KEY)) || []; } catch(e) { localStorage.removeItem(SMS_STORAGE_KEY); return []; } }
         function saveSmsStore(data) { localStorage.setItem(SMS_STORAGE_KEY, JSON.stringify(data)); }
         function recordSmsSent(policyNo, phone, content, acceptor, channel) {
             var store = getSmsStore();
@@ -2812,7 +2879,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             if (!csv || !csv.trim()) return [];
             return parseCSV(csv);
         }
-        function getWechatStore() { return JSON.parse(localStorage.getItem(WECHAT_STORAGE_KEY)) || getDefaultWechatData(); }
+        function getWechatStore() { return JSON.parse(localStorage.getItem(WECHAT_STORAGE_KEY)) || []; }
         function saveWechatStore(data) { localStorage.setItem(WECHAT_STORAGE_KEY, JSON.stringify(data)); }
         function recordWechatSent(policyNo, phone, content, acceptor, channel) {
             var store = getWechatStore();
@@ -2845,16 +2912,28 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             }
         }
         function getDefaultNaturalPersonData() {
-            const csv = (FETCHED_DEFAULTS && FETCHED_DEFAULTS.naturalPersons) ? FETCHED_DEFAULTS.naturalPersons : EMBEDDED_NATURALPERSONS;
+            const csvRaw = (FETCHED_DEFAULTS && FETCHED_DEFAULTS.naturalPersons) ? FETCHED_DEFAULTS.naturalPersons : EMBEDDED_NATURALPERSONS;
+            const csv = csvRaw.replace(/^\uFEFF/, '');
             const grouped = parseCSVGrouped(csv, '保单号');
             const result = {};
             for (const [pno, r] of Object.entries(grouped)) {
                 result[pno] = {
                     policyNo: pno,
-                    name: r['姓名'], gender: r['性别'], nationality: r['国籍'],
-                    occupation: r['职业'], address: r['地址'], contact: r['联系方式'],
-                    idType: r['身份证件种类'], idNumber: r['身份证件号码'], validUntil: r['有效期限'],
-                    followOfficialAcct: r['是否关注太平洋寿险官微'] || '否'
+                    name: r['姓名'] || '',
+                    gender: r['性别'] || '',
+                    nationality: r['国籍'] || '',
+                    occupation: r['职业'] || '',
+                    // Dual-format: CSV uses '联系地址', EMBEDDED uses '地址'
+                    address: r['地址'] || r['联系地址'] || '',
+                    contact: r['联系方式'] || '',
+                    // Dual-format: CSV uses '证件类型', EMBEDDED uses '身份证件种类'
+                    idType: r['身份证件种类'] || r['证件类型'] || '',
+                    // Dual-format: CSV uses '证件号', EMBEDDED uses '身份证件号码'
+                    idNumber: r['身份证件号码'] || r['证件号'] || '',
+                    // Dual-format: CSV uses '证件有效期', EMBEDDED uses '有效期限'
+                    validUntil: r['有效期限'] || r['证件有效期'] || '',
+                    // Dual-format: CSV uses '是否关注官微', EMBEDDED uses '是否关注太平洋寿险官微'
+                    followOfficialAcct: r['是否关注太平洋寿险官微'] || r['是否关注官微'] || '否'
                 };
             }
             return result;
@@ -6045,7 +6124,17 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 refresh: function() { try { if (typeof adminLoadScenario === 'function') { var sel = document.getElementById('adminScenarioPolicySelect'); if (sel && sel.value) adminLoadScenario(); } } catch(e) {} },
                 headers: ['保单号','应缴日后有理赔','应缴日后有减保','已做投保人变更','存在未结清贷款','是否发放续期佣金','是否垫缴退费'],
                 fields: ['policyNo','claimAfterDue','reductionAfterDue','holderChanged','hasLoan','renewalCommission','advanceRefund'],
-                isKeyValue: true
+                isKeyValue: true,
+                // 导出时布尔值转成 是/否；导入时 是/否 转回布尔值
+                formatField: function(f, v) {
+                    if (typeof v === 'boolean') return v ? '是' : '否';
+                    return v || '';
+                },
+                parseField: function(f, v) {
+                    if (v === '是') return true;
+                    if (v === '否') return false;
+                    return v || false;
+                }
             },
             payments: {
                 filename: '缴费记录管理',
@@ -6126,13 +6215,15 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     csvRows.push('"' + String(item || '').replace(/"/g, '""') + '"');
                 });
             } else if (cfg.isKeyValue) {
+                // 字段值格式化函数（如果配置了这个只要导出时调用）
+                var fmt = cfg.formatField || function(f, v) { return v; };
                 Object.keys(data).forEach(function(key) {
                     var val = data[key];
                     if (cfg.isGroupedArray && Array.isArray(val)) {
                         // 分组数组：每个key对应多条记录，key作为第一列（保单号）
                         val.forEach(function(item) {
                             var row = [key];  // 先加上分组key（如保单号）
-                            cfg.fields.forEach(function(f) { row.push(item[f] || ''); });
+                            cfg.fields.forEach(function(f) { row.push(fmt(f, item[f])); });
                             csvRows.push(row.map(function(cell) {
                                 return '"' + String(cell || '').replace(/"/g, '""') + '"';
                             }).join(','));
@@ -6144,7 +6235,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                         } else if (cfg.fields.length > 1) {
                             for (var fi = 1; fi < cfg.fields.length; fi++) {
                                 var f = cfg.fields[fi];
-                                row.push(Array.isArray(val[f]) ? val[f].join(';') : (val[f] || ''));
+                                var raw = val[f];
+                                row.push(Array.isArray(raw) ? raw.map(function(v) { return fmt(f, v); }).join(';') : fmt(f, raw));
                             }
                         }
                         csvRows.push(row.map(function(cell) {
@@ -6260,6 +6352,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                                 newData[key] = cols[1] || '';
                             }
                         } else {
+                            var parseFn = cfg.parseField || function(f, v) { return v; };
                             for (var i = 1; i < lines.length; i++) {
                                 var cols = parseCSVLine(lines[i]);
                                 var key = cols[0];
@@ -6267,13 +6360,13 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                                 var obj = {};
                                 if (cfg.fields.length > 1) {
                                     for (var fi = 1; fi < cfg.fields.length; fi++) {
+                                        var f = cfg.fields[fi];
                                         var val = cols[fi] || '';
-                                        // 如果原始数据中该字段是数组，按分号分割
                                         var existing = cfg.getStore();
-                                        if (existing && existing[key] && Array.isArray(existing[key][cfg.fields[fi]])) {
-                                            obj[cfg.fields[fi]] = val ? val.split(';').map(function(s) { return s.trim(); }) : [];
+                                        if (existing && existing[key] && Array.isArray(existing[key][f])) {
+                                            obj[f] = val ? val.split(';').map(function(s) { return parseFn(f, s.trim()); }) : [];
                                         } else {
-                                            obj[cfg.fields[fi]] = val;
+                                            obj[f] = parseFn(f, val);
                                         }
                                     }
                                 }
@@ -6884,6 +6977,7 @@ function switchAdminTab(tab) {
         }
 
         function adminViewLocalData() {
+            document.getElementById('localDataModalTitle').innerHTML = '&#128065; &#26412;&#22320;&#25968;&#25496;&#26126;&#32454;';
             var rawPolicies = localStorage.getItem(POLICY_STORAGE_KEY);
             var rawRefunds = localStorage.getItem(STORAGE_KEY);
             var rawPayments = localStorage.getItem(POLICY_PAYMENT_KEY);
@@ -6897,7 +6991,7 @@ function switchAdminTab(tab) {
                 lines.push('数据来源: localStorage (' + POLICY_STORAGE_KEY + ')');
                 lines.push('记录数: ' + keys.length);
                 if (keys.length > 0) {
-                    lines.push('保单号,投保人,身份证,手机,主险,险种代码,状态,生效日期,终止日期,应缴日期,缴费方式,分公司,中支,地址,开户行,银行账号,销售渠道,销售子渠道');
+                    lines.push('保单号,投保人,身份证,手机,主险,险种代码,状态,责任起期,责任止期,下次缴费日期,缴费方式,分公司,中支,地址,开户行,银行账号,销售渠道,销售子渠道');
                     keys.forEach(function(k) {
                         var r = p[k];
                         lines.push([k, r.holderName, r.holderId, r.phone, r.mainRisk, r.riskCode, r.status, r.startDate, r.endDate, r.nextPayDate, r.payMethod, r.branch, r.subBranch, r.chargeAddress, r.bankName, r.bankAccount, r.salesChannel, r.subChannel].join(','));
@@ -6913,11 +7007,11 @@ function switchAdminTab(tab) {
             if (rawRefunds) {
                 var refs = JSON.parse(rawRefunds);
                 lines.push('数据来源: localStorage (' + STORAGE_KEY + ')  <a href="#" onclick="jumpToRefundJSONView();return false;" style="color:#1a73e8;text-decoration:underline;font-weight:600;">&#128196; &#26597;&#30475;JSON&#35270;&#22270; &#8599;</a>');
-                if (refs && refs.refunds && refs.refunds.length > 0) {
-                    lines.push('退费记录数: ' + refs.refunds.length);
-                    lines.push('流水号,保单号,投保人,主险,退费类型,退费金额,状态,申请日期');
-                    refs.refunds.forEach(function(r) {
-                        lines.push([r.flowNo, r.policyNo, r.holderName, r.mainRisk, r.refundType, r.amount, r.status, r.applyDate].join(','));
+                if (Array.isArray(refs) && refs.length > 0) {
+                    lines.push('退费记录数: ' + refs.length);
+                    lines.push('流水号,保单号,投保人,退费金额,状态,申请日期');
+                    refs.forEach(function(r) {
+                        lines.push([r.id||'', r.policyNo||'', r.holderName||'', r.amount||'', r.status||'', r.acceptTime||''].join(','));
                     });
                 } else {
                     lines.push('退费记录数: 0');
@@ -7244,6 +7338,550 @@ function switchAdminTab(tab) {
             if (overlay) overlay.style.display = 'none';
         }
 
+        
+
+        // ==================== 查看内存数据 ====================
+        function adminViewMemoryData() {
+            document.getElementById('localDataModalTitle').innerHTML = '🗃 内存数掘明细';
+            var lines = [];
+
+            // === FETCHED_DEFAULTS 概览 ===
+            lines.push('========== FETCHED_DEFAULTS 内存变量==========');
+            lines.push('');
+            if (FETCHED_DEFAULTS === null) {
+                lines.push('状态：未加载 (null)');
+                lines.push('原因：fetchDefaultsFromFiles() 尚未执行或执行失败');
+            } else if (FETCHED_DEFAULTS === false) {
+                lines.push('状态：加载失败 (false)');
+                lines.push('原因：fetchDefaultsFromFiles() 因网络错误或404失败');
+            } else {
+                lines.push('状态：已加载');
+                lines.push('加载时机：DOMContentLoaded 异步调用 或 “恢复默认”按钮触发');
+                lines.push('加载目录：csv_export/ (14个文件)');
+                lines.push('');
+
+                var fieldOrder = [
+                    ['policies', '01_保单信息.csv'],
+                    ['payments', '02_缴费记录.csv'],
+                    ['naturalPersons', '03_自然人信息_反洗钱9字段.csv'],
+                    ['scenarios', '04_场景管理.csv'],
+                    ['refunds', '05_退费受理记录.json'],
+                    ['roles', '06_角色管理.csv'],
+                    ['permissions', '07_权限管理.csv'],
+                    ['rolePerms', '08_角色对应权限管理.csv'],
+                    ['users', '09_用户管理.csv'],
+                    ['userRoles', '10_用户角色管理.csv'],
+                    ['smsRecords', '11_短信发送记录.csv'],
+                    ['wechatRecords', '12_微信发送记录.csv'],
+                    ['branches', '14_分公司管理.csv'],
+                    ['branchInsts', '15_所属机构管理.csv']
+                ];
+
+                for (var i = 0; i < fieldOrder.length; i++) {
+                    var key = fieldOrder[i][0];
+                    var name = fieldOrder[i][1];
+                    var val = FETCHED_DEFAULTS[key];
+                    if (val === '' || val === null || val === undefined) {
+                        lines.push('  ❌ ' + name + ': 加载失败 (文件不存在或网络错误)');
+                    } else if (Array.isArray(val) && val.length === 0) {
+                        lines.push('  ⚠️ ' + name + ': 空数据 ([]), ' + val.length + '条记录');
+                    } else if (Array.isArray(val)) {
+                        lines.push('  ✅ ' + name + ': ' + val.length + '条记录');
+                    } else if (typeof val === 'string') {
+                        var lineCount = val.trim() ? val.split('\n').length : 0;
+                        lines.push('  ✅ ' + name + ': CSV字符串, ' + lineCount + '行');
+                    } else {
+                        lines.push('  ✅ ' + name + ': ' + (typeof val));
+                    }
+                }
+
+                // 各数据详情（按指定次序）
+                lines.push('');
+
+                // 1. 保单信息
+                lines.push('========== 保单信息 (FETCHED_DEFAULTS.policies) ==========');
+                if (typeof FETCHED_DEFAULTS.policies === 'string' && FETCHED_DEFAULTS.policies.trim()) {
+                    var pRows = parseCSV(FETCHED_DEFAULTS.policies);
+                    lines.push('记录数: ' + pRows.length);
+                    if (pRows.length > 0) {
+                        lines.push('保单号,投保人,主险,险种代码,状态');
+                        pRows.forEach(function(r) {
+                            lines.push([r['保单号']||'', r['投保人']||'', r['主险']||'', r['险种代码']||'', r['状态']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 2. 缴费记录
+                lines.push('========== 缴费记录 (FETCHED_DEFAULTS.payments) ==========');
+                if (typeof FETCHED_DEFAULTS.payments === 'string' && FETCHED_DEFAULTS.payments.trim()) {
+                    var pmtRows = parseCSV(FETCHED_DEFAULTS.payments);
+                    lines.push('记录数: ' + pmtRows.length);
+                    if (pmtRows.length > 0) {
+                        lines.push('保单号,期次,金额,应缴日期,实缴日期,来源');
+                        pmtRows.forEach(function(r) {
+                            lines.push([r['保单号']||'', r['期次']||'', r['金额']||'', r['应缴日期']||'', r['实缴日期']||'', r['来源']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 3. 自然人信息
+                lines.push('========== 自然人信息 (FETCHED_DEFAULTS.naturalPersons) ==========');
+                if (typeof FETCHED_DEFAULTS.naturalPersons === 'string' && FETCHED_DEFAULTS.naturalPersons.trim()) {
+                    var npRows = parseCSV(FETCHED_DEFAULTS.naturalPersons);
+                    lines.push('记录数: ' + npRows.length);
+                    if (npRows.length > 0) {
+                        lines.push('保单号,姓名,性别,国籍,职业,联系地址,联系方式,证件类型,证件号,证件有效期,是否关注官微');
+                        npRows.forEach(function(r) {
+                            lines.push([r['保单号']||'', r['姓名']||'', r['性别']||'', r['国籍']||'', r['职业']||'', r['联系地址']||'', r['联系方式']||'', r['证件类型']||'', r['证件号']||'', r['证件有效期']||'', r['是否关注官微']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 4. 场景管理
+                lines.push('========== 场景管理 (FETCHED_DEFAULTS.scenarios) ==========');
+                if (typeof FETCHED_DEFAULTS.scenarios === 'string' && FETCHED_DEFAULTS.scenarios.trim()) {
+                    var scRows = parseCSV(FETCHED_DEFAULTS.scenarios);
+                    lines.push('记录数: ' + scRows.length);
+                    if (scRows.length > 0) {
+                        lines.push('保单号,应缴日后有理赔,应缴日后有减保,已做投保人变更,存在未结清贷款,是否发放续期佣金,是否垫缴退费');
+                        scRows.forEach(function(r) {
+                            lines.push([r['保单号']||'', r['应缴日后有理赔']||'', r['应缴日后有减保']||'', r['已做投保人变更']||'', r['存在未结清贷款']||'', r['是否发放续期佣金']||'', r['是否垫缴退费']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 5. 退费受理记录
+                lines.push('========== 退费受理记录 (FETCHED_DEFAULTS.refunds) ==========');
+                if (Array.isArray(FETCHED_DEFAULTS.refunds)) {
+                    lines.push('记录数: ' + FETCHED_DEFAULTS.refunds.length);
+                    if (FETCHED_DEFAULTS.refunds.length > 0) {
+                        lines.push('流水号,保单号,投保人,主险,退费类型,金额,状态,申请日期');
+                        FETCHED_DEFAULTS.refunds.forEach(function(r) {
+                            lines.push([r.flowNo||r.id||'', r.policyNo||'', r.holderName||'', r.mainRisk||'', r.refundType||'', r.amount||'', r.status||'', r.applyDate||r.acceptTime||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载 (回退 EMBEDDED_REFUNDS)');
+                }
+
+                lines.push('');
+
+                // 6. 角色管理
+                lines.push('========== 角色管理 (FETCHED_DEFAULTS.roles) ==========');
+                if (typeof FETCHED_DEFAULTS.roles === 'string' && FETCHED_DEFAULTS.roles.trim()) {
+                    var roleRows = parseCSV(FETCHED_DEFAULTS.roles);
+                    lines.push('记录数: ' + roleRows.length);
+                    if (roleRows.length > 0) {
+                        lines.push('角色ID,角色名称');
+                        roleRows.forEach(function(r) {
+                            lines.push([r['角色ID']||'', r['角色名称']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 7. 权限管理
+                lines.push('========== 权限管理 (FETCHED_DEFAULTS.permissions) ==========');
+                if (typeof FETCHED_DEFAULTS.permissions === 'string' && FETCHED_DEFAULTS.permissions.trim()) {
+                    var permRows = parseCSV(FETCHED_DEFAULTS.permissions);
+                    lines.push('记录数: ' + permRows.length);
+                    if (permRows.length > 0) {
+                        lines.push('权限ID,权限名称');
+                        permRows.forEach(function(r) {
+                            lines.push([r['权限ID']||'', r['权限名称']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 8. 角色对应权限
+                lines.push('========== 角色对应权限 (FETCHED_DEFAULTS.rolePerms) ==========');
+                if (typeof FETCHED_DEFAULTS.rolePerms === 'string' && FETCHED_DEFAULTS.rolePerms.trim()) {
+                    var rpRows = parseCSV(FETCHED_DEFAULTS.rolePerms);
+                    lines.push('记录数: ' + rpRows.length);
+                    if (rpRows.length > 0) {
+                        lines.push('角色ID,权限ID');
+                        rpRows.forEach(function(r) {
+                            lines.push([r['角色ID']||'', r['权限ID']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 9. 用户管理
+                lines.push('========== 用户管理 (FETCHED_DEFAULTS.users) ==========');
+                if (typeof FETCHED_DEFAULTS.users === 'string' && FETCHED_DEFAULTS.users.trim()) {
+                    var userRows = parseCSV(FETCHED_DEFAULTS.users);
+                    lines.push('记录数: ' + userRows.length);
+                    if (userRows.length > 0) {
+                        lines.push('用户ID,用户姓名,用户名,口令');
+                        userRows.forEach(function(r) {
+                            lines.push([r['用户ID']||'', r['用户姓名']||'', r['用户名']||'', r['口令']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 10. 用户角色
+                lines.push('========== 用户角色 (FETCHED_DEFAULTS.userRoles) ==========');
+                if (typeof FETCHED_DEFAULTS.userRoles === 'string' && FETCHED_DEFAULTS.userRoles.trim()) {
+                    var urRows = parseCSV(FETCHED_DEFAULTS.userRoles);
+                    lines.push('记录数: ' + urRows.length);
+                    if (urRows.length > 0) {
+                        lines.push('用户ID,角色ID');
+                        urRows.forEach(function(r) {
+                            lines.push([r['用户ID']||'', r['角色ID']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 11. 短信发送记录
+                lines.push('========== 短信发送记录 (FETCHED_DEFAULTS.smsRecords) ==========');
+                if (typeof FETCHED_DEFAULTS.smsRecords === 'string' && FETCHED_DEFAULTS.smsRecords.trim()) {
+                    var smsRows = parseCSV(FETCHED_DEFAULTS.smsRecords);
+                    lines.push('记录数: ' + smsRows.length);
+                    if (smsRows.length > 0) {
+                        lines.push('发送ID,保单号,手机号,短信内容,发送时间,发送状态');
+                        smsRows.forEach(function(r) {
+                            lines.push([r['发送ID']||'', r['保单号']||'', r['手机号']||'', (r['短信内容']||'').replace(/\n/g,' '), r['发送时间']||'', r['发送状态']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 12. 微信发送记录
+                lines.push('========== 微信发送记录 (FETCHED_DEFAULTS.wechatRecords) ==========');
+                if (typeof FETCHED_DEFAULTS.wechatRecords === 'string' && FETCHED_DEFAULTS.wechatRecords.trim()) {
+                    var wcRows = parseCSV(FETCHED_DEFAULTS.wechatRecords);
+                    lines.push('记录数: ' + wcRows.length);
+                    if (wcRows.length > 0) {
+                        lines.push('发送ID,保单号,手机号,微信内容,发送时间,发送状态');
+                        wcRows.forEach(function(r) {
+                            lines.push([r['发送ID']||'', r['保单号']||'', r['手机号']||'', (r['微信内容']||'').replace(/\n/g,' '), r['发送时间']||'', r['发送状态']||''].join(','));
+                        });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 13. 分公司管理
+                lines.push('========== 分公司管理 (FETCHED_DEFAULTS.branches) ==========');
+                if (typeof FETCHED_DEFAULTS.branches === 'string' && FETCHED_DEFAULTS.branches.trim()) {
+                    var brRows = parseCSV(FETCHED_DEFAULTS.branches);
+                    lines.push('记录数: ' + brRows.length);
+                    if (brRows.length > 0) {
+                        lines.push('分公司名称');
+                        brRows.forEach(function(r) { lines.push(r['分公司名称'] || ''); });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+
+                lines.push('');
+
+                // 14. 所属机构管理
+                lines.push('========== 所属机构管理 (FETCHED_DEFAULTS.branchInsts) ==========');
+                if (typeof FETCHED_DEFAULTS.branchInsts === 'string' && FETCHED_DEFAULTS.branchInsts.trim()) {
+                    var biRows = parseCSV(FETCHED_DEFAULTS.branchInsts);
+                    lines.push('记录数: ' + biRows.length);
+                    if (biRows.length > 0) {
+                        lines.push('所属分公司,机构名称');
+                        biRows.forEach(function(r) { lines.push([r['所属分公司']||'', r['机构名称']||''].join(',')); });
+                    }
+                } else {
+                    lines.push('状态: 未加载');
+                }
+            }
+
+            // APPROVAL_FLOW_CONFIG
+            lines.push('');
+            lines.push('========== APPROVAL_FLOW_CONFIG 内存变量 ==========');
+            lines.push('加载时机: script初始化 (buildDefaultConfig) → DOMContentLoaded时恢复 localStorage');
+            if (APPROVAL_FLOW_CONFIG && typeof APPROVAL_FLOW_CONFIG === 'object') {
+                lines.push('version: ' + (APPROVAL_FLOW_CONFIG.version || 'unknown'));
+                var hqArr = APPROVAL_FLOW_CONFIG.approvalConfigsHQ || [];
+                var brArr = APPROVAL_FLOW_CONFIG.approvalConfigsBranch || [];
+                var instArr = APPROVAL_FLOW_CONFIG.approvalConfigsInst || [];
+                lines.push('总公司模板: ' + hqArr.length + '条');
+                lines.push('分公司模板: ' + brArr.length + '条');
+                lines.push('机构审批流: ' + instArr.length + '条');
+            } else {
+                lines.push('状态: 未初始化');
+            }
+
+            // 显示弹窗
+            var body = document.getElementById('localDataModalBody');
+            var overlay = document.getElementById('localDataModalOverlay');
+            if (body && overlay) {
+                var htmlLines = lines.map(function(l) {
+                    return l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                });
+                body.innerHTML = htmlLines.join('<br/>');
+                overlay.style.display = 'flex';
+            } else {
+                alert(lines.join('\n'));
+            }
+        }
+        // ==================== 查看内置写死数据 ====================
+        function adminViewEmbeddedData() {
+            document.getElementById('localDataModalTitle').innerHTML = '📚 内置数掘明细';
+            var lines = [];
+
+            // === 保单信息 ===
+            lines.push('========== 保单信息（内置写死）==========');
+            try {
+                var csv = EMBEDDED_POLICIES;
+                var rows = parseCSV(csv);
+                lines.push('数据来源: EMBEDDED_POLICIES（写死常量）');
+                lines.push('记录数: ' + rows.length);
+                if (rows.length > 0) {
+                    lines.push('保单号,投保人,身份证,手机,主险,险种代码,状态,责任起期,责任止期,下次缴费日期,缴费方式,分公司,中支,地址,开户行,银行账号,销售渠道,销售子渠道');
+                    rows.forEach(function(r) {
+                        lines.push([r['保单号']||'', r['投保人']||'', r['身份证']||'', r['手机']||'', r['主险']||'', r['险种代码']||'', r['状态']||'', r['责任起期']||'', r['责任止期']||'', r['下次缴费日期']||'', r['缴费方式']||'', r['分公司']||'', r['中支']||'', r['地址']||'', r['开户行']||'', r['银行账号']||'', r['销售渠道']||'', r['销售子渠道']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 退费记录 ===
+            lines.push('');
+            lines.push('========== 退费记录（内置写死）==========');
+            try {
+                var refs = JSON.parse(EMBEDDED_REFUNDS);
+                lines.push('数据来源: EMBEDDED_REFUNDS（写死常量）');
+                if (Array.isArray(refs) && refs.length > 0) {
+                    lines.push('退费记录数: ' + refs.length);
+                    lines.push('流水号,保单号,投保人,退费金额,状态,申请日期');
+                    refs.forEach(function(r) {
+                        lines.push([r.id||'', r.policyNo||'', r.holderName||'', r.amount||'', r.status||'', r.acceptTime||''].join(','));
+                    });
+                } else {
+                    lines.push('退费记录数: 0');
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 缴费记录 ===
+            lines.push('');
+            lines.push('========== 缴费记录（内置写死）==========');
+            try {
+                var csv2 = EMBEDDED_PAYMENTS;
+                var rows2 = parseCSV(csv2);
+                lines.push('数据来源: EMBEDDED_PAYMENTS（写死常量）');
+                lines.push('记录数: ' + rows2.length);
+                if (rows2.length > 0) {
+                    lines.push('保单号,期次,金额,应缴日期,实缴日期,来源');
+                    rows2.forEach(function(r) {
+                        lines.push([r['保单号']||'', r['期次']||'', r['金额']||'', r['应缴日期']||'', r['实缴日期']||'', r['来源']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 场景信息 ===
+            lines.push('');
+            lines.push('========== 场景信息（内置写死）==========');
+            try {
+                var csv3 = EMBEDDED_SCENARIOS;
+                var rows3 = parseCSV(csv3);
+                lines.push('数据来源: EMBEDDED_SCENARIOS（写死常量）');
+                lines.push('记录数: ' + rows3.length);
+                if (rows3.length > 0) {
+                    lines.push('保单号,应缴日后有理赔,应缴日后有减保,已做投保人变更,存在未结清贷款,是否发放续期佣金,是否垫缴退费');
+                    rows3.forEach(function(r) {
+                        lines.push([r['保单号']||'', r['应缴日后有理赔']||'', r['应缴日后有减保']||'', r['已做投保人变更']||'', r['存在未结清贷款']||'', r['是否发放续期佣金']||'', r['是否垫缴退费']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 分公司信息 ===
+            lines.push('');
+            lines.push('========== 分公司信息（内置写死）==========');
+            try {
+                var csvB = EMBEDDED_BRANCHES;
+                var branches = parseCSV(csvB).map(function(r) { return r['分公司名称']; }).filter(Boolean);
+                lines.push('数据来源: EMBEDDED_BRANCHES（写死常量）');
+                lines.push('记录数: ' + branches.length);
+                if (branches.length > 0) {
+                    lines.push('序号,分公司名称');
+                    branches.forEach(function(name, idx) {
+                        lines.push([idx + 1, name].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 所属机构信息 ===
+            lines.push('');
+            lines.push('========== 所属机构信息（内置写死）==========');
+            try {
+                var csvBI = EMBEDDED_BRANCHINSTS;
+                var rowsBI = parseCSV(csvBI);
+                var insts = [];
+                var idC = 1;
+                rowsBI.forEach(function(r) {
+                    var b = r['所属分公司'];
+                    var i = r['机构名称'];
+                    if (b) {
+                        insts.push({ id: 'bi_' + idC, branch: b, institution: i || '-' });
+                        idC++;
+                    }
+                });
+                lines.push('数据来源: EMBEDDED_BRANCHINSTS（写死常量）');
+                lines.push('记录数: ' + insts.length);
+                if (insts.length > 0) {
+                    lines.push('所属分公司,机构名称');
+                    insts.forEach(function(item) {
+                        lines.push([item.branch, item.institution].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 自然人信息 ===
+            lines.push('');
+            lines.push('========== 自然人信息（内置写死）==========');
+            try {
+                var csv4 = EMBEDDED_NATURALPERSONS;
+                var rows4 = parseCSV(csv4);
+                lines.push('数据来源: EMBEDDED_NATURALPERSONS（写死常量）');
+                lines.push('记录数: ' + rows4.length);
+                if (rows4.length > 0) {
+                    lines.push('保单号,姓名,性别,国籍,职业,联系地址,联系方式,证件类型,证件号,证件有效期,是否关注官微');
+                    rows4.forEach(function(r) {
+                        lines.push([r['保单号']||'', r['姓名']||'', r['性别']||'', r['国籍']||'', r['职业']||'', r['联系地址']||'', r['联系方式']||'', r['证件类型']||'', r['证件号']||'', r['证件有效期']||'', r['是否关注官微']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 角色信息 ===
+            lines.push('');
+            lines.push('========== 角色信息（内置写死）==========');
+            try {
+                var csv5 = EMBEDDED_ROLES;
+                var rows5 = parseCSV(csv5);
+                lines.push('数据来源: EMBEDDED_ROLES（写死常量）');
+                lines.push('记录数: ' + rows5.length);
+                if (rows5.length > 0) {
+                    lines.push('角色ID,角色名称');
+                    rows5.forEach(function(r) {
+                        lines.push([r['角色ID']||'', r['角色名称']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 权限信息 ===
+            lines.push('');
+            lines.push('========== 权限信息（内置写死）==========');
+            try {
+                var csv6 = EMBEDDED_PERMISSIONS;
+                var rows6 = parseCSV(csv6);
+                lines.push('数据来源: EMBEDDED_PERMISSIONS（写死常量）');
+                lines.push('记录数: ' + rows6.length);
+                if (rows6.length > 0) {
+                    lines.push('权限ID,权限名称');
+                    rows6.forEach(function(r) {
+                        lines.push([r['权限ID']||'', r['权限名称']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 角色对应权限信息 ===
+            lines.push('');
+            lines.push('========== 角色对应权限信息（内置写死）==========');
+            try {
+                var csv7 = EMBEDDED_ROLE_PERMS;
+                var rows7 = parseCSV(csv7);
+                lines.push('数据来源: EMBEDDED_ROLE_PERMS（写死常量）');
+                lines.push('记录数: ' + rows7.length);
+                if (rows7.length > 0) {
+                    lines.push('角色ID,权限ID');
+                    rows7.forEach(function(r) {
+                        lines.push([r['角色ID']||'', r['权限ID']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 用户信息 ===
+            lines.push('');
+            lines.push('========== 用户信息（内置写死）==========');
+            try {
+                var csv8 = EMBEDDED_USERS;
+                var rows8 = parseCSV(csv8);
+                lines.push('数据来源: EMBEDDED_USERS（写死常量）');
+                lines.push('记录数: ' + rows8.length);
+                if (rows8.length > 0) {
+                    lines.push('用户ID,用户姓名,用户名,口令');
+                    rows8.forEach(function(r) {
+                        lines.push([r['用户ID']||'', r['用户姓名']||'', r['用户名']||'', r['口令']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 用户角色信息 ===
+            lines.push('');
+            lines.push('========== 用户角色信息（内置写死）==========');
+            try {
+                var csv9 = EMBEDDED_USER_ROLES;
+                var rows9 = parseCSV(csv9);
+                lines.push('数据来源: EMBEDDED_USER_ROLES（写死常量）');
+                lines.push('记录数: ' + rows9.length);
+                if (rows9.length > 0) {
+                    lines.push('用户ID,角色ID');
+                    rows9.forEach(function(r) {
+                        lines.push([r['用户ID']||'', r['角色ID']||''].join(','));
+                    });
+                }
+            } catch(e) { lines.push('数据解析失败: ' + e.message); }
+
+            // === 显示弹窗 ===
+            var body = document.getElementById('localDataModalBody');
+            var overlay = document.getElementById('localDataModalOverlay');
+            if (body && overlay) {
+                var htmlLines = lines.map(function(l) {
+                    if (l.indexOf('<a ') !== -1) return l;
+                    return l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                });
+                body.innerHTML = htmlLines.join('\n');
+                overlay.style.display = 'flex';
+            } else {
+                alert(lines.join('\n'));
+            }
+        }
+
+
         function jumpToRefundJSONView() {
             closeLocalDataModal();
             // Switch to refunds tab (avoid event.target dependency)
@@ -7454,21 +8092,55 @@ function switchAdminTab(tab) {
         }
 
         // ==================== Admin 分公司管理 ====================
-        function getDefaultBranches() { return ["上海分公司","北京分公司","广东分公司","深圳分公司","四川分公司","湖北分公司","浙江分公司","江苏分公司","陕西分公司","山西分公司","常州分公司","苏州分公司","大连分公司","黑龙江分公司","无锡分公司","天津分公司","辽宁分公司","吉林省分公司","河北分公司","内蒙古分公司","海南分公司","宁波分公司","湖南分公司","宁夏分公司","重庆分公司","江西分公司","厦门分公司","福建分公司","甘肃分公司","贵州分公司","新疆分公司","安徽分公司","青海分公司","青岛分公司","山东分公司","云南分公司","广西分公司","河南分公司"]; }
+        function getDefaultBranches() {
+            // 优先使用 FETCHED_DEFAULTS 中的 CSV 数据
+            if (FETCHED_DEFAULTS && typeof FETCHED_DEFAULTS.branches === 'string' && FETCHED_DEFAULTS.branches.trim()) {
+                var csv = FETCHED_DEFAULTS.branches.replace(/^\uFEFF/, '');
+                var rows = parseCSV(csv);
+                var result = [];
+                rows.forEach(function(r) {
+                    var name = r['分公司名称'];
+                    if (name) result.push(name);
+                });
+                return result;
+            }
+            // 回退到 EMBEDDED CSV 数据
+            return parseCSV(EMBEDDED_BRANCHES).map(function(r) { return r['分公司名称']; }).filter(Boolean);
+        }
         function getBranchStore() { try { var d = JSON.parse(localStorage.getItem(BRANCH_KEY)); return d || []; } catch(e) { return []; } }
         function saveBranchStore(data) { localStorage.setItem(BRANCH_KEY, JSON.stringify(data)); }
 
         // ==================== Admin 所属机构管理 ====================
         function getDefaultBranchInstitutions() {
-            return [
-                { id: 'bi_1', branch: '上海分公司', institution: '浦东中支' },
-                { id: 'bi_2', branch: '北京分公司', institution: '朝阳中支' },
-                { id: 'bi_3', branch: '广东分公司', institution: '广州中支' },
-                { id: 'bi_4', branch: '深圳分公司', institution: '南山中支' },
-                { id: 'bi_5', branch: '四川分公司', institution: '成都中支' },
-                { id: 'bi_6', branch: '湖北分公司', institution: '武汉中支' },
-                { id: 'bi_7', branch: '浙江分公司', institution: '杭州中支' }
-            ];
+            // 优先使用 FETCHED_DEFAULTS 中的 CSV 数据
+            if (FETCHED_DEFAULTS && typeof FETCHED_DEFAULTS.branchInsts === 'string' && FETCHED_DEFAULTS.branchInsts.trim()) {
+                var csv = FETCHED_DEFAULTS.branchInsts.replace(/^\uFEFF/, '');
+                var rows = parseCSV(csv);
+                var result = [];
+                var idCounter = 1;
+                rows.forEach(function(r) {
+                    var branch = r['所属分公司'];
+                    var institution = r['机构名称'];
+                    if (branch) {
+                        result.push({ id: 'bi_' + idCounter, branch: branch, institution: institution || '-' });
+                        idCounter++;
+                    }
+                });
+                return result;
+            }
+            // 回退到 EMBEDDED CSV 数据
+            var rows = parseCSV(EMBEDDED_BRANCHINSTS);
+            var result = [];
+            var idCounter = 1;
+            rows.forEach(function(r) {
+                var branch = r['所属分公司'];
+                var institution = r['机构名称'];
+                if (branch) {
+                    result.push({ id: 'bi_' + idCounter, branch: branch, institution: institution || '-' });
+                    idCounter++;
+                }
+            });
+            return result;
         }
         function getBranchInstStore() { try { var d = JSON.parse(localStorage.getItem(BRANCH_INST_KEY)); return d || []; } catch(e) { return []; } }
         function saveBranchInstStore(data) { localStorage.setItem(BRANCH_INST_KEY, JSON.stringify(data)); }
@@ -7476,23 +8148,29 @@ function switchAdminTab(tab) {
         // ==================== Admin 场景管理 ====================
         const SCENARIO_KEY = 'renewalRefundScenarios';
         function getDefaultScenarios() {
-            const csv = (FETCHED_DEFAULTS && FETCHED_DEFAULTS.scenarios) ? FETCHED_DEFAULTS.scenarios : EMBEDDED_SCENARIOS;
+            // 兼容 "是"/"否" 和 "true"/"false" 两种格式
+            function toBool(val) {
+                if (!val) return false;
+                return val === '是' || val === 'true';
+            }
+            const csvRaw = (FETCHED_DEFAULTS && FETCHED_DEFAULTS.scenarios) ? FETCHED_DEFAULTS.scenarios : EMBEDDED_SCENARIOS;
+            const csv = csvRaw.replace(/^\uFEFF/, '');
             const grouped = parseCSVGrouped(csv, '保单号');
             const result = {};
             for (const [pno, r] of Object.entries(grouped)) {
                 result[pno] = {
                     policyNo: pno,
-                    claimAfterDue: r['应缴日后有理赔'] === '是',
-                    reductionAfterDue: r['应缴日后有减保'] === '是',
-                    holderChanged: r['已做投保人变更'] === '是',
-                    hasLoan: r['存在未结清贷款'] === '是',
-                    renewalCommission: r['是否发放续期佣金'] === '是',
-                    advanceRefund: r['是否垫缴退费'] === '是'
+                    claimAfterDue: toBool(r['应缴日后有理赔']),
+                    reductionAfterDue: toBool(r['应缴日后有减保']),
+                    holderChanged: toBool(r['已做投保人变更']),
+                    hasLoan: toBool(r['存在未结清贷款']),
+                    renewalCommission: toBool(r['是否发放续期佣金']),
+                    advanceRefund: toBool(r['是否垫缴退费'])
                 };
             }
             return result;
         }
-        function getScenarioStore() { return JSON.parse(localStorage.getItem(SCENARIO_KEY)) || getDefaultScenarios(); }
+        function getScenarioStore() { return JSON.parse(localStorage.getItem(SCENARIO_KEY)) || []; }
         function saveScenarioStore(data) { localStorage.setItem(SCENARIO_KEY, JSON.stringify(data)); }
 
         function refreshAdminScenarioSelect() {
@@ -8378,6 +9056,65 @@ function switchAdminTab(tab) {
             }).join('');
         }
 
+
+        // ==================== 清空全部数据 ====================
+        function adminClearAllData() {
+            if (!confirm('⚠️ 确定要清空全部数据吗？此操作不可撤销！')) return;
+            if (!confirm('\u518d\u6b21\u786e\u8ba4\uff1a\u5c06\u6e05\u7a7a\u6240\u6709\u672c\u5730\u6570\u636e\uff08localStorage\uff09\u548c\u5185\u5b58\u6570\u636e\uff08FETCHED_DEFAULTS + APPROVAL_FLOW_CONFIG\uff09\u3002\u786e\u8ba4\u7ee7\u7eed\uff1f')) return;
+            try {
+                // 清空所有 localStorage key
+                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(POLICY_STORAGE_KEY);
+                localStorage.removeItem(NP_STORAGE_KEY);
+                localStorage.removeItem(POLICY_PAYMENT_KEY);
+                localStorage.removeItem(SCENARIO_KEY);
+                localStorage.removeItem(BRANCH_KEY);
+                localStorage.removeItem(BRANCH_INST_KEY);
+                localStorage.removeItem(ROLE_STORAGE_KEY);
+                localStorage.removeItem(PERM_STORAGE_KEY);
+                localStorage.removeItem(RP_STORAGE_KEY);
+                localStorage.removeItem(USER_STORAGE_KEY);
+                localStorage.removeItem(UR_STORAGE_KEY);
+                localStorage.removeItem(SMS_STORAGE_KEY);
+                localStorage.removeItem(WECHAT_STORAGE_KEY);
+                localStorage.removeItem('approvalFlowConfig');
+                localStorage.removeItem('approvalFlowConfigMeta');
+                localStorage.removeItem('renewalRefundPoliciesInited');
+                localStorage.removeItem('renewalRefundBranchesInited');
+                localStorage.removeItem('renewalRefundBranchInstsInited');
+                localStorage.removeItem('renewalRefundRolesInited');
+                localStorage.removeItem('renewalRefundPermsInited');
+                localStorage.removeItem('renewalRefundUsersInited');
+                localStorage.removeItem('renewalRefundUserRolesInited');
+                // 清空内存数据
+                FETCHED_DEFAULTS = null;
+                adminOriginalData = null;
+                APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+                // 安全刷新各Table（逐个try防止cascade failure）
+                try { refreshAdminRefundsTable(); } catch(e) { console.error('refreshAdminRefundsTable:', e); }
+                try { refreshAdminPaymentSelect(); } catch(e) { console.error('refreshAdminPaymentSelect:', e); }
+                try { refreshAdminNaturalPersonTable(); } catch(e) { console.error('refreshAdminNaturalPersonTable:', e); }
+                try { refreshAdminPoliciesTable(); } catch(e) { console.error('refreshAdminPoliciesTable:', e); }
+                try {
+                    var sel = document.getElementById('adminScenarioPolicySelect');
+                    if (sel) adminLoadScenario();
+                } catch(e) { console.error('adminLoadScenario:', e); }
+                try { refreshAdminRolesTable(); } catch(e) { console.error('refreshAdminRolesTable:', e); }
+                try { refreshAdminPermsTable(); } catch(e) { console.error('refreshAdminPermsTable:', e); }
+                try { refreshAdminRolePermsTable(); } catch(e) { console.error('refreshAdminRolePermsTable:', e); }
+                try { refreshAdminUsersTable(); } catch(e) { console.error('refreshAdminUsersTable:', e); }
+                try { refreshAdminUserRolesTable(); } catch(e) { console.error('refreshAdminUserRolesTable:', e); }
+                try { refreshAdminSmsRecordsTable(); } catch(e) { console.error('refreshAdminSmsRecordsTable:', e); }
+                try { refreshAdminWechatRecordsTable(); } catch(e) { console.error('refreshAdminWechatRecordsTable:', e); }
+                try { refreshAdminBranchesTable(); } catch(e) { console.error('refreshAdminBranchesTable:', e); }
+                try { refreshAdminBranchInstsTable(); } catch(e) { console.error('refreshAdminBranchInstsTable:', e); }
+                try { refreshAdminApprovalChain(); } catch(e) { console.error('refreshAdminApprovalChain:', e); }
+                try { showNotification('已清空全部本地数据和内存数据', 'warning'); } catch(e) {}
+            } catch (e) {
+                console.error('清空数据出错:', e);
+                alert('清空失败：' + (e.message || '未知错误'));
+            }
+        }
         async function adminResetToDefault() {
             if (!confirm('确定要恢复默认数据吗？这将清除所有修改！\n\n数据将从 csv_export/ 目录的 CSV/JSON 文件中重新加载。')) return;
             try {
@@ -8402,8 +9139,33 @@ function switchAdminTab(tab) {
                 localStorage.removeItem(USER_STORAGE_KEY);
                 localStorage.removeItem(UR_STORAGE_KEY);
                 localStorage.removeItem(SMS_STORAGE_KEY);
+                localStorage.removeItem(WECHAT_STORAGE_KEY);
+                localStorage.removeItem('approvalFlowConfig');
+                localStorage.removeItem('approvalFlowConfigMeta');
+                localStorage.removeItem('renewalRefundPoliciesInited');
+                localStorage.removeItem('renewalRefundBranchesInited');
+                localStorage.removeItem('renewalRefundBranchInstsInited');
+                localStorage.removeItem('renewalRefundRolesInited');
+                localStorage.removeItem('renewalRefundPermsInited');
+                localStorage.removeItem('renewalRefundUsersInited');
+                localStorage.removeItem('renewalRefundUserRolesInited');
                 initDemoData();
                 adminOriginalData = null;
+                savePolicyStore(getDefaultPolicyData());
+                saveNaturalPersonStore(getDefaultNaturalPersonData());
+                savePolicyPaymentStore(getDefaultPolicyPayments());
+                saveScenarioStore(getDefaultScenarios());
+                saveBranchStore(getDefaultBranches());
+                saveBranchInstStore(getDefaultBranchInstitutions());
+                saveRoleStore(getDefaultRoleData());
+                savePermStore(getDefaultPermData());
+                saveRolePermStore(getDefaultRolePermData());
+                saveUserStore(getDefaultUserData());
+                saveUserRoleStore(getDefaultUserRoleData());
+                saveSmsStore(getDefaultSmsData());
+                saveWechatStore(getDefaultWechatData());
+                APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+                try { localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
                 // 安全刷新各Table（逐个try防止cascade failure）
                 try { refreshAdminRefundsTable(); } catch(e) { console.error('refreshAdminRefundsTable:', e); }
                 try { refreshAdminPaymentSelect(); } catch(e) { console.error('refreshAdminPaymentSelect:', e); }
@@ -8419,6 +9181,10 @@ function switchAdminTab(tab) {
                 try { refreshAdminUsersTable(); } catch(e) { console.error('refreshAdminUsersTable:', e); }
                 try { refreshAdminUserRolesTable(); } catch(e) { console.error('refreshAdminUserRolesTable:', e); }
                 try { refreshAdminSmsRecordsTable(); } catch(e) { console.error('refreshAdminSmsRecordsTable:', e); }
+                try { refreshAdminWechatRecordsTable(); } catch(e) { console.error('refreshAdminWechatRecordsTable:', e); }
+                try { refreshAdminBranchesTable(); } catch(e) { console.error('refreshAdminBranchesTable:', e); }
+                try { refreshAdminBranchInstsTable(); } catch(e) { console.error('refreshAdminBranchInstsTable:', e); }
+                try { refreshAdminApprovalChain(); } catch(e) { console.error('refreshAdminApprovalChain:', e); }
                 var externalOk = FETCHED_DEFAULTS && Array.isArray(FETCHED_DEFAULTS.refunds);
                 var msg = externalOk ? '已从 csv_export/ 文件恢复默认数据（7条记录）' : '已从内置默认数据恢复（外部文件不可用）';
                 var type = externalOk ? 'success' : 'warning';
@@ -8429,17 +9195,6 @@ function switchAdminTab(tab) {
             }
         }
 
-        function adminClearAll() {
-            if (!confirm('⚠️ 确定要清空所有退费记录吗？此操作不可恢复！')) return;
-            if (!confirm('再次确认：所有退费受理记录将被清空，保单和自然人信息不受影响。确认继续？')) return;
-            const data = getData();
-            data.refunds = [];
-            saveData(data);
-            adminOriginalData = null;
-            refreshAdminRefundsTable();
-            refreshAdminPaymentSelect();
-            showNotification('已清空所有退费记录', 'warning');
-        }
     </script>
 
     <!-- &#25552;&#20132;&#32467;&#26524;&#24377;&#31383; -->
@@ -8457,7 +9212,7 @@ function switchAdminTab(tab) {
     <div id="localDataModalOverlay" class="local-data-modal-overlay" onclick="if(event.target===this)closeLocalDataModal()">
         <div class="local-data-modal-box">
             <div class="local-data-modal-header">
-                <span>&#128065; &#26412;&#22320;&#25968;&#25454;&#26126;&#32454;</span>
+                <span id="localDataModalTitle">&#128065; &#26412;&#22320;&#25968;&#25454;&#26126;&#32454;</span>
                 <button onclick="closeLocalDataModal()">&#20851;&#38381; &#10005;</button>
             </div>
             <div id="localDataModalBody" class="local-data-modal-body"></div>
