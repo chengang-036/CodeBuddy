@@ -6277,7 +6277,10 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = cfg.exportFilename || (cfg.filename + '_' + new Date().toISOString().slice(0, 10) + '.csv');
+            var exportName = cfg.exportFilename || (cfg.filename + '_' + new Date().toISOString().slice(0, 10) + '.csv');
+            // 解码 HTML 实体（如 &#23457; → 审）
+            exportName = exportName.replace(/&#(\d+);/g, function(m, code) { return String.fromCharCode(code); });
+            a.download = exportName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
