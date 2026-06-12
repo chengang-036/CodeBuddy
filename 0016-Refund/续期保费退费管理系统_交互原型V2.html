@@ -978,6 +978,7 @@
                         <button class="btn btn-sm btn-danger" onclick="adminClearAllData()">&#128465;&#65039; &#28165;&#31354;&#25968;&#25454;</button>
                         <button class="btn btn-sm btn-warning" onclick="adminResetToDefault()">&#128229; &#20174;csv_export&#33719;&#21462;&#25968;&#25454;</button>
                         <button class="btn btn-sm btn-secondary" onclick="adminResetToDefaultFromDefaultData()" style="background:#6c757d;color:white;border-color:#6c757d;">&#128229; &#24674;&#22797;&#40664;&#35748;</button>
+                        <button class="btn btn-sm btn-success" onclick="adminBackupAllData()" style="background:#28a745;color:white;border-color:#28a745;">&#128450; &#22797;&#20221;&#25968;&#25496;&#21040;csv_export</button>
                         <button class="btn btn-sm btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;</button>
                     </div>
                 </div>
@@ -9194,6 +9195,34 @@ function switchAdminTab(tab) {
                 console.error('恢复默认数据过程出错:', e2);
                 alert('恢复默认失败：' + (e2.message || '未知错误') + '\n请刷新页面后重试。');
             }
+        }
+
+        // 备份所有数据到CSV（批量导出）
+        async function adminBackupAllData() {
+            var tabNames = Object.keys(ADMIN_CSV_CONFIG);
+            var confirmMsg = '确定要备份所有数据吗？\n\n将导出以下模块的数据：\n';
+            tabNames.forEach(function(k) {
+                confirmMsg += '  - ' + ADMIN_CSV_CONFIG[k].filename + '\n';
+            });
+            confirmMsg += '\n文件将逐一下载到您的下载文件夹。\n\n（提示：要备份 csv_export 目录，请运行 backup_csv_export.py 脚本）';
+            
+            if (!confirm(confirmMsg)) return;
+            
+            showNotification('开始批量导出，共 ' + tabNames.length + ' 个模块...', 'info');
+            
+            // 逐模块导出（加延迟避免浏览器阻止多次下载）
+            for (var i = 0; i < tabNames.length; i++) {
+                try {
+                    adminExportCSV(tabNames[i]);
+                    // 等待1.5秒再导出下一个
+                    await new Promise(function(resolve) { setTimeout(resolve, 1500); });
+                } catch (e) {
+                    console.error('导出 ' + tabNames[i] + ' 失败:', e);
+                }
+            }
+            
+            showNotification('批量导出完成！共导出 ' + tabNames.length + ' 个文件', 'success');
+            alert('导出完成！\n\n要备份 csv_export 目录，请运行：\n  python backup_csv_export.py');
         }
 
         async function adminResetToDefaultFromDefaultData() {
