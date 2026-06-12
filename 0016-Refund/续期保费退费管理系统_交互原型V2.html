@@ -977,6 +977,7 @@
                         <button class="btn btn-sm btn-outline" onclick="adminRefreshData()">&#128260; &#21047;&#26032;&#25968;&#25454;</button>
                         <button class="btn btn-sm btn-danger" onclick="adminClearAllData()">&#128465;&#65039; &#28165;&#31354;&#25968;&#25454;</button>
                         <button class="btn btn-sm btn-warning" onclick="adminResetToDefault()">&#128229; &#20174;csv_export&#33719;&#21462;&#25968;&#25454;</button>
+                        <button class="btn btn-sm btn-secondary" onclick="adminResetToDefaultFromDefaultData()" style="background:#6c757d;color:white;border-color:#6c757d;">&#128229; &#24674;&#22797;&#40664;&#35748;</button>
                         <button class="btn btn-sm btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;</button>
                     </div>
                 </div>
@@ -2260,8 +2261,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         // ==================== 外部数据加载（从 csv_export/ 目录） ====================
         let FETCHED_DEFAULTS = null;  // { policies, payments, naturalPersons, scenarios, refunds, roles, permissions, rolePerms, users, userRoles }
 
-        async function fetchDefaultsFromFiles() {
-            const BASE = 'csv_export/';
+        async function fetchDefaultsFromFiles(baseDir) {
+            const BASE = baseDir || 'csv_export/';
             const results = await Promise.allSettled([
                 fetch(BASE + '01_保单信息.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
                 fetch(BASE + '02_缴费记录.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
@@ -2295,8 +2296,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     failedFiles.push(names[i] + '(' + (r.reason && r.reason.message || '未知') + ')');
                 }
             });
-            if (failedFiles.length > 0) console.warn('部分外部文件不可用:', failedFiles.join(', '));
-            else console.log('FETCHED_DEFAULTS loaded from csv_export/ files');
+            if (failedFiles.length > 0) console.warn('部分外部文件不可用 (' + BASE + '):', failedFiles.join(', '));
+            else console.log('FETCHED_DEFAULTS loaded from ' + BASE + ' files');
             return FETCHED_DEFAULTS;
         }
 
@@ -9191,6 +9192,86 @@ function switchAdminTab(tab) {
                 try { showNotification(msg, type); } catch(e) { console.error('showNotification:', e); }
             } catch (e2) {
                 console.error('恢复默认数据过程出错:', e2);
+                alert('恢复默认失败：' + (e2.message || '未知错误') + '\n请刷新页面后重试。');
+            }
+        }
+
+        async function adminResetToDefaultFromDefaultData() {
+            if (!confirm('确定要从 default_data/ 目录恢复默认数据吗？这将清除所有修改！\n\n数据将从 default_data/ 目录的 CSV/JSON 文件中重新加载。')) return;
+            try {
+                // 从 default_data 目录加载数据
+                await fetchDefaultsFromFiles('default_data/');
+            } catch (err) {
+                console.error('加载 default_data/ 文件失败，使用内置默认数据:', err.message);
+                FETCHED_DEFAULTS = null;
+            }
+            // 统一的数据恢复逻辑（无论fetch成功与否，都重建数据）
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(POLICY_STORAGE_KEY);
+                localStorage.removeItem(NP_STORAGE_KEY);
+                localStorage.removeItem(POLICY_PAYMENT_KEY);
+                localStorage.removeItem(SCENARIO_KEY);
+                localStorage.removeItem(BRANCH_KEY);
+                localStorage.removeItem(BRANCH_INST_KEY);
+                localStorage.removeItem(ROLE_STORAGE_KEY);
+                localStorage.removeItem(PERM_STORAGE_KEY);
+                localStorage.removeItem(RP_STORAGE_KEY);
+                localStorage.removeItem(USER_STORAGE_KEY);
+                localStorage.removeItem(UR_STORAGE_KEY);
+                localStorage.removeItem(SMS_STORAGE_KEY);
+                localStorage.removeItem(WECHAT_STORAGE_KEY);
+                localStorage.removeItem('approvalFlowConfig');
+                localStorage.removeItem('approvalFlowConfigMeta');
+                localStorage.removeItem('renewalRefundPoliciesInited');
+                localStorage.removeItem('renewalRefundBranchesInited');
+                localStorage.removeItem('renewalRefundBranchInstsInited');
+                localStorage.removeItem('renewalRefundRolesInited');
+                localStorage.removeItem('renewalRefundPermsInited');
+                localStorage.removeItem('renewalRefundUsersInited');
+                localStorage.removeItem('renewalRefundUserRolesInited');
+                initDemoData();
+                adminOriginalData = null;
+                savePolicyStore(getDefaultPolicyData());
+                saveNaturalPersonStore(getDefaultNaturalPersonData());
+                savePolicyPaymentStore(getDefaultPolicyPayments());
+                saveScenarioStore(getDefaultScenarios());
+                saveBranchStore(getDefaultBranches());
+                saveBranchInstStore(getDefaultBranchInstitutions());
+                saveRoleStore(getDefaultRoleData());
+                savePermStore(getDefaultPermData());
+                saveRolePermStore(getDefaultRolePermData());
+                saveUserStore(getDefaultUserData());
+                saveUserRoleStore(getDefaultUserRoleData());
+                saveSmsStore(getDefaultSmsData());
+                saveWechatStore(getDefaultWechatData());
+                APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+                try { localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
+                // 安全刷新各Table（逐个try防止cascade failure）
+                try { refreshAdminRefundsTable(); } catch(e) { console.error('refreshAdminRefundsTable:', e); }
+                try { refreshAdminPaymentSelect(); } catch(e) { console.error('refreshAdminPaymentSelect:', e); }
+                try { refreshAdminNaturalPersonTable(); } catch(e) { console.error('refreshAdminNaturalPersonTable:', e); }
+                try { refreshAdminPoliciesTable(); } catch(e) { console.error('refreshAdminPoliciesTable:', e); }
+                try {
+                    var sel = document.getElementById('adminScenarioPolicySelect');
+                    if (sel) adminLoadScenario();
+                } catch(e) { console.error('adminLoadScenario:', e); }
+                try { refreshAdminRolesTable(); } catch(e) { console.error('refreshAdminRolesTable:', e); }
+                try { refreshAdminPermsTable(); } catch(e) { console.error('refreshAdminPermsTable:', e); }
+                try { refreshAdminRolePermsTable(); } catch(e) { console.error('refreshAdminRolePermsTable:', e); }
+                try { refreshAdminUsersTable(); } catch(e) { console.error('refreshAdminUsersTable:', e); }
+                try { refreshAdminUserRolesTable(); } catch(e) { console.error('refreshAdminUserRolesTable:', e); }
+                try { refreshAdminSmsRecordsTable(); } catch(e) { console.error('refreshAdminSmsRecordsTable:', e); }
+                try { refreshAdminWechatRecordsTable(); } catch(e) { console.error('refreshAdminWechatRecordsTable:', e); }
+                try { refreshAdminBranchesTable(); } catch(e) { console.error('refreshAdminBranchesTable:', e); }
+                try { refreshAdminBranchInstsTable(); } catch(e) { console.error('refreshAdminBranchInstsTable:', e); }
+                try { refreshAdminApprovalChain(); } catch(e) { console.error('refreshAdminApprovalChain:', e); }
+                var externalOk = FETCHED_DEFAULTS && Array.isArray(FETCHED_DEFAULTS.refunds);
+                var msg = externalOk ? '已从 default_data/ 文件恢复默认数据' : '已从内置默认数据恢复（default_data/ 文件不可用）';
+                var type = externalOk ? 'success' : 'warning';
+                try { showNotification(msg, type); } catch(e) { console.error('showNotification:', e); }
+            } catch (e2) {
+                console.error('从 default_data/ 恢复默认数据过程出错:', e2);
                 alert('恢复默认失败：' + (e2.message || '未知错误') + '\n请刷新页面后重试。');
             }
         }
