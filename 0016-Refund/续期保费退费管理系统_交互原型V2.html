@@ -6017,8 +6017,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         // 各Tab数据源配置
         var ADMIN_CSV_CONFIG = {
             refunds: {
-                filename: '续期退费记录',
-                exportFilename: '05_退费受理记录.csv',
+                filename: '05_退费受理记录.csv',
+
                 getStore: function() { var d = getData(); return d.refunds || []; },
                 saveStore: function(arr) { var d = getData(); d.refunds = arr.map(function(r) { r.amount = parseFloat(r.amount) || 0; r.status = parseInt(r.status) || 0; r.isAutoApproval = r.isAutoApproval === 'true' || r.isAutoApproval === true; r.isOriginalCard = r.isOriginalCard === 'true' || r.isOriginalCard === true; return r; }); saveData(d); },
                 refresh: function() { refreshAdminRefundsTable(); },
@@ -6026,8 +6026,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fields: ['id', 'policyNo', 'holderName', 'holderId', 'phone', 'amount', 'status', 'statusName', 'refundPeriods', 'refundReason', 'acceptChannel', 'acceptor', 'acceptTime', 'branch', 'subBranch', 'salesChannel', 'subChannel', 'isAutoApproval', 'isOriginalCard']
             },
             policies: {
-                filename: '保单信息管理',
-                exportFilename: '01_保单信息.csv',
+                filename: '01_保单信息.csv',
+
                 getStore: function() { return getPolicyStore(); },
                 saveStore: function(arr) { savePolicyStore(arr); },
                 refresh: function() { refreshAdminPoliciesTable(); },
@@ -6036,8 +6036,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 isKeyValue: true
             },
             naturalPerson: {
-                filename: '自然人信息管理',
-                exportFilename: '03_自然人信息_反洗钱9字段.csv',
+                filename: '03_自然人信息_反洗钱9字段.csv',
+
                 getStore: function() { return getNaturalPersonStore(); },
                 saveStore: function(arr) { saveNaturalPersonStore(arr); },
                 refresh: function() { refreshAdminNaturalPersonTable(); },
@@ -6046,8 +6046,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 isKeyValue: true
             },
             branches: {
-                filename: '分公司管理',
-                exportFilename: '14_分公司管理.csv',
+                filename: '14_分公司管理.csv',
+
                 getStore: function() { return getBranchStore(); },
                 saveStore: function(arr) { localStorage.setItem(BRANCH_KEY, JSON.stringify(arr)); },
                 refresh: function() { refreshAdminBranchesTable(); },
@@ -6056,8 +6056,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 isSimpleArray: true, fieldName: 'name'
             },
             branchInsts: {
-                filename: '所属机构管理',
-                exportFilename: '15_所属机构管理.csv',
+                filename: '15_所属机构管理.csv',
+
                 getStore: function() { return getBranchInstStore(); },
                 saveStore: function(arr) { localStorage.setItem(BRANCH_INST_KEY, JSON.stringify(arr)); },
                 refresh: function() { refreshAdminBranchInstsTable(); },
@@ -6065,8 +6065,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fields: ['branch', 'institution']
             },
             roles: {
-                filename: '角色管理',
-                exportFilename: '06_角色管理.csv',
+                filename: '06_角色管理.csv',
+
                 getStore: function() { return getRoleStore(); },
                 saveStore: function(arr) { saveRoleStore(arr); },
                 refresh: function() { refreshAdminRolesTable(); },
@@ -6076,8 +6076,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 isSimpleKeyValue: true
             },
             perms: {
-                filename: '权限管理',
-                exportFilename: '07_权限管理.csv',
+                filename: '07_权限管理.csv',
+
                 getStore: function() { return getPermStore(); },
                 saveStore: function(arr) { savePermStore(arr); },
                 refresh: function() { refreshAdminPermsTable(); },
@@ -6087,8 +6087,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 isSimpleKeyValue: true
             },
             rolePerms: {
-                filename: '角色对应权限管理',
-                exportFilename: '08_角色对应权限管理.csv',
+                filename: '08_角色对应权限管理.csv',
+
                 getStore: function() { return getRolePermStore(); },
                 saveStore: function(arr) { saveRolePermStore(arr); },
                 refresh: function() { refreshAdminRolePermsTable(); },
@@ -6096,8 +6096,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fields: ['角色ID', '权限ID']
             },
             users: {
-                filename: '用户管理',
-                exportFilename: '09_用户管理.csv',
+                filename: '09_用户管理.csv',
+
                 getStore: function() { return getUserStore(); },
                 saveStore: function(arr) { saveUserStore(arr); },
                 refresh: function() { refreshAdminUsersTable(); },
@@ -6105,8 +6105,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fields: ['用户ID', '用户姓名', '用户名', '口令']
             },
             userRoles: {
-                filename: '用户角色管理',
-                exportFilename: '10_用户角色管理.csv',
+                filename: '10_用户角色管理.csv',
+
                 getStore: function() { return getUserRoleStore(); },
                 saveStore: function(arr) { saveUserRoleStore(arr); },
                 refresh: function() { refreshAdminUserRolesTable(); },
@@ -6114,8 +6114,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fields: ['用户ID', '角色ID']
             },
             smsRecords: {
-                filename: '短信发送记录',
-                exportFilename: '11_短信发送记录.csv',
+                filename: '11_短信发送记录.csv',
+
                 getStore: function() { return getSmsStore(); },
                 saveStore: function(arr) { saveSmsStore(arr); },
                 refresh: function() { refreshAdminSmsRecordsTable(); },
@@ -6123,8 +6123,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fields: ['id', 'phone', 'content', 'sendTime', 'status']
             },
             wechatRecords: {
-                filename: '微信发送记录',
-                exportFilename: '12_微信发送记录.csv',
+                filename: '12_微信发送记录.csv',
+
                 getStore: function() { return getWechatStore(); },
                 saveStore: function(arr) { saveWechatStore(arr); },
                 refresh: function() { refreshAdminWechatRecordsTable(); },
@@ -6132,8 +6132,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fields: ['id', 'userId', 'content', 'sendTime', 'status']
             },
             scenario: {
-                filename: '场景管理',
-                exportFilename: '04_场景管理.csv',
+                filename: '04_场景管理.csv',
+
                 getStore: function() { return getScenarioStore(); },
                 saveStore: function(arr) { localStorage.setItem(SCENARIO_KEY, JSON.stringify(arr)); },
                 refresh: function() { try { if (typeof adminLoadScenario === 'function') { var sel = document.getElementById('adminScenarioPolicySelect'); if (sel && sel.value) adminLoadScenario(); } } catch(e) {} },
@@ -6152,8 +6152,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 }
             },
             payments: {
-                filename: '缴费记录管理',
-                exportFilename: '02_缴费记录.csv',
+                filename: '02_缴费记录.csv',
+
                 getStore: function() { return getPolicyPaymentStore(); },
                 saveStore: function(arr) { localStorage.setItem(POLICY_PAYMENT_KEY, JSON.stringify(arr)); },
                 refresh: function() { try { if (typeof adminLoadPayments === 'function') { var sel = document.getElementById('adminPaymentPolicySelect'); if (sel && sel.value) adminLoadPayments(); } } catch(e) {} },
@@ -6163,8 +6163,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 isGroupedArray: true
             },
             approvalRecords: {
-                filename: '续期退费审批记录',
-                exportFilename: '16_续期退费审批记录.csv',
+                filename: '16_续期退费审批记录.csv',
+
                 getStore: function() { return getApprovalRecordsStore(); },
                 saveStore: function(arr) {
                     // 审批记录始终从退款记录实时重建，不支持直接导入覆盖
@@ -6175,8 +6175,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 fields: ['id', 'policyNo', 'refundId', 'action', 'operator', 'time', 'detail']
             },
             approvalChain: {
-                filename: '审批链记录',
-                exportFilename: '13_审批链记录.csv',
+                filename: '13_审批链记录.csv',
+
                 getStore: function() { return APPROVAL_FLOW_CONFIG || {}; },
                 saveStore: function(arr) { APPROVAL_FLOW_CONFIG = arr; try { localStorage.setItem('approvalFlowConfig', JSON.stringify(arr)); } catch(e) {} },
                 refresh: function() { refreshAdminApprovalChain(); },
@@ -6187,7 +6187,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         };
 
         // 通用导出CSV
-        function adminExportCSV(tabName) {
+        function adminExportCSV(tabName, backupMode) {
             var cfg = ADMIN_CSV_CONFIG[tabName];
             if (!cfg) { showToast('未知的导出目标: ' + tabName, 'error'); return; }
 
@@ -6277,7 +6277,12 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = cfg.exportFilename || (cfg.filename + '_' + new Date().toISOString().slice(0, 10) + '.csv');
+            var _dlName = cfg.filename;
+            if (!backupMode) {
+                var _base = cfg.filename.replace(/\.csv$/i, '');
+                _dlName = _base + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+            }
+            a.download = _dlName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -8466,7 +8471,7 @@ function switchAdminTab(tab) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = '角色管理_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.download = '06_角色管理_' + new Date().toISOString().slice(0,10) + '.csv';
             a.click();
             URL.revokeObjectURL(url);
             showNotification('已导出角色 CSV 文件', 'success');
@@ -8541,7 +8546,7 @@ function switchAdminTab(tab) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = '权限管理_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.download = '07_权限管理_' + new Date().toISOString().slice(0,10) + '.csv';
             a.click();
             URL.revokeObjectURL(url);
             showNotification('已导出权限 CSV 文件', 'success');
@@ -8624,7 +8629,7 @@ function switchAdminTab(tab) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = '角色对应权限管理_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.download = '08_角色对应权限管理_' + new Date().toISOString().slice(0,10) + '.csv';
             a.click();
             URL.revokeObjectURL(url);
             showNotification('已导出角色对应权限 CSV 文件', 'success');
@@ -8704,7 +8709,7 @@ function switchAdminTab(tab) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = '用户管理_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.download = '09_用户管理_' + new Date().toISOString().slice(0,10) + '.csv';
             a.click();
             URL.revokeObjectURL(url);
             showNotification('已导出用户 CSV 文件', 'success');
@@ -8795,7 +8800,7 @@ function switchAdminTab(tab) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = '\u7528\u6237\u89d2\u8272\u7ba1\u7406_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.download = '10_用户角色管理_' + new Date().toISOString().slice(0,10) + '.csv';
             a.click();
             URL.revokeObjectURL(url);
             showNotification('\u5df2\u5bfc\u51fa\u7528\u6237\u89d2\u8272 CSV \u6587\u4ef6', 'success');
@@ -8841,7 +8846,7 @@ function switchAdminTab(tab) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = '短信发送记录_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.download = '11_短信发送记录_' + new Date().toISOString().slice(0,10) + '.csv';
             a.click();
             URL.revokeObjectURL(url);
             showNotification('已导出短信发送记录 CSV 文件', 'success');
@@ -8886,7 +8891,7 @@ function switchAdminTab(tab) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = '微信发送记录_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.download = '12_微信发送记录_' + new Date().toISOString().slice(0,10) + '.csv';
             a.click();
             URL.revokeObjectURL(url);
             showNotification('已导出微信发送记录 CSV 文件', 'success');
@@ -9229,7 +9234,7 @@ function switchAdminTab(tab) {
             // 逐模块导出（加延迟避免浏览器阻止多次下载）
             for (var i = 0; i < tabNames.length; i++) {
                 try {
-                    adminExportCSV(tabNames[i]);
+                    adminExportCSV(tabNames[i], true);
                     // 等待1.5秒再导出下一个
                     await new Promise(function(resolve) { setTimeout(resolve, 1500); });
                 } catch (e) {
