@@ -3308,7 +3308,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const scenario = (typeof getScenarioStore === 'function' ? getScenarioStore() : {})[policy.policyNo] || {};
             const hasRenewalCommission = scenario.renewalCommission === true;
             const isAdvanceRefund = scenario.advanceRefund === true;
-            // 免审批需同时满足：金额<50万 AND 无续期佣金 AND 非垫缴退费
+            // 免审批需同时满足：金额<50万 AND 不发放续期佣金 AND 非垫缴退费
             const isExemptApproval = totalAmount < 500000 && !hasRenewalCommission && !isAdvanceRefund;
             const approvalBlockReasons = [];
             if (totalAmount >= 500000) approvalBlockReasons.push('退费金额≥50万元');
