@@ -3348,10 +3348,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const scenarioPass = !hasClaim && !hasReduction && !hasHolderChange && !hasLoan;
             const allRulesPass = isInGracePeriod && isWithin30Days && !blockedRefund && amlPass && scenarioPass;
             
-            // 反洗钱检查
             // 反洗钱检查 + 材料要求（3.3.6 退费账号与支付规则）
-            // 判断原卡原退：垫缴退费场景账号栏置灰为空；其他场景默认原卡原退
-            const isOriginalCardTmp = policy && !isAdvanceRefund;
+            // 续期退费受理页面仅处理原卡原退场景，不存在非原卡原退
             if (!amlOverThreshold) {
                 html += `<div class="rule-card pass"><div class="rule-title"><span>🔒</span><span>反洗钱检查</span><span class="rule-status">• 未达到反洗钱标准</span></div></div>`;
             } else if (!np) {
@@ -3366,12 +3364,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // 触发条件：金额 > 1万元（amlOverThreshold = true）
             if (amlPass && amlOverThreshold) {
                 // 超过1万元，需补充投保人身份证正反面
-                // 非原卡原退时，额外需补充银行卡正面
-                if (isOriginalCardTmp) {
-                    html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>材料要求（原卡原退，>1万元）</span><span class="rule-status" style="background:#e3f2fd;color:#1565c0;">ℹ 需补充</span></div><div style="font-size:13px;color:var(--gray-700);margin-top:8px;"><ul style="margin:0;padding-left:18px;"><li>投保人本人身份证正面</li><li>投保人本人身份证反面</li></ul></div></div>`;
-                } else {
-                    html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>材料要求（非原卡原退）</span><span class="rule-status" style="background:#e3f2fd;color:#1565c0;">ℹ 需补充</span></div><div style="font-size:13px;color:var(--gray-700);margin-top:8px;"><ul style="margin:0;padding-left:18px;"><li>投保人本人身份证正面</li><li>投保人本人身份证反面</li><li>银行卡正面</li></ul></div></div>`;
-                }
+                html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>材料要求（>1万元）</span><span class="rule-status" style="background:#e3f2fd;color:#1565c0;">ℹ 需补充</span></div><div style="font-size:13px;color:var(--gray-700);margin-top:8px;"><ul style="margin:0;padding-left:18px;"><li>投保人本人身份证正面</li><li>投保人本人身份证反面</li></ul></div></div>`;
             } else if (amlPass && !amlOverThreshold) {
                 html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>材料要求</span><span class="rule-status">✓ 无需补充</span></div><div style="font-size:13px;color:#2e7d32;margin-top:4px;">金额≤1万元，无需补充材料</div></div>`;
             }
@@ -3540,7 +3533,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const execScenario = (typeof getScenarioStore === 'function' ? getScenarioStore() : {})[policy.policyNo] || {};
             const hasRenewalCommission = execScenario.renewalCommission === true;
             const isAdvanceRefund = execScenario.advanceRefund === true;
-            const isOriginalCardTmp = policy && !isAdvanceRefund;  // 非垫缴场景默认原卡原退
+            // 续期退费受理页面仅处理原卡原退场景，不存在非原卡原退，不涉及银行卡
             const isExemptApproval = totalAmount < 500000 && !hasRenewalCommission && !isAdvanceRefund;
             const notifyMethod = document.querySelector('input[name="notifyMethod"]:checked')?.value || 'sms';
             const p17Flows = data.p17Flows || { record: '-', biz: '-' };
@@ -3670,7 +3663,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     ────────────────<br>
                     <span style="color:#1a73e8;">🔗 已给客户发送远程进度查询短链接（72小时有效）</span><br>
                     客户可通过链接查询续期退费审批进展。<br>
-                    ${totalAmount > 10000 ? (isOriginalCardTmp ? '<span style=\"color:#e65100;\">⚠ 需客户补充投保人本人身份证正面、反面影像</span><br>' : '<span style=\"color:#e65100;\">⚠ 需客户补充投保人本人身份证正面、反面、银行卡正面影像</span><br>') : ''}<span style=\"color:#f9a825;\">⚠ 已向' + (approvalResult.nodes[0] ? approvalResult.nodes[0].name : '审批节点') + '发送审批待办通知</span><br>`
+                    ${totalAmount > 10000 ? '<span style="color:#e65100;">⚠ 需客户补充投保人本人身份证正面、反面影像</span><br>' : ''}<span style=\"color:#f9a825;\">⚠ 已向' + (approvalResult.nodes[0] ? approvalResult.nodes[0].name : '审批节点') + '发送审批待办通知</span><br>`
             ); }
             
             // 保存受理记录
