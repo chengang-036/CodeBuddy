@@ -3362,17 +3362,18 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             } else {
                 html += `<div class="rule-card pass"><div class="rule-title"><span>🔒</span><span>反洗钱检查</span><span class="rule-status">✓ 通过</span></div><div style="font-size:13px;color:var(--gray-600);margin-top:4px;">达到反洗钱标准 — 自然人系统检查：✓ 9字段完整</div></div>`;
             }
-            // 材料要求（反洗钱通过后，根据3.3规则展示）
+            // 材料要求（仅与反洗钱标准相关，与垫缴退费无关）
+            // 触发条件：金额 > 1万元（amlOverThreshold = true）
             if (amlPass && amlOverThreshold) {
-                if (isAdvanceRefund) {
-                    html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>客户材料补充要求</span><span class="rule-status" style="background:#e3f2fd;color:#1565c0;">ℹ 需补充</span></div><div style="font-size:13px;color:var(--gray-700);margin-top:8px;"><ul style="margin:0;padding-left:18px;"><li>投保人本人身份证正面</li><li>投保人本人身份证反面</li></ul></div></div>`;
-                } else if (isOriginalCardTmp) {
+                // 超过1万元，需补充投保人身份证正反面
+                // 非原卡原退时，额外需补充银行卡正面
+                if (isOriginalCardTmp) {
                     html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>材料要求（原卡原退，>1万元）</span><span class="rule-status" style="background:#e3f2fd;color:#1565c0;">ℹ 需补充</span></div><div style="font-size:13px;color:var(--gray-700);margin-top:8px;"><ul style="margin:0;padding-left:18px;"><li>投保人本人身份证正面</li><li>投保人本人身份证反面</li></ul></div></div>`;
                 } else {
                     html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>材料要求（非原卡原退）</span><span class="rule-status" style="background:#e3f2fd;color:#1565c0;">ℹ 需补充</span></div><div style="font-size:13px;color:var(--gray-700);margin-top:8px;"><ul style="margin:0;padding-left:18px;"><li>投保人本人身份证正面</li><li>投保人本人身份证反面</li><li>银行卡正面</li></ul></div></div>`;
                 }
             } else if (amlPass && !amlOverThreshold) {
-                html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>材料要求</span><span class="rule-status">✓ 无需补充</span></div><div style="font-size:13px;color:#2e7d32;margin-top:4px;">原卡原退，金额≤1万元，无需补充材料</div></div>`;
+                html += `<div class="rule-card pass"><div class="rule-title"><span>📎</span><span>材料要求</span><span class="rule-status">✓ 无需补充</span></div><div style="font-size:13px;color:#2e7d32;margin-top:4px;">金额≤1万元，无需补充材料</div></div>`;
             }
             
             // 审批判断（5.1 免审批 / 5.2 人工审批）
@@ -3539,6 +3540,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const execScenario = (typeof getScenarioStore === 'function' ? getScenarioStore() : {})[policy.policyNo] || {};
             const hasRenewalCommission = execScenario.renewalCommission === true;
             const isAdvanceRefund = execScenario.advanceRefund === true;
+            const isOriginalCardTmp = policy && !isAdvanceRefund;  // 非垫缴场景默认原卡原退
             const isExemptApproval = totalAmount < 500000 && !hasRenewalCommission && !isAdvanceRefund;
             const notifyMethod = document.querySelector('input[name="notifyMethod"]:checked')?.value || 'sms';
             const p17Flows = data.p17Flows || { record: '-', biz: '-' };
@@ -3640,7 +3642,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (hasRenewalCommission) execBlockReasons.push('已发放续期佣金需扣回');
                 if (isAdvanceRefund) execBlockReasons.push('垫缴退费业务');
                 newRefund.logs.push({ time: acceptTime, action: '提交审批', operator: '系统', detail: '需人工审批 — ' + execBlockReasons.join('；') + ' | 渠道: ' + approvalResult.channel + ' | ' + approvalResult.tierLabel + '(' + approvalResult.tierLevel + ')' });
-                newRefund.logs.push({ time: acceptTime, action: notifyMethod === 'sms' ? '发送短信通知' : '发送微信通知', operator: '系统', detail: '给客户发送远程进度查询短链接（链接72小时有效）；如原卡原退不成功，需远程补充材料' });
+                newRefund.logs.push({ time: acceptTime, action: notifyMethod === 'sms' ? '发送短信通知' : '发送微信通知', operator: '系统', detail: '给客户发送远程进度查询短链接（链接72小时有效）' + (totalAmount > 10000 ? '；超过1万元需补充材料' : '') });
                 
                 // 同步写入通知发送记录（短信/微信分流）
                 if (notifyMethod === 'sms' || notifyMethod === 'wechat') {
@@ -3655,7 +3657,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 
                 showResultModal('info',
                     '受理成功',
-                    '转人工审批，请客户远程查询退费审批进展。如原卡原退不成功，需远程补充材料',
+                    '转人工审批，请客户远程查询退费审批进展。' + (totalAmount > 10000 ? '超过1万元需远程补充材料。' : ''),
                     `业务流水号：<strong>${newRefundId}</strong><br>
                     P17录音流水号：${p17Flows.record}<br>
                     P17业务流水号：${p17Flows.biz}<br>
@@ -3668,7 +3670,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     ────────────────<br>
                     <span style="color:#1a73e8;">🔗 已给客户发送远程进度查询短链接（72小时有效）</span><br>
                     客户可通过链接查询续期退费审批进展。<br>
-                    ${isAdvanceRefund ? '<span style=\"color:#e65100;\">⚠ 如原卡原退不成功，需客户远程补充材料（投保人身份证正反面 + 银行卡）</span><br>' : (totalAmount > 10000 ? '<span style=\"color:#e65100;\">⚠ 需客户补充投保人本人身份证正面、反面影像</span><br>' : '')}<span style=\"color:#f9a825;\">⚠ 已向' + (approvalResult.nodes[0] ? approvalResult.nodes[0].name : '审批节点') + '发送审批待办通知</span><br>`
+                    ${totalAmount > 10000 ? (isOriginalCardTmp ? '<span style=\"color:#e65100;\">⚠ 需客户补充投保人本人身份证正面、反面影像</span><br>' : '<span style=\"color:#e65100;\">⚠ 需客户补充投保人本人身份证正面、反面、银行卡正面影像</span><br>') : ''}<span style=\"color:#f9a825;\">⚠ 已向' + (approvalResult.nodes[0] ? approvalResult.nodes[0].name : '审批节点') + '发送审批待办通知</span><br>`
             ); }
             
             // 保存受理记录
