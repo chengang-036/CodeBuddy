@@ -2778,12 +2778,18 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const csv = (FETCHED_DEFAULTS && FETCHED_DEFAULTS.payments) ? FETCHED_DEFAULTS.payments : EMBEDDED_PAYMENTS;
             const grouped = parseCSVGroupedArray(csv, '保单号');
             const result = {};
+            function normalizeDate(d) {
+                if (!d) return '';
+                var m = String(d).trim().match(/^(\d{4})[\/\.\-](\d{1,2})[\/\.\-](\d{1,2})$/);
+                if (m) return m[1] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[3]).padStart(2, '0');
+                return String(d).trim();
+            }
             for (const [pno, rows] of Object.entries(grouped)) {
                 result[pno] = rows.map(r => ({
                     period: (r['期次'] || r['缴费期次'] || ''),
                     amount: parseFloat(r['金额'] || r['缴费金额'] || '0'),
-                    shouldPayDate: (r['应缴日期'] || ''),
-                    actualPayDate: (r['实缴日期'] || ''),
+                    shouldPayDate: normalizeDate(r['应缴日期'] || ''),
+                    actualPayDate: normalizeDate(r['实缴日期'] || ''),
                     source: (r['来源'] || r['保费来源'] || '')
                 }));
             }
