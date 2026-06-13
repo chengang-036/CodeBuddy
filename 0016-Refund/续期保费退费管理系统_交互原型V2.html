@@ -617,6 +617,8 @@
                     <span id="headerLoginPrompt" style="font-size:13px;opacity:0.8;">&#35831;&#30331;&#24405;&#21518;&#20351;&#29992;</span>
                     <button id="headerLoginBtn" class="btn btn-sm" style="background:white;color:var(--primary);" onclick="showPCLogin()">&#128273; &#30331;&#24405;</button>
                     <!-- &#24050;&#30331;&#24405;&#65288;&#38544;&#34255;&#65289; -->
+                    <span id="headerUserLabel" style="display:none;font-size:13px;opacity:0.8;">当前用户：</span>
+                    <span id="headerUserInfo" style="display:none;font-size:13px;font-weight:500;"></span>
                     <span id="headerRoleLabel" style="display:none;font-size:13px;opacity:0.8;">&#24403;&#21069;&#35282;&#33394;&#65306;</span>
                     <span id="headerRoleName" class="role-badge staff" style="display:none;"></span>
                 </div>
@@ -2539,6 +2541,9 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('headerRoleLabel').style.display = 'inline';
             document.getElementById('headerRoleName').style.display = 'inline-block';
             document.getElementById('headerRoleName').textContent = loginState.roleName;
+            document.getElementById('headerUserLabel').style.display = 'inline';
+            document.getElementById('headerUserInfo').style.display = 'inline';
+            document.getElementById('headerUserInfo').textContent = loginState.username + '（' + loginState.userName + '）';
             document.getElementById('headerLogoutBtn').style.display = 'inline-block';
             // Admin: 有Q8权限 或 角色是J8（Admin）均可见
             if (loginState.perms && (loginState.perms.includes('Q8') || loginState.roleID === 'J8')) {
@@ -2562,6 +2567,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('headerLoginBtn').style.display = 'inline-block';
             document.getElementById('headerRoleLabel').style.display = 'none';
             document.getElementById('headerRoleName').style.display = 'none';
+            document.getElementById('headerUserLabel').style.display = 'none';
+            document.getElementById('headerUserInfo').style.display = 'none';
             document.getElementById('headerLogoutBtn').style.display = 'none';
             document.getElementById('headerAdminBtn').style.display = 'none';
             // PC端入口：显示登录提示
