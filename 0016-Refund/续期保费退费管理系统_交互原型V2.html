@@ -3322,7 +3322,6 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const amlOverThreshold = totalAmount > 10000;
             const amlPass = !amlOverThreshold || (amlOverThreshold && np && npFieldsComplete);
             
-            const allRulesPass = isInGracePeriod && isWithin30Days && !blockedRefund && amlPass;
             
             let html = '';
             // 时效规则
@@ -3336,12 +3335,20 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 html += `<div class="rule-card pass"><div class="rule-title"><span>🚫</span><span>退费流程检查</span><span class="rule-status">✓ 可受理</span></div></div>`;
             }
             
-            // 系统检查项
-            html += `<div class="rule-card pass"><div class="rule-title"><span>🏥</span><span>理赔检查</span><span class="rule-status">✓ 无理赔</span></div></div>`;
-            html += `<div class="rule-card pass"><div class="rule-title"><span>📝</span><span>减保检查</span><span class="rule-status">✓ 无减保</span></div></div>`;
-            html += `<div class="rule-card pass"><div class="rule-title"><span>👤</span><span>投保人变更</span><span class="rule-status">✓ 无变更</span></div></div>`;
-            html += `<div class="rule-card pass"><div class="rule-title"><span>💰</span><span>贷款检查</span><span class="rule-status">✓ 无贷款</span></div></div>`;
+            // 系统检查项（从场景管理数据动态读取）
+            const hasClaim = scenario.claimAfterDue === true;
+            const hasReduction = scenario.reductionAfterDue === true;
+            const hasHolderChange = scenario.holderChanged === true;
+            const hasLoan = scenario.hasLoan === true;
+            html += `<div class="rule-card ${hasClaim ? 'fail' : 'pass'}"><div class="rule-title"><span>🏥</span><span>理赔检查</span><span class="rule-status">${hasClaim ? '✗ 有理赔' : '✓ 无理赔'}</span></div></div>`;
+            html += `<div class="rule-card ${hasReduction ? 'fail' : 'pass'}"><div class="rule-title"><span>📝</span><span>减保检查</span><span class="rule-status">${hasReduction ? '✗ 有减保' : '✓ 无减保'}</span></div></div>`;
+            html += `<div class="rule-card ${hasHolderChange ? 'fail' : 'pass'}"><div class="rule-title"><span>👤</span><span>投保人变更</span><span class="rule-status">${hasHolderChange ? '✗ 有变更' : '✓ 无变更'}</span></div></div>`;
+            html += `<div class="rule-card ${hasLoan ? 'fail' : 'pass'}"><div class="rule-title"><span>💰</span><span>贷款检查</span><span class="rule-status">${hasLoan ? '✗ 有贷款' : '✓ 无贷款'}</span></div></div>`;
             
+            const scenarioPass = !hasClaim && !hasReduction && !hasHolderChange && !hasLoan;
+            const allRulesPass = isInGracePeriod && isWithin30Days && !blockedRefund && amlPass && scenarioPass;
+            
+            // 反洗钱检查
             // 反洗钱检查 + 材料要求（3.3.6 退费账号与支付规则）
             // 判断原卡原退：垫缴退费场景账号栏置灰为空；其他场景默认原卡原退
             const isOriginalCardTmp = policy && !isAdvanceRefund;
@@ -3457,6 +3464,14 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const blockStatuses = [2, 3, 4, 5, 6, 7, 8];
             const blockedRefund = existingRefunds.find(r => blockStatuses.includes(r.status));
             
+            // 场景检查（二次校验）
+            const scenario2 = (typeof getScenarioStore === 'function' ? getScenarioStore() : {})[policy.policyNo] || {};
+            const hasClaim2 = scenario2.claimAfterDue === true;
+            const hasReduction2 = scenario2.reductionAfterDue === true;
+            const hasHolderChange2 = scenario2.holderChanged === true;
+            const hasLoan2 = scenario2.hasLoan === true;
+            const scenarioPass2 = !hasClaim2 && !hasReduction2 && !hasHolderChange2 && !hasLoan2;
+            
             // 反洗钱检查
             const np = getNaturalPerson(policy.policyNo);
             const npFields = np ? ['name', 'gender', 'nationality', 'occupation', 'address', 'contact', 'idType', 'idNumber', 'validUntil'] : null;
@@ -3465,7 +3480,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const amlOverThreshold = totalAmount > 10000;
             const amlPass = !amlOverThreshold || (amlOverThreshold && np && npFieldsComplete);
             
-            const allRulesPass = isInGracePeriod && isWithin30Days && !blockedRefund && amlPass;
+            const allRulesPass = isInGracePeriod && isWithin30Days && !blockedRefund && amlPass && scenarioPass2;
             
             if (!allRulesPass) {
                 showToast('不满足受理规则，无法提交', 'error');
