@@ -4157,29 +4157,15 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 h.push('</div>');
             }
 
-            // 金额区间切换标签 (在线+总公司模式 或 所属机构模板模式)
-            if((s.channel==='在线'&&s.configScope==='hq') || s.configScope==='inst'){
+            // 金额区间切换标签 (仅在线+总公司模式)
+            // 注：所属机构模板(inst)的金额区间标签在所属机构选择器之后渲染
+            if(s.channel==='在线'&&s.configScope==='hq'){
                 h.push('<div class="cfg-tier-tabs" style="margin-top:10px;">');
-                var tierLabels = (s.configScope==='inst')
-                    ? ['5000元以下','5000~50万','50万+']
-                    : ['5万以下','5万及以上'];
-                tierLabels.forEach(function(lab,idx){
+                ['5万以下','5万及以上'].forEach(function(lab,idx){
                     var ac=(s.tierIdx===idx);
                     h.push('<div class="cfg-tier-tab' + (ac?' active':'') + '" onclick="approvalConfigSwitchTier(' + idx + ')">' + lab + '</div>');
                 });
                 h.push('</div>');
-                // 机构模板模式：显示当前区间的来源提示
-                if(s.configScope==='inst'){
-                    var tierHints = [
-                        '5000元以下：独立配置（中支层审批节点，可添加/编辑）',
-                        '5000~50万：从分公司模板复制（参考）',
-                        '50万+：从总公司模板复制（参考）'
-                    ];
-                    var hintIdx = (s.tierIdx>=0&&s.tierIdx<3)?s.tierIdx:0;
-                    if(s.instOrgName){
-                        h.push('<div style="margin-top:6px;padding:6px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">&#128196; ' + tierHints[hintIdx] + '</div>');
-                    }
-                }
             }
 
             // 分公司选择器 (branch模式)
@@ -4203,7 +4189,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 var blist2=getBranchStore()||[];
                 h.push('<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;"><span style="font-size:12px;color:#e65100;font-weight:600">分公司：</span>');
                 h.push('<select id="instBranchSel" onchange="approvalConfigInstBranchChange(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- 选择 --</option>');
-                blist2.forEach(function(b){var bn=b['分公司名称']||b.name||b;h.push('<option value="' + bn.replace(/"/g,'&quot;') + '">' + bn + '</option>');});
+                blist2.forEach(function(b){var bn=b['分公司名称']||b.name||b;h.push('<option value="' + bn.replace(/"/g,'&quot;') + '"' + ((s.branchName===bn)?' selected':'') + '>' + bn + '</option>');});
                 h.push('</select></div>');
                 if(s.branchName){
                     var mids=getMidBranchListByBranch(s.branchName);
@@ -4218,6 +4204,26 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     if(!s.instOrgName){
                         h.push('<div class="cfg-special-note" style="margin-top:8px;padding:8px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">&#128196; 选择所属机构后，可按金额区间（5000元以下 / 5000~50万 / 50万+）分别配置</div>');
                     }
+                }
+            }
+
+            // 金额区间切换标签 (所属机构模板模式 - 在选择器之后显示)
+            if(s.configScope==='inst'){
+                h.push('<div class="cfg-tier-tabs" style="margin-top:12px;">');
+                ['5000元以下','5000~50万','50万+'].forEach(function(lab,idx){
+                    var ac=(s.tierIdx===idx);
+                    h.push('<div class="cfg-tier-tab' + (ac?' active':'') + '" onclick="approvalConfigSwitchTier(' + idx + ')">' + lab + '</div>');
+                });
+                h.push('</div>');
+                // 显示当前区间的来源提示
+                var tierHints = [
+                    '5000元以下：独立配置（中支层审批节点，可添加/编辑）',
+                    '5000~50万：从分公司模板复制（参考）',
+                    '50万+：从总公司模板复制（参考）'
+                ];
+                var hintIdx = (s.tierIdx>=0&&s.tierIdx<3)?s.tierIdx:0;
+                if(s.instOrgName){
+                    h.push('<div style="margin-top:6px;padding:6px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">&#128196; ' + tierHints[hintIdx] + '</div>');
                 }
             }
 
