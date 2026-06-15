@@ -2115,7 +2115,27 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 var saved = JSON.parse(raw);
                 if (saved && saved.version === '2.0.0' && saved.hqTemplate && saved.hqTemplate['个险PAA'] && saved.hqTemplate['个险PAA'].nodes[0].name === '总公司业务部门室经理') {
                     APPROVAL_FLOW_CONFIG = saved;
-                    // 迁移：给空的分公司模板补上默认节点
+                    // 迁移1：清除「在线」渠道的分公司/机构模板脏数据（在线不使用分公司层审批）
+                    var cleaned = false;
+                    if (APPROVAL_FLOW_CONFIG.branchTemplates) {
+                        Object.keys(APPROVAL_FLOW_CONFIG.branchTemplates).forEach(function(k) {
+                            if (k.indexOf('在线_') === 0) {
+                                delete APPROVAL_FLOW_CONFIG.branchTemplates[k];
+                                cleaned = true;
+                                console.log('[审批流] 清理：删除无效分公司模板 ' + k);
+                            }
+                        });
+                    }
+                    if (APPROVAL_FLOW_CONFIG.instTemplates) {
+                        Object.keys(APPROVAL_FLOW_CONFIG.instTemplates).forEach(function(k) {
+                            if (k.indexOf('在线_') === 0) {
+                                delete APPROVAL_FLOW_CONFIG.instTemplates[k];
+                                cleaned = true;
+                                console.log('[审批流] 清理：删除无效机构模板 ' + k);
+                            }
+                        });
+                    }
+                    // 迁移2：给空的分公司模板补上默认节点
                     if (APPROVAL_FLOW_CONFIG.branchTemplates) {
                         var defaultNodes = JSON.parse(JSON.stringify(BRANCH_TEMPLATE_DEFAULT));
                         var updated = false;
@@ -2127,9 +2147,9 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                                 console.log('[审批流] 迁移：为分公司模板 ' + k + ' 补上默认节点');
                             }
                         });
-                        if (updated) {
+                        if (updated || cleaned) {
                             localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
-                            console.log('[审批流] 迁移完成：空分公司模板已填充默认节点');
+                            console.log('[审批流] 迁移完成：空分公司模板已填充默认节点 / 在线渠道脏数据已清理');
                         }
                     }
                     console.log('[审批流] 已从 localStorage 加载配置');
