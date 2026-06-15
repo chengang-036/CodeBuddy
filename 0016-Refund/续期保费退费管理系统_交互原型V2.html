@@ -4266,7 +4266,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             if(s.configScope==='hq') h.push('<button class="btn btn-secondary btn-sm" onclick="_exportHqJson()">导出JSON</button>');
             // 机构模板模式 + tierIdx>0：显示"复制审批节点"按钮
             if(s.configScope==='inst' && s.instOrgName && s.tierIdx>0){
-                var copyLabel = (s.tierIdx===1) ? '中支节点+分公司节点' : '中支节点+总公司节点';
+                var isGeXianLabel = (s.channel==='个险'||s.channel.indexOf('个险')===0);
+                var copyLabel = (s.tierIdx===1) ? '中支节点+分公司节点' : (isGeXianLabel ? '中支节点+分公司节点+总公司节点' : '中支节点+总公司节点');
                 h.push('<button class="btn btn-secondary btn-sm" onclick="_onCopyNodesToTier()" style="margin-left:8px;">&#128260; 复制审批节点（' + copyLabel + '）</button>');
             }
             h.push('</div>');
@@ -9519,16 +9520,32 @@ function switchAdminTab(tab) {
                 _saveAndRender();
                 showToast('已复制中支节点(' + srcNodes1.length + '个) + 分公司节点(' + branchNodes.length + '个) 到5000~50万区间','success');
             } else if(s.tierIdx===2){
-                // 50万+：中支节点 + 总公司模板节点
+                // 50万+：根据渠道区分合并来源
+                var isGeXian = (s.channel==='个险'||s.channel.indexOf('个险')===0);
                 var hk=s.channel, hqNodes=[];
                 if(cfg.hqTemplate&&cfg.hqTemplate[hk]&&cfg.hqTemplate[hk].nodes){
                     hqNodes = JSON.parse(JSON.stringify(cfg.hqTemplate[hk].nodes));
                 }
-                mergedNodes = srcNodes1.concat(hqNodes);
+                var branchNodes2=[];
+                if(isGeXian){
+                    // 个险 50万+：中支 + 分公司 + 总公司（三级审批）
+                    var bk2=s.channel+'_'+s.branchName;
+                    if(cfg.branchTemplates&&cfg.branchTemplates[bk2]&&cfg.branchTemplates[bk2].tiers&&cfg.branchTemplates[bk2].tiers[0].nodes){
+                        branchNodes2 = JSON.parse(JSON.stringify(cfg.branchTemplates[bk2].tiers[0].nodes));
+                    }
+                    mergedNodes = srcNodes1.concat(branchNodes2).concat(hqNodes);
+                } else {
+                    // 银保/团险 50万+：中支 + 总公司（无分公司层，个险无分公司模板）
+                    mergedNodes = srcNodes1.concat(hqNodes);
+                }
                 var seen={}; mergedNodes = mergedNodes.filter(function(n){ if(seen[n.name])return false; seen[n.name]=true; return true; });
                 instTpl.tiers[2].nodes = mergedNodes;
                 _saveAndRender();
-                showToast('已复制中支节点(' + srcNodes1.length + '个) + 总公司节点(' + hqNodes.length + '个) 到50万+区间','success');
+                if(isGeXian){
+                    showToast('已复制：中支(' + srcNodes1.length + '个) + 分公司(' + branchNodes2.length + '个) + 总公司(' + hqNodes.length + '个) → 50万+区间','success');
+                } else {
+                    showToast('已复制：中支(' + srcNodes1.length + '个) + 总公司(' + hqNodes.length + '个) → 50万+区间','success');
+                }
             }
         }
 
