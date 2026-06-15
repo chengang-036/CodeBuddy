@@ -2115,26 +2115,30 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 var saved = JSON.parse(raw);
                 if (saved && saved.version === '2.0.0' && saved.hqTemplate && saved.hqTemplate['个险PAA'] && saved.hqTemplate['个险PAA'].nodes[0].name === '总公司业务部门室经理') {
                     APPROVAL_FLOW_CONFIG = saved;
-                    // 迁移1：清除「在线」渠道的分公司/机构模板脏数据（在线不使用分公司层审批）
+                    // 迁移1：清除无效的分公司/机构模板脏数据
                     var cleaned = false;
-                    if (APPROVAL_FLOW_CONFIG.branchTemplates) {
-                        Object.keys(APPROVAL_FLOW_CONFIG.branchTemplates).forEach(function(k) {
+                    function cleanInvalidKeys(obj, label) {
+                        if (!obj) return;
+                        Object.keys(obj).forEach(function(k) {
+                            // 规则1：「在线」渠道不使用分公司层审批
                             if (k.indexOf('在线_') === 0) {
-                                delete APPROVAL_FLOW_CONFIG.branchTemplates[k];
+                                delete obj[k];
                                 cleaned = true;
-                                console.log('[审批流] 清理：删除无效分公司模板 ' + k);
+                                console.log('[审批流] 清理：删除无效' + label + ' ' + k + '（在线渠道无分公司层）');
+                                return;
+                            }
+                            // 规则2：「个险」必须带 PAA/PSA 子渠道后缀（如 个险PAA_、个险PSA_）
+                            // 纯「个险_xxx」是旧数据，缺少子渠道区分，应清除
+                            if (k.indexOf('个险_') === 0 && k.indexOf('个险PAA_') !== 0 && k.indexOf('个险PSA_') !== 0) {
+                                delete obj[k];
+                                cleaned = true;
+                                console.log('[审批流] 清理：删除无效' + label + ' ' + k + '（缺少PAA/PSA子渠道）');
+                                return;
                             }
                         });
                     }
-                    if (APPROVAL_FLOW_CONFIG.instTemplates) {
-                        Object.keys(APPROVAL_FLOW_CONFIG.instTemplates).forEach(function(k) {
-                            if (k.indexOf('在线_') === 0) {
-                                delete APPROVAL_FLOW_CONFIG.instTemplates[k];
-                                cleaned = true;
-                                console.log('[审批流] 清理：删除无效机构模板 ' + k);
-                            }
-                        });
-                    }
+                    cleanInvalidKeys(APPROVAL_FLOW_CONFIG.branchTemplates, '分公司模板');
+                    cleanInvalidKeys(APPROVAL_FLOW_CONFIG.instTemplates, '机构模板');
                     // 迁移2：给空的分公司模板补上默认节点
                     if (APPROVAL_FLOW_CONFIG.branchTemplates) {
                         var defaultNodes = JSON.parse(JSON.stringify(BRANCH_TEMPLATE_DEFAULT));
