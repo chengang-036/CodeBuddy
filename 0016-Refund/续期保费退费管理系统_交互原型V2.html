@@ -4139,12 +4139,12 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             });
             h.push('</div>');
 
-            // 子渠道 (仅个险)
-            if(s.channel==='个险'){
+            // 子渠道标签 (仅个险显示 PAA/PSA 子标签)
+            if(s.channel.startsWith('个险')){
                 h.push('<div style="margin-top:10px;display:flex;gap:6px;">');
                 ['PAA','PSA'].forEach(function(sub){
-                    var ac=(s.subChannel===sub);
-                    h.push('<div onclick="approvalConfigSwitchSubChannel(\'' + sub + '\')" style="cursor:pointer;padding:5px 18px;border-radius:6px;font-size:12px;border:1px solid ' + (ac?'#1976d2':'#ddd') + ';background:' + (ac?'#e3f2fd':'#fff') + ';color:' + (ac?'#1976d2':'#555') + '">' + sub + '</div>');
+                    var ac=(s.channel==='个险'+sub);
+                    h.push('<div onclick="approvalConfigSwitchChannel(\'个险' + sub + '\')" style="cursor:pointer;padding:5px 18px;border-radius:6px;font-size:12px;border:1px solid ' + (ac?'#1976d2':'#ddd') + ';background:' + (ac?'#e3f2fd':'#fff') + ';color:' + (ac?'#1976d2':'#555') + '">' + sub + '</div>');
                 });
                 h.push('</div>');
             }
