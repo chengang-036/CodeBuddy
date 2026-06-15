@@ -2097,6 +2097,15 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             {name:'分公司财务部门负责人', selectedUsers:[]}
         ];
 
+        // ========== 所属机构(中支)审批节点默认模板 (2026-06-15) ==========
+        var INST_TEMPLATE_DEFAULT = [
+            {name:'中支公司业务部门内勤', selectedUsers:[]},
+            {name:'中支公司业务部门负责人', selectedUsers:[]},
+            {name:'中支公司业务部门分管领导', selectedUsers:[]},
+            {name:'中支公司财务部门负责人', selectedUsers:[]},
+            {name:'中支公司财务部门分管领导', selectedUsers:[]}
+        ];
+
         function buildDefaultConfig() {
             var cfg = { version:'2.0.0' };
             cfg.hqTemplate = JSON.parse(JSON.stringify(HQ_TEMPLATE_DEFAULT));
@@ -2151,10 +2160,23 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                                 console.log('[审批流] 迁移：为分公司模板 ' + k + ' 补上默认节点');
                             }
                         });
-                        if (updated || cleaned) {
-                            localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
-                            console.log('[审批流] 迁移完成：空分公司模板已填充默认节点 / 在线渠道脏数据已清理');
-                        }
+                    // 迁移3：给空的机构模板(中支层)补上默认节点
+                    if (APPROVAL_FLOW_CONFIG.instTemplates) {
+                        var defaultInstNodes = JSON.parse(JSON.stringify(INST_TEMPLATE_DEFAULT));
+                        Object.keys(APPROVAL_FLOW_CONFIG.instTemplates).forEach(function(ik) {
+                            var it = APPROVAL_FLOW_CONFIG.instTemplates[ik];
+                            if (it && it.tiers && it.tiers[0] && (!it.tiers[0].nodes || it.tiers[0].nodes.length === 0)) {
+                                it.tiers[0].nodes = JSON.parse(JSON.stringify(defaultInstNodes));
+                                updated = true;
+                                console.log('[审批流] 迁移：为机构模板 ' + ik + ' 的5000元以下区间补上默认节点');
+                            }
+                        });
+                    }
+
+                    if (updated || cleaned) {
+                        localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
+                        console.log('[审批流] 迁移完成：空分公司/机构模板已填充默认节点 / 脏数据已清理');
+                    }
                     }
                     console.log('[审批流] 已从 localStorage 加载配置');
                     return;
@@ -9407,7 +9429,7 @@ function switchAdminTab(tab) {
                 if(!s.instOrgName)return [];
                 var ik=s.channel+'_'+s.branchName+'_'+s.instOrgName;
                 if(!cfg.instTemplates[ik])cfg.instTemplates[ik]={tiers:[
-                    {label:'5000元以下',level:'中支',nodes:[]},{label:'5000~50万',level:'分公司',nodes:[]},{label:'50万+',level:'总公司',nodes:[]}
+                    {label:'5000元以下',level:'中支',nodes:JSON.parse(JSON.stringify(INST_TEMPLATE_DEFAULT))},{label:'5000~50万',level:'分公司',nodes:[]},{label:'50万+',level:'总公司',nodes:[]}
                 ]};
                 return cfg.instTemplates[ik].tiers[s.tierIdx].nodes;
             }
