@@ -2062,28 +2062,30 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         // C+ 独立配置
         // ========== 总公司审批节点默认模板 (2026-06-15) ==========
         var HQ_TEMPLATE_DEFAULT = {
-            '个险': {
-                subChannels: {
-                    'PAA': { nodes: [
-                        {name:'分公司部门经理初审', selectedUsers:[]},
-                        {name:'分公司部门总监复审', selectedUsers:[]},
-                        {name:'总公司个险部审核', selectedUsers:[]},
-                        {name:'总公司分管总审批', selectedUsers:[]}
-                    ]},
-                    'PSA': { nodes: [
-                        {name:'分公司部门经理初审', selectedUsers:[]},
-                        {name:'分公司部门总监复审', selectedUsers:[]},
-                        {name:'总公司个险部审核', selectedUsers:[]},
-                        {name:'总公司分管总审批', selectedUsers:[]}
-                    ]}
-                }
+            '个险PAA': {
+                nodes: [
+                    {name:'分公司部门经理初审', selectedUsers:[]},
+                    {name:'分公司部门总监复审', selectedUsers:[]},
+                    {name:'总公司个险部审核', selectedUsers:[]},
+                    {name:'总公司分管总审批', selectedUsers:[]}
+                ]
+            },
+            '个险PSA': {
+                nodes: [
+                    {name:'分公司部门经理初审', selectedUsers:[]},
+                    {name:'分公司部门总监复审', selectedUsers:[]},
+                    {name:'总公司个险部审核', selectedUsers:[]},
+                    {name:'总公司分管总审批', selectedUsers:[]}
+                ]
             },
             '银保': { nodes: [] },
             '团险': { nodes: [] },
-            '在线': { nodes: [
-                [{name:'初级审核员审批', selectedUsers:[]}],
-                [{name:'初级审核员审批', selectedUsers:[]}, {name:'高级审核员审批', selectedUsers:[]}]
-            ]}
+            '在线': {
+                tiers: [
+                    { label:'5万以下', nodes: [ {name:'初级审核员审批', selectedUsers:[]} ] },
+                    { label:'5万及以上', nodes: [ {name:'初级审核员审批', selectedUsers:[]}, {name:'高级审核员审批', selectedUsers:[]} ] }
+                ]
+            }
         };
 
         function buildDefaultConfig() {
@@ -2096,6 +2098,26 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
 
         let APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+        // 数据迁移：兼容旧版 localStorage 数据
+        (function migrateApprovalConfig() {
+            try {
+                var raw = localStorage.getItem('approvalFlowConfig');
+                if (!raw) return;
+                var saved = JSON.parse(raw);
+                if (saved && saved.hqTemplate) {
+                    APPROVAL_FLOW_CONFIG = saved;
+                    console.log('[审批流] 已从 localStorage 加载配置');
+                    return;
+                }
+                console.log('[审批流] 检测到旧版数据，已重置为默认配置');
+                APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+                localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
+            } catch(e) {
+                APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+                console.error('[审批流] 加载配置失败，使用默认配置', e);
+            }
+        })();
+
         // ====== 分公司 & 中支 列表 ======
 
 
@@ -3927,7 +3949,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             { key: '团险', label: '团险', hasSub: false },
             { key: '在线', label: '在线（C+）', hasSub: false }
         ];
-        let approvalConfigState = { configScope:'hq', channel:'个险', subChannel:'PAA', tierIdx:0, branchName:'', instOrgName:'', selectedNodeIdx:-1 };
+        let approvalConfigState = { configScope:'hq', channel:'个险PAA', tierIdx:0, branchName:'', instOrgName:'', selectedNodeIdx:-1 };
         // 根据渠道获取配置键名（个险已拆分为两个独立键）
         function getApprovalConfigKey(s) {
             return s.channel; // '个险PAA'|'个险PSA'|'银保'|'团险'|'在线'
@@ -9228,19 +9250,19 @@ function switchAdminTab(tab) {
         // ---- 核心数据操作 ----
         function _getEffectiveNodes() {
             var s=approvalConfigState, cfg=APPROVAL_FLOW_CONFIG;
+            if(!cfg||!cfg.hqTemplate) return [];
             if(s.configScope==='hq'){
                 var cc=cfg.hqTemplate[s.channel]; if(!cc)return [];
-                if(s.channel==='个险'&&cc.subChannels&&cc.subChannels[s.subChannel]) return cc.subChannels[s.subChannel].nodes;
-                if(s.channel==='在线'&&cc.nodes)return cc.nodes[s.tierIdx]||[];
-                if(cc.nodes)return cc.nodes;
-                return [];
+                if(s.channel==='在线'&&cc.tiers) return (cc.tiers[s.tierIdx]||{}).nodes||[];
+                return (cc.nodes||[]);
             }else if(s.configScope==='branch'){
                 if(!s.branchName)return [];
-                var k=s.channel+'_'+s.subChannel+'_'+s.branchName;
+                var k=s.channel+'_'+s.branchName;
                 if(!cfg.branchTemplates[k])cfg.branchTemplates[k]={tiers:[{label:'分公司层',level:'分公司',nodes:[]}]};
                 return cfg.branchTemplates[k].tiers[0].nodes;
             }else{
-                var ik=s.channel+'_'+s.subChannel+'_'+s.branchName+'_'+s.instOrgName;
+                if(!s.instOrgName)return [];
+                var ik=s.channel+'_'+s.branchName+'_'+s.instOrgName;
                 if(!cfg.instTemplates[ik])cfg.instTemplates[ik]={tiers:[
                     {label:'5000元以下',level:'中支',nodes:[]},{label:'5000~50万',level:'分公司',nodes:[]},{label:'50万+',level:'总公司',nodes:[]}
                 ]};
@@ -9305,14 +9327,6 @@ function switchAdminTab(tab) {
 
         function approvalConfigSwitchChannel(ch) {
             approvalConfigState.channel=ch;
-            approvalConfigState.subChannel=(ch==='个险'?'PAA':'');
-            approvalConfigState.tierIdx=0;
-            approvalConfigState.selectedNodeIdx=-1;
-            renderApprovalFlowConfig();
-        }
-
-        function approvalConfigSwitchSubChannel(subCh) {
-            approvalConfigState.subChannel=subCh;
             approvalConfigState.tierIdx=0;
             approvalConfigState.selectedNodeIdx=-1;
             renderApprovalFlowConfig();
