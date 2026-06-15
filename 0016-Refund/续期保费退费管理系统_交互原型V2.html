@@ -4157,14 +4157,29 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 h.push('</div>');
             }
 
-            // 金额区间 (仅在线+总公司模式)
-            if(s.channel==='在线'&&s.configScope==='hq'){
+            // 金额区间切换标签 (在线+总公司模式 或 所属机构模板模式)
+            if((s.channel==='在线'&&s.configScope==='hq') || s.configScope==='inst'){
                 h.push('<div class="cfg-tier-tabs" style="margin-top:10px;">');
-                ['5万以下','5万及以上'].forEach(function(lab,idx){
+                var tierLabels = (s.configScope==='inst')
+                    ? ['5000元以下','5000~50万','50万+']
+                    : ['5万以下','5万及以上'];
+                tierLabels.forEach(function(lab,idx){
                     var ac=(s.tierIdx===idx);
                     h.push('<div class="cfg-tier-tab' + (ac?' active':'') + '" onclick="approvalConfigSwitchTier(' + idx + ')">' + lab + '</div>');
                 });
                 h.push('</div>');
+                // 机构模板模式：显示当前区间的来源提示
+                if(s.configScope==='inst'){
+                    var tierHints = [
+                        '5000元以下：独立配置（中支层审批节点，可添加/编辑）',
+                        '5000~50万：从分公司模板复制（参考）',
+                        '50万+：从总公司模板复制（参考）'
+                    ];
+                    var hintIdx = (s.tierIdx>=0&&s.tierIdx<3)?s.tierIdx:0;
+                    if(s.instOrgName){
+                        h.push('<div style="margin-top:6px;padding:6px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">&#128196; ' + tierHints[hintIdx] + '</div>');
+                    }
+                }
             }
 
             // 分公司选择器 (branch模式)
@@ -4200,8 +4215,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     } else {
                         h.push('<div style="padding:8px 14px;color:#999;font-size:12px">该分公司无所属机构，直接使用分公司审批流</div>');
                     }
-                    if(s.instOrgName||mids.length===0){
-                        h.push('<div class="cfg-special-note" style="margin-top:8px;padding:8px 12px;background:#fff8e1;border-radius:6px;font-size:12px"><strong>&#128196;规则:</strong><ul style="margin:2px 0 0 14px;padding:0"><li>5000元以下:独立配置</li><li>5000~50万:从分公司复制</li><li>50万+:从总公司复制</li></ul></div>');
+                    if(!s.instOrgName){
+                        h.push('<div class="cfg-special-note" style="margin-top:8px;padding:8px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">&#128196; 选择所属机构后，可按金额区间（5000元以下 / 5000~50万 / 50万+）分别配置</div>');
                     }
                 }
             }
@@ -4211,7 +4226,10 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var sl=s.configScope==='hq'?'总公司':(s.configScope==='branch'?'分公司':'所属机构');
             // 是否有有效目标可选（分公司模板需选分公司，机构模板需选机构）
             var hasTarget = (s.configScope==='hq') || (s.configScope==='branch'&&!!s.branchName) || (s.configScope==='inst'&&!!s.instOrgName);
-            var disBtn = hasTarget ? '' : ' disabled title="请先选择' + (s.configScope==='branch'?'分公司':(s.configScope==='inst'?'所属机构':'目标')) + '" style="opacity:0.5;cursor:not-allowed;"';
+            // 机构模板模式下，只有tierIdx=0（5000元以下）可编辑；其余为只读参考
+            var isReadOnlyTier = (s.configScope==='inst' && s.tierIdx>0);
+            if(isReadOnlyTier) disBtn = ' disabled title="该区间从分公司/总公司复制，不可编辑" style="opacity:0.5;cursor:not-allowed;"';
+            var disBtn = hasTarget ? (!isReadOnlyTier ? '' : ' disabled title="该区间从分公司/总公司复制，不可编辑" style="opacity:0.5;cursor:not-allowed;"') : ' disabled title="请先选择' + (s.configScope==='branch'?'分公司':(s.configScope==='inst'?'所属机构':'目标')) + '" style="opacity:0.5;cursor:not-allowed;"';
             h.push('<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 10px;flex-wrap:wrap;gap:8px;">');
             h.push('<div style="display:flex;gap:8px">');
             h.push('<button class="btn btn-primary btn-sm"' + disBtn + ' onclick="' + (hasTarget?'_onAddNode()':'') + '">+ 添加节点</button>');
