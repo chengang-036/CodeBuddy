@@ -2088,6 +2088,15 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             }
         };
 
+        // ========== 分公司审批节点默认模板 (2026-06-15) ==========
+        var BRANCH_TEMPLATE_DEFAULT = [
+            {name:'分公司业务部门内勤', selectedUsers:[]},
+            {name:'分公司业务部门室经理', selectedUsers:[]},
+            {name:'分公司业务部门负责人', selectedUsers:[]},
+            {name:'分公司财务部门室经理', selectedUsers:[]},
+            {name:'分公司财务部门负责人', selectedUsers:[]}
+        ];
+
         function buildDefaultConfig() {
             var cfg = { version:'2.0.0' };
             cfg.hqTemplate = JSON.parse(JSON.stringify(HQ_TEMPLATE_DEFAULT));
@@ -2106,6 +2115,23 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 var saved = JSON.parse(raw);
                 if (saved && saved.version === '2.0.0' && saved.hqTemplate && saved.hqTemplate['个险PAA'] && saved.hqTemplate['个险PAA'].nodes[0].name === '总公司业务部门室经理') {
                     APPROVAL_FLOW_CONFIG = saved;
+                    // 迁移：给空的分公司模板补上默认节点
+                    if (APPROVAL_FLOW_CONFIG.branchTemplates) {
+                        var defaultNodes = JSON.parse(JSON.stringify(BRANCH_TEMPLATE_DEFAULT));
+                        var updated = false;
+                        Object.keys(APPROVAL_FLOW_CONFIG.branchTemplates).forEach(function(k) {
+                            var bt = APPROVAL_FLOW_CONFIG.branchTemplates[k];
+                            if (bt && bt.tiers && bt.tiers[0] && (!bt.tiers[0].nodes || bt.tiers[0].nodes.length === 0)) {
+                                bt.tiers[0].nodes = JSON.parse(JSON.stringify(defaultNodes));
+                                updated = true;
+                                console.log('[审批流] 迁移：为分公司模板 ' + k + ' 补上默认节点');
+                            }
+                        });
+                        if (updated) {
+                            localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
+                            console.log('[审批流] 迁移完成：空分公司模板已填充默认节点');
+                        }
+                    }
                     console.log('[审批流] 已从 localStorage 加载配置');
                     return;
                 }
@@ -9319,7 +9345,8 @@ function switchAdminTab(tab) {
             }else if(s.configScope==='branch'){
                 if(!s.branchName)return [];
                 var k=s.channel+'_'+s.branchName;
-                if(!cfg.branchTemplates[k])cfg.branchTemplates[k]={tiers:[{label:'分公司层',level:'分公司',nodes:[]}]};
+                // 首次选择：用默认节点初始化（深拷贝，避免互相引用）
+                if(!cfg.branchTemplates[k])cfg.branchTemplates[k]={tiers:[{label:'分公司层',level:'分公司',nodes:JSON.parse(JSON.stringify(BRANCH_TEMPLATE_DEFAULT))}]};
                 return cfg.branchTemplates[k].tiers[0].nodes;
             }else{
                 if(!s.instOrgName)return [];
