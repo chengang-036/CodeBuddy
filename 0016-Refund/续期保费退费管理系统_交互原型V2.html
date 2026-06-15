@@ -9316,6 +9316,74 @@ function switchAdminTab(tab) {
             showToast('已导出总公司模板JSON','success');
         }
 
+        // 弹窗式添加审批人
+        var _addUserNodeIdx = -1;
+        function _showAddUser(nodeIdx) {
+            _addUserNodeIdx = nodeIdx;
+            var users = getUserStore();
+            var opts = '';
+            for (var i = 0; i < users.length; i++) {
+                var u = users[i];
+                var name = u['用户姓名'] || u['username'] || u['用户ID'] || ('用户' + i);
+                var uid = u['用户ID'] || i;
+                opts += '<option value="' + uid + '">' + name + ' (' + (u['角色名']||u['role']||'-') + ')</option>';
+            }
+            if (!opts) { showToast('暂无系统用户，请先在用户管理中添加', 'error'); return; }
+
+            var html = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;" id="_addUserOverlay" onclick="if(event.target===this)_closeAddUser()">';
+            html += '<div style="background:#fff;border-radius:12px;padding:24px;min-width:400px;max-width:500px;box-shadow:0 8px 32px rgba(0,0,0,0.25);">';
+            html += '<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#333;">\u6dfb\u52a0\u5ba1\u6279\u4eba</div>';
+            html += '<select id="_addUserSelect" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;margin-bottom:16px;">';
+            html += '<option value="">-- \u9009\u62e9\u7cfb\u7edf\u7528\u6237 --</option>' + opts;
+            html += '</select>';
+            html += '<div style="display:flex;gap:10px;justify-content:flex-end;">';
+            html += '<button onclick="_closeAddUser()" style="padding:8px 20px;border:1px solid #ddd;background:#fff;border-radius:6px;cursor:pointer;font-size:13px;">\u53d6\u6d88</button>';
+            html += '<button onclick="_confirmAddUser()" style="padding:8px 20px;border:none;background:#1976d2;color:#fff;border-radius:6px;cursor:pointer;font-size:13px;">\u786e\u8ba4\u6dfb\u52a0</button>';
+            html += '</div></div></div>';
+
+            var div = document.createElement('div');
+            div.innerHTML = html;
+            document.body.appendChild(div);
+        }
+
+        function _closeAddUser() {
+            var el = document.getElementById('_addUserOverlay');
+            if (el) el.parentNode.removeChild(el);
+            _addUserNodeIdx = -1;
+        }
+
+        function _confirmAddUser() {
+            if (_addUserNodeIdx < 0) return;
+            var sel = document.getElementById('_addUserSelect');
+            if (!sel || !sel.value) { showToast('\u8bf7\u9009\u62e9\u4e00\u4e2a\u7528\u6237', 'error'); return; }
+
+            var uid = sel.value;
+            var users = getUserStore();
+            var foundUser = null;
+            for (var i = 0; i < users.length; i++) {
+                if (users[i]['用户ID'] === uid) { foundUser = users[i]; break; }
+            }
+            if (!foundUser) { showToast('\u672a\u627e\u5230\u8be5\u7528\u6237', 'error'); return; }
+
+            var nodes = _getEffectiveNodes();
+            if (!nodes || !nodes[_addUserNodeIdx]) return;
+
+            // 检查是否已存在
+            if (nodes[_addUserNodeIdx].selectedUsers && nodes[_addUserNodeIdx].selectedUsers.some(function(s){return s.userID === uid;})) {
+                showToast('\u8be5\u7528\u6237\u5df2\u5728\u6b64\u8282\u70b9\u4e2d', 'error'); return;
+            }
+            if (!nodes[_addUserNodeIdx].selectedUsers) nodes[_addUserNodeIdx].selectedUsers = [];
+            nodes[_addUserNodeIdx].selectedUsers.push({
+                userID: foundUser['用户ID'],
+                username: foundUser['用户名'],
+                userDisplayName: foundUser['用户姓名']
+            });
+
+            _closeAddUser();
+            _saveAndRender();
+            showToast('\u5df2\u6dfb\u52a0\u5ba1\u6279\u4eba: ' + foundUser['用户姓名'], 'success');
+        }
+
         // ---- 配置范围/渠道切换 ----
         function approvalConfigSwitchScope(sc) {
             approvalConfigState.configScope=sc;
