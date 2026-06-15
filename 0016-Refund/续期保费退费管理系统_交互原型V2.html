@@ -9461,7 +9461,8 @@ function switchAdminTab(tab) {
                 return cfg.branchTemplates[k].tiers[0].nodes;
             }else{
                 // inst模式：无中支时 instOrgName==='-'，有中支时是正常中支名称
-                if(!s.branchName)return [];
+                if(!s.branchName || !s.instOrgName)return [];
+                if(s.tierIdx<0)return [];
                 var ik=s.channel+'_'+s.branchName+'_'+(s.instOrgName||'-');
                 if(!cfg.instTemplates[ik])cfg.instTemplates[ik]={tiers:[
                     {label:'5000元以下',level:'分公司',nodes:JSON.parse(JSON.stringify(INST_TEMPLATE_DEFAULT))},{label:'5000~50万',level:'分公司',nodes:[]},{label:'50万+',level:'总公司',nodes:[]}
