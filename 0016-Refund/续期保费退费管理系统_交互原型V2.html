@@ -2060,39 +2060,87 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         // 全局审批流配置：channel → tiers → nodes
         // 特殊规则：银保/团险 ≥50w 使用分公司层（非总公司层）
         // C+ 独立配置
-
-    // 总公司审批节点模板默认值（按销售渠道）
-    const HQ_TEMPLATE_DEFAULT = {
-        "个险": {
-            subChannels: {
-                "PSA": { tiers: [null], nodes: [[{"name":"总公司保费续期部PSA处经理","role":"","editable":false},{"name":"总公司保费续期部PSA处分管总","role":"","editable":false},{"name":"总公司财务部分管总","role":"","editable":false},{"name":"总公司分管保费续期工作公司领导","role":"","editable":false}]] },
-                "PAA": { tiers: [null], nodes: [[{"name":"总公司保费续期部PAA处经理","role":"","editable":false},{"name":"总公司保费续期部PAA处分管总","role":"","editable":false},{"name":"总公司财务部分管总","role":"","editable":false},{"name":"总公司分管保费续期工作公司领导","role":"","editable":false}]] }
-            }
-        },
-        "银保": {
-            subChannels: null,
-            tiers: [null],
-            nodes: [[]]  // 默认无审批节点
-        },
-        "团险": {
-            subChannels: null,
-            tiers: [null],
-            nodes: [[]]  // 默认无审批节点
-        },
-        "在线": {
-            subChannels: null,
-            tiers: ["5万以下", "5万及以上"],
-            nodes: [
-                [{"name":"总公司在线业务部审核岗","role":"","editable":false}],  // 5万以下：1个节点
-                [{"name":"总公司在线业务部审核岗","role":"","editable":false}, {"name":"总公司财务部分管总","role":"","editable":false}]  // 5万及以上：2个节点
-            ]
-        }
-    };
-
         function buildDefaultConfig() {
             return {
-                version: '2.0.0',
-                hqTemplate: JSON.parse(JSON.stringify(HQ_TEMPLATE_DEFAULT))
+                "version": "1.0.0",
+                "approvalConfigsHQ": [
+                    {
+                        "channel": ["\u4e2a\u9669","\u94f6\u4fdd","\u56e2\u9669"],
+                        "subChannels": ["PAA", "PSA", "-"],
+                        "amountConfig": "all",
+                        "nodes": [
+                            {"order": 1, "name": "\u603b\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u5ba4\u7ecf\u7406", "approvers": ["wenghengtao"]},
+                            {"order": 2, "name": "\u603b\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["huanglinyun"]},
+                            {"order": 3, "name": "\u603b\u516c\u53f8\u8d22\u52a1\u90e8\u95e8\u5ba4\u7ecf\u7406", "approvers": ["fanli"]},
+                            {"order": 4, "name": "\u603b\u516c\u53f8\u8d22\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["huletian"]}
+                        ]
+                    },
+                    {
+                        "channel": ["\u5728\u7ebf"],
+                        "subChannels": ["-"],
+                        "amountConfig": "range",
+                        "ranges": [
+                            {
+                                "label": "5\u4e07\u5143\u4ee5\u4e0b",
+                                "max": 50000,
+                                "nodes": [
+                                    {"order": 1, "name": "\u603b\u516c\u53f8\u5c42\uff08\u5355\u4eba\u5ba1\u6279\uff09", "approvers": ["lizhuoyou"]},
+                                    {"order": 1, "name": "\u603b\u516c\u53f8\u5c42\uff08\u5355\u4eba\u5ba1\u6279\uff09", "approvers": ["guowei"]}
+                                ]
+                            },
+                            {
+                                "label": "5\u4e07\u5143\u53ca\u4ee5\u4e0a",
+                                "min": 50000,
+                                "nodes": [
+                                    {"order": 1, "name": "\u603b\u516c\u53f8\u5c42\uff08\u53cc\u4eba\u5ba1\u6279\uff09", "approvers": ["lizhuoyou"]},
+                                    {"order": 1, "name": "\u603b\u516c\u53f8\u5c42\uff08\u53cc\u4eba\u5ba1\u6279\uff09", "approvers": ["guowei"]},
+                                    {"order": 2, "name": "\u603b\u516c\u53f8\u5c42\uff08\u53cc\u4eba\u5ba1\u6279\uff09", "approvers": ["dinghongzhi"]}
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "approvalConfigsBranch": [
+                    {
+                        "channel": ["\u4e2a\u9669","\u94f6\u4fdd","\u56e2\u9669"],
+                        "subChannels": ["PAA", "PSA", "-"],
+                        "branches": ["\u4e0a\u6d77\u5206\u516c\u53f8"],
+                        "nodes": [
+                            {"order": 1, "name": "\u5206\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u5185\u52e4", "approvers": ["luojiahui"]},
+                            {"order": 2, "name": "\u5206\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u5ba4\u7ecf\u7406", "approvers": ["chenyufan"]},
+                            {"order": 3, "name": "\u5206\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["huyiyang"]},
+                            {"order": 4, "name": "\u5206\u516c\u53f8\u8d22\u52a1\u90e8\u95e8\u5ba4\u7ecf\u7406", "approvers": ["zhangjie"]},
+                            {"order": 5, "name": "\u5206\u516c\u53f8\u8d22\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["caoshen"]},
+                            {"order": 6, "name": "\u5206\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u5206\u7ba1\u603b", "approvers": ["chenzhibin"]}
+                        ]
+                    }
+                ],
+                "approvalConfigsInst": [
+                    {
+                        "channel": ["\u4e2a\u9669"],
+                        "subChannels": ["PAA"],
+                        "amountRange": {"label": "5000\u5143\u4ee5\u4e0b", "max": 5000},
+                        "branch": "\u4e0a\u6d77\u5206\u516c\u53f8",
+                        "org": "\u4e0a\u6d77\u4e2d\u652f\u4e00\u533a",
+                        "nodes": [
+                            {"order": 1, "name": "\u4e2d\u652f\u4e1a\u52a1\u90e8\u95e8\u5185\u52e4", "approvers": ["user001"]},
+                            {"order": 2, "name": "\u4e2d\u652f\u4e1a\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["user002"]},
+                            {"order": 3, "name": "\u4e2d\u652f\u4e1a\u52a1\u90e8\u95e8\u5206\u7ba1\u603b", "approvers": ["user003"]},
+                            {"order": 4, "name": "\u4e2d\u652f\u8d22\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["user004"]},
+                            {"order": 5, "name": "\u4e2d\u652f\u8d22\u52a1\u90e8\u95e8\u5206\u7ba1\u603b", "approvers": ["user005"]},
+                            {"order": 6, "name": "\u5206\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u5185\u52e4", "approvers": ["luojiahui"]},
+                            {"order": 7, "name": "\u5206\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u5ba4\u7ecf\u7406", "approvers": ["chenyufan"]},
+                            {"order": 8, "name": "\u5206\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["huyiyang"]},
+                            {"order": 9, "name": "\u5206\u516c\u53f8\u8d22\u52a1\u90e8\u95e8\u5ba4\u7ecf\u7406", "approvers": ["zhangjie"]},
+                            {"order": 10, "name": "\u5206\u516c\u53f8\u8d22\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["caoshen"]},
+                            {"order": 11, "name": "\u5206\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u5206\u7ba1\u603b", "approvers": ["chenzhibin"]},
+                            {"order": 12, "name": "\u603b\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u5ba4\u7ecf\u7406", "approvers": ["wenghengtao"]},
+                            {"order": 13, "name": "\u603b\u516c\u53f8\u4e1a\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["huanglinyun"]},
+                            {"order": 14, "name": "\u603b\u516c\u53f8\u8d22\u52a1\u90e8\u95e8\u5ba4\u7ecf\u7406", "approvers": ["fanli"]},
+                            {"order": 15, "name": "\u603b\u516c\u53f8\u8d22\u52a1\u90e8\u95e8\u8d1f\u8d23\u4eba", "approvers": ["huletian"]}
+                        ]
+                    }
+                ]
             };
         }
         let APPROVAL_FLOW_CONFIG = buildDefaultConfig();
@@ -2102,82 +2150,115 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         // 根据渠道和金额获取审批节点
         function getApprovalNodes(salesChannel, totalAmount, branch, subBranch, subChannel) {
             var cfg = APPROVAL_FLOW_CONFIG;
-            if (!cfg || !cfg.hqTemplate) {
+            if (!cfg || !cfg.approvalConfigsInst) {
                 return { channel: '', tierLabel: '-', tierLevel: '-', nodes: [] };
             }
-            
-            var hqTemplate = cfg.hqTemplate;
-            
-            // 确定渠道和子渠道
+
+            // Determine channel and subChannel from salesChannel
             var ch = salesChannel || '';
             var subCh = subChannel || '-';
-            if (ch.indexOf('个险') >= 0) {
+            if (ch.indexOf('个险') >= 0 || ch === '个险渠道') {
                 ch = '个险';
-                subCh = (subChannel === 'PSA') ? 'PSA' : 'PAA';
+                if (subChannel === 'PSA' || (salesChannel && salesChannel.indexOf('PSA') >= 0)) subCh = 'PSA';
+                else subCh = 'PAA';
             } else if (ch.indexOf('银保') >= 0) {
-                ch = '银保';
+                ch = '银保'; subCh = '-';
             } else if (ch.indexOf('团险') >= 0) {
-                ch = '团险';
+                ch = '团险'; subCh = '-';
             } else if (ch.indexOf('在线') >= 0) {
-                ch = '在线';
+                ch = '在线'; subCh = '-';
             }
-            
-            var channelConfig = hqTemplate[ch];
-            if (!channelConfig) {
-                return { channel: ch, tierLabel: '-', tierLevel: '-', nodes: [] };
-            }
-            
-            // 获取节点
-            var nodes = [];
-            
-            if (ch === '个险') {
-                // 个险：按子渠道获取
-                if (channelConfig.subChannels && channelConfig.subChannels[subCh]) {
-                    nodes = channelConfig.subChannels[subCh].nodes[0] || [];
+
+            // 1. Try to match inst config (most specific)
+            var insts = cfg.approvalConfigsInst || [];
+            for (var i = 0; i < insts.length; i++) {
+                var inst = insts[i];
+                var chMatch = inst.channel && inst.channel.indexOf(ch) >= 0;
+                var subChMatch = !inst.subChannels || inst.subChannels.length === 0 || inst.subChannels.indexOf(subCh) >= 0 || inst.subChannels.indexOf('-') >= 0;
+                var brMatch = !inst.branch || inst.branch === branch;
+                var orgMatch = !inst.org || inst.org === subBranch;
+                var amountMatch = !inst.amountRange || (inst.amountRange.max === undefined || totalAmount < inst.amountRange.max) && (inst.amountRange.min === undefined || totalAmount >= inst.amountRange.min);
+                if (chMatch && subChMatch && brMatch && orgMatch && amountMatch) {
+                    return {
+                        channel: ch,
+                        tierLabel: inst.amountRange ? inst.amountRange.label : '-',
+                        tierLevel: '机构审批流',
+                        nodes: (inst.nodes || []).map(function(n) {
+                            return {
+                                name: n.name, role: n.name, level: n.order <= 5 ? '中支' : (n.order <= 11 ? '分公司' : '总公司'),
+                                status: 'pending', operator: '-', time: '-',
+                                isFirstNode: n.order === 1, showCommissionRebate: n.order === 1, showRejectBack: n.order > 1,
+                                isFinancial: n.name.indexOf('财务') >= 0,
+                                selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
+                            };
+                        })
+                    };
                 }
-            } else if (ch === '在线') {
-                // 在线：按金额区间获取
-                var tierIdx = (totalAmount < 50000) ? 0 : 1;
-                if (channelConfig.nodes && channelConfig.nodes[tierIdx]) {
-                    nodes = channelConfig.nodes[tierIdx];
-                }
-            } else {
-                // 银保/团险：获取默认节点（可能为空）
-                if (channelConfig.nodes && channelConfig.nodes[0]) {
-                    nodes = channelConfig.nodes[0];
+            }
+
+            // 2. Try branch config
+            var branches = cfg.approvalConfigsBranch || [];
+            for (var i = 0; i < branches.length; i++) {
+                var br = branches[i];
+                var chMatch = br.channel && br.channel.indexOf(ch) >= 0;
+                var brMatch = br.branches && br.branches.indexOf(branch) >= 0;
+                if (chMatch && brMatch) {
+                    return {
+                        channel: ch, tierLabel: '-', tierLevel: '分公司',
+                        nodes: (br.nodes || []).map(function(n) {
+                            return {
+                                name: n.name, role: n.name, level: '分公司',
+                                status: 'pending', operator: '-', time: '-',
+                                isFirstNode: n.order === 1, showCommissionRebate: n.order === 1, showRejectBack: n.order > 1,
+                                isFinancial: n.name.indexOf('财务') >= 0,
+                                selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
+                            };
+                        })
+                    };
                 }
             }
-            
-            // 转换为标准格式
-            var resultNodes = nodes.map(function(node, idx) {
-                return {
-                    name: node.name,
-                    role: node.role || node.name,
-                    level: '总公司',
-                    status: 'pending',
-                    operator: '-',
-                    time: '-',
-                    isFirstNode: idx === 0,
-                    showCommissionRebate: idx === 0,
-                    showRejectBack: idx > 0,
-                    isFinancial: node.name.indexOf('财务') >= 0,
-                    selectedUsers: (node.users || []).map(function(u) {
-                        return { userID: u.userID, username: u.username, userDisplayName: u.userDisplayName || u.username };
-                    })
-                };
-            });
-            
-            var tierLabel = '-';
-            if (ch === '在线') {
-                tierLabel = (totalAmount < 50000) ? '5万以下' : '5万及以上';
+
+            // 3. Try HQ config
+            var hqs = cfg.approvalConfigsHQ || [];
+            for (var i = 0; i < hqs.length; i++) {
+                var hq = hqs[i];
+                var chMatch = hq.channel && hq.channel.indexOf(ch) >= 0;
+                if (chMatch) {
+                    var nodes = [];
+                    if (hq.amountConfig === 'range' && hq.ranges) {
+                        for (var ri = 0; ri < hq.ranges.length; ri++) {
+                            var range = hq.ranges[ri];
+                            var inRange = (range.max === undefined || totalAmount < range.max) && (range.min === undefined || totalAmount >= range.min);
+                            if (inRange) {
+                                nodes = (range.nodes || []).map(function(n) {
+                                    return {
+                                        name: n.name, role: n.name, level: '总公司',
+                                        status: 'pending', operator: '-', time: '-',
+                                        isFirstNode: n.order === 1, showCommissionRebate: false, showRejectBack: true,
+                                        isFinancial: n.name.indexOf('财务') >= 0,
+                                        selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
+                                    };
+                                });
+                                return { channel: ch, tierLabel: range.label || '-', tierLevel: '总公司', nodes: nodes };
+                            }
+                        }
+                    }
+                    // all amountConfig
+                    nodes = (hq.nodes || []).map(function(n) {
+                        return {
+                            name: n.name, role: n.name, level: '总公司',
+                            status: 'pending', operator: '-', time: '-',
+                            isFirstNode: n.order === 1, showCommissionRebate: false, showRejectBack: true,
+                            isFinancial: n.name.indexOf('财务') >= 0,
+                            selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
+                        };
+                    });
+                    return { channel: ch, tierLabel: '-', tierLevel: '总公司', nodes: nodes };
+                }
             }
-            
-            return {
-                channel: ch,
-                tierLabel: tierLabel,
-                tierLevel: '总公司',
-                nodes: resultNodes
-            };
+
+            // Fallback: empty
+            return { channel: ch, tierLabel: '-', tierLevel: '-', nodes: [] };
         }
 
         // ==================== 外部数据加载（从 csv_export/ 目录） ====================
@@ -3894,12 +3975,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             { key: '团险', label: '团险', hasSub: false },
             { key: '在线', label: '在线（C+）', hasSub: false }
         ];
-        let approvalConfigState = {
-            channel: '个险',      // 当前选中的销售渠道
-            subChannel: 'PAA',    // 当前选中的销售子渠道（仅个险有效）
-            tierIdx: 0,           // 当前选中的金额区间索引
-            selectedNodeIdx: -1  // 当前选中的节点索引（-1表示未选中）
-        };
+        let approvalConfigState = { channel: '个险PAA', tierIdx: 0, scope: 'default', target: '', selectedNodeIdx: -1 };
+        // 根据渠道获取配置键名（个险已拆分为两个独立键）
         function getApprovalConfigKey(s) {
             return s.channel; // '个险PAA'|'个险PSA'|'银保'|'团险'|'在线'
         }
@@ -4059,303 +4136,303 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             renderApprovalFlowConfig();
         }
 
-// OLD CODE:         function renderApprovalFlowConfig() {
-// OLD CODE:             var container = document.getElementById('approvalConfigContainer');
-// OLD CODE:             if (!container) return;
-// OLD CODE:             var s = approvalConfigState;
-// OLD CODE:             // 防御性修复：确保 scope 与 midBranchParent/target 状态一致
-// OLD CODE:             if (s.scope !== 'midBranch') { s.midBranchParent = ''; }
-// OLD CODE:             if (s.scope === 'default') { s.target = ''; }
-// OLD CODE:             var cfgKey = getApprovalConfigKey(s);
-// OLD CODE:             var cfg = getCurrentConfig();
-// OLD CODE:             // 在线渠道空tiers兜底
-// OLD CODE:             if (s.channel === '在线' && cfg && (!cfg.tiers || cfg.tiers.length === 0)) {
-// OLD CODE:                 cfg.tiers = [
-// OLD CODE:                     { label: '5万元以下', level: '中支', nodes: [] },
-// OLD CODE:                     { label: '5万及以上', level: '总公司', nodes: [] }
-// OLD CODE:                 ];
-// OLD CODE:             }
-// OLD CODE:             if (!cfg) return;
-// OLD CODE:             // 构建系统用户选项（供在线(C+)审批人选择使用）
-// OLD CODE:             var userStore = getUserStore();
-// OLD CODE:             var userOptsHtml = '';
-// OLD CODE:             for (var ui = 0; ui < userStore.length; ui++) {
-// OLD CODE:                 var u = userStore[ui];
-// OLD CODE:                 userOptsHtml += '<option value="' + u['用户ID'] + '">' + u['用户名'] + ' (' + u['用户姓名'] + ')</option>';
-// OLD CODE:             }
-// OLD CODE: 
-// OLD CODE:             var html = '';
-// OLD CODE:             // 审批层级常用值 datalist（供所有渠道的层级输入框使用）
-// OLD CODE:             html += '<datalist id="levelDatalist"><option value="中支"><option value="分公司"><option value="总公司"><option value="中支层"><option value="分公司层"><option value="总公司层"><option value="分公司层（授权）"><option value="总公司层（单人审批）"><option value="总公司层（双人审批）"></datalist>';
-// OLD CODE:             // 渠道标签（4个主渠道）
-// OLD CODE:             html += '<div class="cfg-channel-tabs">';
-// OLD CODE:             APPR_CHANNEL_DISPLAY.forEach(function(c) {
-// OLD CODE:                 var isActive = (c.key === s.channel);
-// OLD CODE:                 html += '<div class="cfg-channel-tab' + (isActive ? ' active' : '') + '" onclick="approvalConfigSwitchChannel(\'' + c.key + '\')">' + c.label + '</div>';
-// OLD CODE:             });
-// OLD CODE:             html += '</div>';
-// OLD CODE: 
-// OLD CODE: 
-// OLD CODE:             // 配置范围选择
-// OLD CODE:             html += '<div class="cfg-scope-row" style="display:flex;align-items:center;gap:6px;margin-bottom:12px;padding:8px 12px;background:#f8f9fa;border-radius:8px;border:1px solid #e8eaed;">';
-// OLD CODE:             html += '<span style="font-size:12px;color:var(--gray-600);font-weight:600;white-space:nowrap;">配置范围：</span>';
-// OLD CODE:             html += '<div class="cfg-scope-tab' + (s.scope === 'default' ? ' active' : '') + '" onclick="approvalConfigSwitchScope(\'default\')" style="display:inline-block;padding:4px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid #ddd;background:#fff;transition:all 0.2s;">总公司</div>';
-// OLD CODE:             // Tab名称："仅分公司层级"
-// OLD CODE:             html += '<div class="cfg-scope-tab' + (s.scope === 'branch' ? ' active' : '') + '" onclick="approvalConfigSwitchScope(\'branch\')" style="display:inline-block;padding:4px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid #ddd;background:#fff;transition:all 0.2s;">仅分公司层级</div>';
-// OLD CODE:             html += '<div class="cfg-scope-tab' + (s.scope === 'midBranch' ? ' active' : '') + '" onclick="approvalConfigSwitchScope(\'midBranch\')" style="display:inline-block;padding:4px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid #ddd;background:#fff;transition:all 0.2s;">按中支</div>';
-// OLD CODE:             html += '</div>';
-// OLD CODE: 
-// OLD CODE:             // 分公司/中支选择器（带搜索）
-// OLD CODE:             if (s.scope === 'branch') {
-// OLD CODE:                 html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">';
-// OLD CODE:                 html += '<span style="font-size:12px;color:#e65100;font-weight:600;white-space:nowrap;">分公司：</span>';
-// OLD CODE:                 html += '<input type="text" id="branchSearchInput" placeholder="搜索分公司名称..." value="' + (s.target || '').replace(/"/g, '&quot;') + '" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;outline:none;min-width:200px;" oninput="approvalConfigSearchBranch(this.value)" onfocus="approvalConfigShowDropdown(this, \'branch\')" onblur="approvalConfigHideDropdown()">';
-// OLD CODE:                 html += '<div id="branchDropdown" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e0e0e0;border-radius:8px;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.12);"></div>';
-// OLD CODE:                 if (s.target) {
-// OLD CODE:                     html += '<span style="font-size:11px;color:#e65100;">已选择: <b>' + s.target + '</b></span>';
-// OLD CODE:                     html += '<span onclick="approvalConfigSwitchScope(\'branch\')" style="cursor:pointer;font-size:11px;color:#999;">✕ 清除</span>';
-// OLD CODE:                 }
-// OLD CODE:                 html += '</div>';
-// OLD CODE:             } else if (s.scope === 'midBranch') {
-// OLD CODE:                 // 分公司选择器（父级）
-// OLD CODE:                 html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">';
-// OLD CODE:                 html += '<span style="font-size:12px;color:#e65100;font-weight:600;white-space:nowrap;">分公司：</span>';
-// OLD CODE:                 html += '<input type="text" id="midBranchParentInput" placeholder="搜索分公司名称..." value="' + (s.midBranchParent || '').replace(/"/g, '&quot;') + '" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;outline:none;min-width:160px;" oninput="approvalConfigSearchMidBranchParent(this.value)" onfocus="approvalConfigShowDropdown(this, \'midBranchParent\')" onblur="approvalConfigHideDropdown()">';
-// OLD CODE:                 html += '<div id="midBranchParentDropdown" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e0e0e0;border-radius:8px;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.12);"></div>';
-// OLD CODE:                 if (s.midBranchParent) {
-// OLD CODE:                     html += '<span style="font-size:11px;color:#e65100;">已选择: <b>' + s.midBranchParent + '</b></span>';
-// OLD CODE:                 }
-// OLD CODE:                 html += '</div>';
-// OLD CODE:                 // 中支机构选择器
-// OLD CODE:                 html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:#e8f5e9;border-radius:8px;border:1px solid #c8e6c9;">';
-// OLD CODE:                 html += '<span style="font-size:12px;color:#2e7d32;font-weight:600;white-space:nowrap;">中支机构：</span>';
-// OLD CODE:                 if (s.midBranchParent && getMidBranchListByBranch(s.midBranchParent).length === 0) {
-// OLD CODE:                     html += '<span style="font-size:12px;color:#999;">该分公司无中支机构，不支持填写</span>';
-// OLD CODE:                 } else {
-// OLD CODE:                     html += '<input type="text" id="midBranchSearchInput" placeholder="搜索中支名称..." value="' + (s.target || '').replace(/"/g, '&quot;') + '" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;outline:none;min-width:200px;" oninput="approvalConfigSearchMidBranch(this.value)" onfocus="approvalConfigShowDropdown(this, \'midBranch\')" onblur="approvalConfigHideDropdown()">';
-// OLD CODE:                     html += '<div id="midBranchDropdown" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e0e0e0;border-radius:8px;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.12);"></div>';
-// OLD CODE:                     if (s.target) {
-// OLD CODE:                         html += '<span style="font-size:11px;color:#2e7d32;">已选择: <b>' + s.target + '</b></span>';
-// OLD CODE:                     }
-// OLD CODE:                 }
-// OLD CODE:                 html += '<span onclick="approvalConfigSwitchScope(\'midBranch\')" style="cursor:pointer;font-size:11px;color:#999;">✕ 清除</span>';
-// OLD CODE:                 html += '</div>';
-// OLD CODE:             }
-// OLD CODE: 
-// OLD CODE:             // 中支模式：修复缺失的tier label/level
-// OLD CODE:             if (s.scope === 'midBranch' && cfg.tiers) {
-// OLD CODE:                 for (var ti = 0; ti < cfg.tiers.length; ti++) {
-// OLD CODE:                     if (!cfg.tiers[ti].label || cfg.tiers[ti].label === '-') {
-// OLD CODE:                         if (ti === 0) { cfg.tiers[ti].label = '5000元以下'; cfg.tiers[ti].level = '中支'; }
-// OLD CODE:                         else if (ti === 1) { cfg.tiers[ti].label = '5000元-50万以下'; cfg.tiers[ti].level = '分公司'; }
-// OLD CODE:                         else if (ti === 2) { cfg.tiers[ti].label = '50万及以上'; cfg.tiers[ti].level = '总公司'; }
-// OLD CODE:                     }
-// OLD CODE:                 }
-// OLD CODE:             }
-// OLD CODE: 
-// OLD CODE:             // 判断特殊模式（隐藏金额区间Tab，展示固定节点）
-// OLD CODE:             var isHQMode = (s.scope === 'default' && s.channel !== '在线');
-// OLD CODE:             var isBranchMode = (s.scope === 'branch' && s.target);
-// OLD CODE: 
-// OLD CODE:             // 金额区间标签（特殊模式下隐藏）
-// OLD CODE:             if (!isHQMode && !isBranchMode) {
-// OLD CODE:             html += '<div class="cfg-tier-tabs">';
-// OLD CODE:             (cfg.tiers || []).forEach(function(t, i) {
-// OLD CODE:                 html += '<div class="cfg-tier-tab' + (i === s.tierIdx ? ' active' : '') + '" onclick="approvalConfigSwitchTier(' + i + ')">' + t.label + ' <span style="font-size:11px;color:var(--gray-500);">(' + t.level + ')</span></div>';
-// OLD CODE:             });
-// OLD CODE:             html += '</div>';
-// OLD CODE:             }
-// OLD CODE: 
-// OLD CODE:             // 特殊规则说明（特殊模式下隐藏）
-// OLD CODE:             if (!isHQMode && !isBranchMode) {
-// OLD CODE:             if (s.channel === '银保' && s.tierIdx === 2) {
-// OLD CODE:                 html += '<div class="cfg-special-note"><strong>⭐ 特殊规则：</strong>银保渠道 ≥50万元 授权使用<span style="font-weight:600;">分公司层级审批</span>，无需总公司层级审批。</div>';
-// OLD CODE:             }
-// OLD CODE:             if (s.channel === '团险' && s.tierIdx === 2) {
-// OLD CODE:                 html += '<div class="cfg-special-note"><strong>⭐ 特殊规则：</strong>团险渠道 ≥50万元 授权使用<span style="font-weight:600;">分公司层级审批</span>，无需总公司层级审批。</div>';
-// OLD CODE:             }
-// OLD CODE:             if (s.channel === '在线') {
-// OLD CODE:                 html += '<div class="cfg-special-note"><strong>⭐ 在线（C+）特殊规则：</strong>直达总公司审批。5万元以下单人审批，5万及以上双人审批。请从系统用户中选择审批节点负责人，同一节点可选多人共同审批。</div>';
-// OLD CODE:             }
-// OLD CODE:             } // end if !isHQMode && !isBranchMode
-// OLD CODE: 
-// OLD CODE:             // 审批节点列表 — 根据模式确定节点数组
-// OLD CODE:             var nodes;
-// OLD CODE:             if (isHQMode) {
-// OLD CODE:                 nodes = cfg._hqNodes || [];
-// OLD CODE:             } else if (isBranchMode) {
-// OLD CODE:                 nodes = cfg._branchNodes || [];
-// OLD CODE:             } else {
-// OLD CODE:                 var tier = cfg.tiers ? cfg.tiers[s.tierIdx] : null;
-// OLD CODE:                 nodes = tier ? tier.nodes : [];
-// OLD CODE:             }
-// OLD CODE:             html += '<div style="margin-bottom: 16px;">';
-// OLD CODE:             html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h4 style="margin:0;font-size:15px;">审批节点（共' + nodes.length + '个）</h4><span style="font-size:12px;color:var(--gray-500);">' + (isHQMode ? '总公司' : (isBranchMode ? '分公司' : tier.level)) + '</span></div>';
-// OLD CODE:             var colNo = 'width:52px;min-width:52px;text-align:center;flex-shrink:0;';
-// OLD CODE:             var colUser = 'flex:3;min-width:160px;text-align:left;';
-// OLD CODE:             var colName = 'flex:2;min-width:120px;text-align:left;';
-// OLD CODE:             var colLevel = 'width:130px;min-width:130px;flex-shrink:0;text-align:left;';
-// OLD CODE:             if (s.channel === '在线') {
-// OLD CODE:                 // 在线(C+)专属：用户选择审批人
-// OLD CODE:                 html += '<div class="cfg-node-header" style="display:flex;gap:10px;padding:10px 16px;font-size:11px;color:#555;font-weight:600;background:linear-gradient(to bottom,#fafafa,#f0f0f0);border:1px solid #ddd;border-bottom:none;border-radius:8px 8px 0 0;box-sizing:border-box;">';
-// OLD CODE:                 html += '<div style="' + colNo + '">&#33410;&#28857;&#32534;&#21495;</div>';
-// OLD CODE:                 html += '<div style="' + colUser + '">&#29992;&#25143;&#21517; / &#29992;&#25143;&#22995;&#21517;</div>';
-// OLD CODE:                 html += '<div style="' + colName + 'padding-left:11px;box-sizing:border-box;">&#33410;&#28857;&#21517;&#31216;</div>';
-// OLD CODE:                 html += '<div style="' + colLevel + 'padding-left:11px;box-sizing:border-box;">&#24635;&#20844;&#21496;/&#20998;&#20844;&#21496;/&#20013;&#25903;&#20844;&#21496;</div>';
-// OLD CODE:                 html += '</div>';
-// OLD CODE:                 nodes.forEach(function(node, i) {
-// OLD CODE:                     var isLast = (i === nodes.length - 1);
-// OLD CODE:                     var borderR = isLast ? 'border-radius:0 0 8px 8px;' : '';
-// OLD CODE:                     html += '<div class="cfg-node-card' + (approvalConfigState.selectedNodeIdx === i ? ' cfg-node-selected' : '') + '" style="display:block;border-top:none;border-radius:0;' + borderR + 'padding:14px 16px;min-height:72px;box-sizing:border-box;cursor:pointer;" onclick="approvalConfigSelectNode(' + i + ')">';
-// OLD CODE:                     html += '<div style="display:flex;gap:10px;align-items:flex-start;">';
-// OLD CODE:                     // 节点编号列
-// OLD CODE:                     html += '<div style="' + colNo + 'display:flex;align-items:flex-start;justify-content:center;padding-top:2px;">';
-// OLD CODE:                     html += '<div class="node-idx">' + (i + 1) + '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     // 用户选择区域（对应colUser flex:3）
-// OLD CODE:                     html += '<div style="' + colUser + '">';
-// OLD CODE:                     html += '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">';
-// OLD CODE:                     var users = node.selectedUsers || [];
-// OLD CODE:                     for (var uj = 0; uj < users.length; uj++) {
-// OLD CODE:                         var su = users[uj];
-// OLD CODE:                         html += '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#e8f4fd;border:1px solid #bbdefb;border-radius:14px;font-size:12px;color:#1565c0;white-space:nowrap;box-shadow:0 1px 2px rgba(21,101,192,0.08);">';
-// OLD CODE:                         html += '<span style="font-weight:600;">' + (su.username || '') + '</span>';
-// OLD CODE:                         html += '<span style="color:#1976d2;">(' + (su.userDisplayName || '') + ')</span>';
-// OLD CODE:                         html += '<span onclick="approvalConfigRemoveUser(' + i + ',' + uj + ')" style="cursor:pointer;color:#90a4ae;margin-left:2px;font-size:11px;line-height:1;padding:2px;border-radius:50%;transition:background 0.2s;" onmouseover="this.style.background=\'#e1f5fe\'" onmouseout="this.style.background=\'transparent\'" title="&#31227;&#38500;&#27492;&#23457;&#25209;&#20154;">&#10005;</span>';
-// OLD CODE:                         html += '</span>';
-// OLD CODE:                     }
-// OLD CODE:                     html += '<div style="display:inline-flex;align-items:center;gap:4px;">';
-// OLD CODE:                     html += '<select id="userSelect_' + i + '" style="font-size:12px;padding:4px 8px;border:1px solid #c5cae9;border-radius:6px;background:#fff;color:#37474f;outline:none;cursor:pointer;min-width:120px;height:28px;box-sizing:border-box;">';
-// OLD CODE:                     html += '<option value="">&#xff0b; &#36873;&#25321;&#23457;&#25209;&#20154;</option>';
-// OLD CODE:                     html += userOptsHtml;
-// OLD CODE:                     html += '</select>';
-// OLD CODE:                     html += '<button onclick="approvalConfigAddUser(' + i + ')" style="font-size:12px;padding:4px 12px;height:28px;border:1px solid #1565c0;background:#1565c0;color:#fff;border-radius:6px;cursor:pointer;box-sizing:border-box;transition:background 0.2s;" onmouseover="this.style.background=\'#0d47a1\'" onmouseout="this.style.background=\'#1565c0\'">&#28155; &#21152;</button>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     // 节点名称（对应colName flex:2）
-// OLD CODE:                     html += '<div style="' + colName + '">';
-// OLD CODE:                     html += '<input type="text" value="' + (node.name || '').replace(/(PAA)|(PSA)/g,'').replace(/"/g, '&quot;') + '" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;font-weight:600;color:#333;background:#fafafa;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#1565c0\';this.style.background=\'#fff\';this.placeholder=\'\u53ef\u7f16\u8f91\u8282\u70b9\u540d\u79f0\';" onblur="this.style.borderColor=\'#e0e0e0\';this.style.background=\'#fafafa\';approvalConfigNotifyNode(' + i + ',\'name\',this.value)" title="&#33410;&#28857;&#21517;&#31216;" oninput="approvalConfigUpdateNode(' + i + ',\'name\',this.value)">';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     // 层级（对应colLevel width:130px）
-// OLD CODE:                     html += '<div style="' + colLevel + '">';
-// OLD CODE:                     html += '<input type="text" value="' + (node.level || '').replace(/"/g, '&quot;') + '" list="levelDatalist" style="width:100%;padding:6px 10px;border:1px solid #c5cae9;border-radius:6px;font-size:12px;font-weight:600;color:#283593;background:#e8eaf6;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#3949ab\';this.style.background=\'#fff\';" onblur="this.style.borderColor=\'#c5cae9\';this.style.background=\'#e8eaf6\';approvalConfigNotifyNode(' + i + ',\'level\',this.value)" title="&#23457;&#25209;&#23618;&#32423;" oninput="approvalConfigUpdateNode(' + i + ',\'level\',this.value)">';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     // 功能标记
-// OLD CODE:                     html += '<div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--gray-500);padding-left:0;">';
-// OLD CODE:                     if (node.showCommissionRebate) html += '<span style="display:inline-flex;align-items:center;gap:4px;color:#e65100;"><span style="font-size:12px;">&#128204;</span> &#25187;&#22238;&#32493;&#20323;&#22797;&#36873;&#26694;&#65288;&#39318;&#33410;&#28857;&#65289;</span>';
-// OLD CODE:                     if (node.showRejectBack) html += '<span style="display:inline-flex;align-items:center;gap:4px;color:#1565c0;"><span style="font-size:12px;">&#8617;</span> &#39539;&#22238;&#25353;&#38062;</span>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                 });
-// OLD CODE:             } else {
-// OLD CODE:                 // 个险PSA、个险PAA、银保、团险：4列表格布局
-// OLD CODE:                 var isHQScope = (s.scope === 'default');
-// OLD CODE:                 var isBranchScope = (s.scope === 'branch' || s.scope === 'midBranch');
-// OLD CODE:                 var scopeLabel = s.scope === 'branch' ? '所属分公司' : (s.scope === 'midBranch' ? '所属机构' : '');
-// OLD CODE:                 var scopeVal = s.target || '-';
-// OLD CODE:                 html += '<div class="cfg-node-header" style="display:flex;gap:10px;padding:10px 16px;font-size:11px;color:#555;font-weight:600;background:linear-gradient(to bottom,#fafafa,#f0f0f0);border:1px solid #ddd;border-bottom:none;border-radius:8px 8px 0 0;box-sizing:border-box;">';
-// OLD CODE:                 html += '<div style="' + colNo + '">节点编号</div>';
-// OLD CODE:                 if (isHQScope) {
-// OLD CODE:                     html += '<div style="width:110px;min-width:110px;text-align:left;flex-shrink:0;">所属分公司</div>';
-// OLD CODE:                     html += '<div style="width:110px;min-width:110px;text-align:left;flex-shrink:0;">所属机构</div>';
-// OLD CODE:                 } else if (isBranchScope) {
-// OLD CODE:                     html += '<div style="width:110px;min-width:110px;text-align:left;flex-shrink:0;">' + scopeLabel + '</div>';
-// OLD CODE:                 }
-// OLD CODE:                 html += '<div style="' + colUser + '">&#29992;&#25143;&#21517; / &#29992;&#25143;&#22995;&#21517;</div>';
-// OLD CODE:                 html += '<div style="' + colName + 'padding-left:11px;box-sizing:border-box;">节点名称</div>';
-// OLD CODE:                 html += '<div style="' + colLevel + 'padding-left:11px;box-sizing:border-box;">审批层级</div>';
-// OLD CODE:                 html += '</div>';
-// OLD CODE:                 nodes.forEach(function(node, i) {
-// OLD CODE:                     var isLast = (i === nodes.length - 1);
-// OLD CODE:                     var borderR = isLast ? 'border-radius:0 0 8px 8px;' : '';
-// OLD CODE:                     html += '<div class="cfg-node-card' + (approvalConfigState.selectedNodeIdx === i ? ' cfg-node-selected' : '') + '" style="display:block;border-top:none;border-radius:0;' + borderR + 'padding:14px 16px;min-height:72px;box-sizing:border-box;cursor:pointer;" onclick="approvalConfigSelectNode(' + i + ')">';
-// OLD CODE:                     html += '<div style="display:flex;gap:10px;align-items:flex-start;">';
-// OLD CODE:                     // 节点编号列
-// OLD CODE:                     html += '<div style="' + colNo + 'display:flex;align-items:flex-start;justify-content:center;padding-top:2px;">';
-// OLD CODE:                     html += '<div class="node-idx">' + (i + 1) + '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     // 所属分公司/所属机构列（按分公司/中支配置时显示）
-// OLD CODE:                     if (isHQScope) {
-// OLD CODE:                         html += '<div style="width:110px;min-width:110px;flex-shrink:0;font-size:12px;color:var(--gray-500);font-weight:600;padding-top:6px;">-</div>';
-// OLD CODE:                         html += '<div style="width:110px;min-width:110px;flex-shrink:0;font-size:12px;color:var(--gray-500);font-weight:600;padding-top:6px;">-</div>';
-// OLD CODE:                     } else if (isBranchScope) {
-// OLD CODE:                         html += '<div style="width:110px;min-width:110px;flex-shrink:0;font-size:12px;color:#1565c0;font-weight:600;padding-top:6px;">' + scopeVal + '</div>';
-// OLD CODE:                     }
-// OLD CODE:                     // 用户名/用户姓名（对应colUser flex:3）
-// OLD CODE:                     html += '<div style="' + colUser + '">';
-// OLD CODE:                     html += '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">';
-// OLD CODE:                     var users = node.selectedUsers || [];
-// OLD CODE:                     for (var uj = 0; uj < users.length; uj++) {
-// OLD CODE:                         var su = users[uj];
-// OLD CODE:                         html += '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#e8f4fd;border:1px solid #bbdefb;border-radius:14px;font-size:12px;color:#1565c0;white-space:nowrap;box-shadow:0 1px 2px rgba(21,101,192,0.08);">';
-// OLD CODE:                         html += '<span style="font-weight:600;">' + (su.username || '') + '</span>';
-// OLD CODE:                         html += '<span style="color:#1976d2;">(' + (su.userDisplayName || '') + ')</span>';
-// OLD CODE:                         html += '<span onclick="approvalConfigRemoveUser(' + i + ',' + uj + ')" style="cursor:pointer;color:#90a4ae;margin-left:2px;font-size:11px;line-height:1;padding:2px;border-radius:50%;transition:background 0.2s;" onmouseover="this.style.background=\'#e1f5fe\'" onmouseout="this.style.background=\'transparent\'" title="移除该审批人">✕</span>';
-// OLD CODE:                         html += '</span>';
-// OLD CODE:                     }
-// OLD CODE:                     html += '<div style="display:inline-flex;align-items:center;gap:4px;">';
-// OLD CODE:                     html += '<select id="userSelect_' + i + '" style="font-size:12px;padding:4px 8px;border:1px solid #c5cae9;border-radius:6px;background:#fff;color:#37474f;outline:none;cursor:pointer;min-width:120px;height:28px;box-sizing:border-box;">';
-// OLD CODE:                     html += '<option value="">＋ 选择审批人</option>';
-// OLD CODE:                     html += userOptsHtml;
-// OLD CODE:                     html += '</select>';
-// OLD CODE:                     html += '<button onclick="approvalConfigAddUser(' + i + ')" style="font-size:12px;padding:4px 12px;height:28px;border:1px solid #1565c0;background:#1565c0;color:#fff;border-radius:6px;cursor:pointer;box-sizing:border-box;transition:background 0.2s;" onmouseover="this.style.background=\'#0d47a1\'" onmouseout="this.style.background=\'#1565c0\'">＋ 添加</button>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     // 节点名称（对应colName flex:2）
-// OLD CODE:                     html += '<div style="' + colName + '">';
-// OLD CODE:                     html += '<input type="text" value="' + (node.name || '').replace(/(PAA)|(PSA)/g,'').replace(/"/g, '&quot;') + '" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;font-weight:600;color:#333;background:#fafafa;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#1565c0\';this.style.background=\'#fff\';this.placeholder=\'可编辑节点名称\';" onblur="this.style.borderColor=\'#e0e0e0\';this.style.background=\'#fafafa\';approvalConfigNotifyNode(' + i + ',\'name\',this.value)" title="节点名称" oninput="approvalConfigUpdateNode(' + i + ',\'name\',this.value)">';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     // 审批层级（对应colLevel width:130px）
-// OLD CODE:                     html += '<div style="' + colLevel + '">';
-// OLD CODE:                     html += '<input type="text" value="' + (node.level || '').replace(/"/g, '&quot;') + '" list="levelDatalist" style="width:100%;padding:6px 10px;border:1px solid #c5cae9;border-radius:6px;font-size:12px;font-weight:600;color:#283593;background:#e8eaf6;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#3949ab\';this.style.background=\'#fff\';" onblur="this.style.borderColor=\'#c5cae9\';this.style.background=\'#e8eaf6\';approvalConfigNotifyNode(' + i + ',\'level\',this.value)" title="审批层级" oninput="approvalConfigUpdateNode(' + i + ',\'level\',this.value)">';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     // 功能标记
-// OLD CODE:                     html += '<div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--gray-500);padding-left:0;">';
-// OLD CODE:                     if (node.showCommissionRebate) html += '<span style="display:inline-flex;align-items:center;gap:4px;color:#e65100;"><span style="font-size:12px;">&#128204;</span> 扣回续佣复选框（首节点）</span>';
-// OLD CODE:                     if (node.showRejectBack) html += '<span style="display:inline-flex;align-items:center;gap:4px;color:#1565c0;"><span style="font-size:12px;">&#8617;</span> 驳回按钮</span>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                 });
-// OLD CODE:             }
-// OLD CODE:             html += '</div>';
-// OLD CODE: 
-// OLD CODE:             // 中支配置范围的复制按钮（由审批流管理J6操作）
-// OLD CODE:             if (s.scope === 'midBranch' && s.midBranchParent) {
-// OLD CODE:                 if (s.tierIdx === 0 && !s.target && (s.channel === '个险PAA' || s.channel === '个险PSA') && getMidBranchListByBranch(s.midBranchParent).length === 0) {
-// OLD CODE:                     html += '<div style="margin-top:12px;padding:10px 14px;background:#e8f5e9;border:1px solid #c8e6c9;border-radius:8px;">';
-// OLD CODE:                     html += '<span style="font-size:12px;color:#2e7d32;font-weight:600;">城市型分公司（' + s.midBranchParent + '无中支机构）</span>';
-// OLD CODE:                     html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigCopyCityFromBranch()" style="margin-left:12px;padding:4px 14px;font-size:12px;color:#1b5e20;border-color:#4caf50;">📋 城市型5000元以下审批节点 复制 分公司层级</button>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                 }
-// OLD CODE:                 if (s.target && s.tierIdx === 1) {
-// OLD CODE:                     html += '<div style="margin-top:12px;padding:10px 14px;background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;display:flex;align-items:center;gap:12px;">';
-// OLD CODE:                     html += '<span style="font-size:12px;color:#e65100;font-weight:600;">📋 ' + s.channel + ' · ' + s.midBranchParent + ' · ' + s.target + '</span>';
-// OLD CODE:                     html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigCopyFromMidAndBranch()" style="padding:4px 14px;font-size:12px;color:#1b5e20;border-color:#4caf50;">从中支、分公司复制审批节点</button>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                 }
-// OLD CODE:                 if (s.target && s.tierIdx === 2) {
-// OLD CODE:                     html += '<div style="margin-top:12px;padding:10px 14px;background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;display:flex;align-items:center;gap:12px;">';
-// OLD CODE:                     html += '<span style="font-size:12px;color:#e65100;font-weight:600;">📋 ' + s.channel + ' · ' + s.midBranchParent + ' · ' + s.target + '</span>';
-// OLD CODE:                     html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigCopyFromMidBranchAndHq()" style="padding:4px 14px;font-size:12px;color:#1b5e20;border-color:#4caf50;">从中支、分公司、总公司复制审批节点</button>';
-// OLD CODE:                     html += '</div>';
-// OLD CODE:                 }
-// OLD CODE:             }
-// OLD CODE: 
-// OLD CODE:             // 操作按钮
-// OLD CODE:             html += '<div style="display:flex;gap:8px;margin-top:16px;">';
-// OLD CODE:             html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigAddNode()">＋ 添加节点</button>';
-// OLD CODE:             html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigRemoveLastNode()" style="color:#ea4335;border-color:#ea4335;">− 删除选中节点</button>';
-// OLD CODE:             html += '<button class="btn btn-sm btn-success" onclick="approvalConfigSave()">💾 保存配置</button>';
-// OLD CODE:             html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigReset()">↻ 恢复默认</button>';
-// OLD CODE:             html += '</div>';
-// OLD CODE:             html += '<div class="info-box info-warning" style="margin-top: 12px;"><strong>💡 说明：</strong>审批流定义仅<span style="color:#e65100;font-weight:600;">分销售渠道</span>业务管理人员（J6）可操作配置。银保/团险≥50万授权分公司层级审批。</div>';
-// OLD CODE: 
-// OLD CODE:             container.innerHTML = html;
-// OLD CODE:         }
+        function renderApprovalFlowConfig() {
+            var container = document.getElementById('approvalConfigContainer');
+            if (!container) return;
+            var s = approvalConfigState;
+            // 防御性修复：确保 scope 与 midBranchParent/target 状态一致
+            if (s.scope !== 'midBranch') { s.midBranchParent = ''; }
+            if (s.scope === 'default') { s.target = ''; }
+            var cfgKey = getApprovalConfigKey(s);
+            var cfg = getCurrentConfig();
+            // 在线渠道空tiers兜底
+            if (s.channel === '在线' && cfg && (!cfg.tiers || cfg.tiers.length === 0)) {
+                cfg.tiers = [
+                    { label: '5万元以下', level: '中支', nodes: [] },
+                    { label: '5万及以上', level: '总公司', nodes: [] }
+                ];
+            }
+            if (!cfg) return;
+            // 构建系统用户选项（供在线(C+)审批人选择使用）
+            var userStore = getUserStore();
+            var userOptsHtml = '';
+            for (var ui = 0; ui < userStore.length; ui++) {
+                var u = userStore[ui];
+                userOptsHtml += '<option value="' + u['用户ID'] + '">' + u['用户名'] + ' (' + u['用户姓名'] + ')</option>';
+            }
+
+            var html = '';
+            // 审批层级常用值 datalist（供所有渠道的层级输入框使用）
+            html += '<datalist id="levelDatalist"><option value="中支"><option value="分公司"><option value="总公司"><option value="中支层"><option value="分公司层"><option value="总公司层"><option value="分公司层（授权）"><option value="总公司层（单人审批）"><option value="总公司层（双人审批）"></datalist>';
+            // 渠道标签（4个主渠道）
+            html += '<div class="cfg-channel-tabs">';
+            APPR_CHANNEL_DISPLAY.forEach(function(c) {
+                var isActive = (c.key === s.channel);
+                html += '<div class="cfg-channel-tab' + (isActive ? ' active' : '') + '" onclick="approvalConfigSwitchChannel(\'' + c.key + '\')">' + c.label + '</div>';
+            });
+            html += '</div>';
+
+
+            // 配置范围选择
+            html += '<div class="cfg-scope-row" style="display:flex;align-items:center;gap:6px;margin-bottom:12px;padding:8px 12px;background:#f8f9fa;border-radius:8px;border:1px solid #e8eaed;">';
+            html += '<span style="font-size:12px;color:var(--gray-600);font-weight:600;white-space:nowrap;">配置范围：</span>';
+            html += '<div class="cfg-scope-tab' + (s.scope === 'default' ? ' active' : '') + '" onclick="approvalConfigSwitchScope(\'default\')" style="display:inline-block;padding:4px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid #ddd;background:#fff;transition:all 0.2s;">总公司</div>';
+            // Tab名称："仅分公司层级"
+            html += '<div class="cfg-scope-tab' + (s.scope === 'branch' ? ' active' : '') + '" onclick="approvalConfigSwitchScope(\'branch\')" style="display:inline-block;padding:4px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid #ddd;background:#fff;transition:all 0.2s;">仅分公司层级</div>';
+            html += '<div class="cfg-scope-tab' + (s.scope === 'midBranch' ? ' active' : '') + '" onclick="approvalConfigSwitchScope(\'midBranch\')" style="display:inline-block;padding:4px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid #ddd;background:#fff;transition:all 0.2s;">按中支</div>';
+            html += '</div>';
+
+            // 分公司/中支选择器（带搜索）
+            if (s.scope === 'branch') {
+                html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">';
+                html += '<span style="font-size:12px;color:#e65100;font-weight:600;white-space:nowrap;">分公司：</span>';
+                html += '<input type="text" id="branchSearchInput" placeholder="搜索分公司名称..." value="' + (s.target || '').replace(/"/g, '&quot;') + '" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;outline:none;min-width:200px;" oninput="approvalConfigSearchBranch(this.value)" onfocus="approvalConfigShowDropdown(this, \'branch\')" onblur="approvalConfigHideDropdown()">';
+                html += '<div id="branchDropdown" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e0e0e0;border-radius:8px;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.12);"></div>';
+                if (s.target) {
+                    html += '<span style="font-size:11px;color:#e65100;">已选择: <b>' + s.target + '</b></span>';
+                    html += '<span onclick="approvalConfigSwitchScope(\'branch\')" style="cursor:pointer;font-size:11px;color:#999;">✕ 清除</span>';
+                }
+                html += '</div>';
+            } else if (s.scope === 'midBranch') {
+                // 分公司选择器（父级）
+                html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">';
+                html += '<span style="font-size:12px;color:#e65100;font-weight:600;white-space:nowrap;">分公司：</span>';
+                html += '<input type="text" id="midBranchParentInput" placeholder="搜索分公司名称..." value="' + (s.midBranchParent || '').replace(/"/g, '&quot;') + '" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;outline:none;min-width:160px;" oninput="approvalConfigSearchMidBranchParent(this.value)" onfocus="approvalConfigShowDropdown(this, \'midBranchParent\')" onblur="approvalConfigHideDropdown()">';
+                html += '<div id="midBranchParentDropdown" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e0e0e0;border-radius:8px;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.12);"></div>';
+                if (s.midBranchParent) {
+                    html += '<span style="font-size:11px;color:#e65100;">已选择: <b>' + s.midBranchParent + '</b></span>';
+                }
+                html += '</div>';
+                // 中支机构选择器
+                html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:#e8f5e9;border-radius:8px;border:1px solid #c8e6c9;">';
+                html += '<span style="font-size:12px;color:#2e7d32;font-weight:600;white-space:nowrap;">中支机构：</span>';
+                if (s.midBranchParent && getMidBranchListByBranch(s.midBranchParent).length === 0) {
+                    html += '<span style="font-size:12px;color:#999;">该分公司无中支机构，不支持填写</span>';
+                } else {
+                    html += '<input type="text" id="midBranchSearchInput" placeholder="搜索中支名称..." value="' + (s.target || '').replace(/"/g, '&quot;') + '" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;outline:none;min-width:200px;" oninput="approvalConfigSearchMidBranch(this.value)" onfocus="approvalConfigShowDropdown(this, \'midBranch\')" onblur="approvalConfigHideDropdown()">';
+                    html += '<div id="midBranchDropdown" style="display:none;position:absolute;z-index:1000;background:#fff;border:1px solid #e0e0e0;border-radius:8px;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.12);"></div>';
+                    if (s.target) {
+                        html += '<span style="font-size:11px;color:#2e7d32;">已选择: <b>' + s.target + '</b></span>';
+                    }
+                }
+                html += '<span onclick="approvalConfigSwitchScope(\'midBranch\')" style="cursor:pointer;font-size:11px;color:#999;">✕ 清除</span>';
+                html += '</div>';
+            }
+
+            // 中支模式：修复缺失的tier label/level
+            if (s.scope === 'midBranch' && cfg.tiers) {
+                for (var ti = 0; ti < cfg.tiers.length; ti++) {
+                    if (!cfg.tiers[ti].label || cfg.tiers[ti].label === '-') {
+                        if (ti === 0) { cfg.tiers[ti].label = '5000元以下'; cfg.tiers[ti].level = '中支'; }
+                        else if (ti === 1) { cfg.tiers[ti].label = '5000元-50万以下'; cfg.tiers[ti].level = '分公司'; }
+                        else if (ti === 2) { cfg.tiers[ti].label = '50万及以上'; cfg.tiers[ti].level = '总公司'; }
+                    }
+                }
+            }
+
+            // 判断特殊模式（隐藏金额区间Tab，展示固定节点）
+            var isHQMode = (s.scope === 'default' && s.channel !== '在线');
+            var isBranchMode = (s.scope === 'branch' && s.target);
+
+            // 金额区间标签（特殊模式下隐藏）
+            if (!isHQMode && !isBranchMode) {
+            html += '<div class="cfg-tier-tabs">';
+            (cfg.tiers || []).forEach(function(t, i) {
+                html += '<div class="cfg-tier-tab' + (i === s.tierIdx ? ' active' : '') + '" onclick="approvalConfigSwitchTier(' + i + ')">' + t.label + ' <span style="font-size:11px;color:var(--gray-500);">(' + t.level + ')</span></div>';
+            });
+            html += '</div>';
+            }
+
+            // 特殊规则说明（特殊模式下隐藏）
+            if (!isHQMode && !isBranchMode) {
+            if (s.channel === '银保' && s.tierIdx === 2) {
+                html += '<div class="cfg-special-note"><strong>⭐ 特殊规则：</strong>银保渠道 ≥50万元 授权使用<span style="font-weight:600;">分公司层级审批</span>，无需总公司层级审批。</div>';
+            }
+            if (s.channel === '团险' && s.tierIdx === 2) {
+                html += '<div class="cfg-special-note"><strong>⭐ 特殊规则：</strong>团险渠道 ≥50万元 授权使用<span style="font-weight:600;">分公司层级审批</span>，无需总公司层级审批。</div>';
+            }
+            if (s.channel === '在线') {
+                html += '<div class="cfg-special-note"><strong>⭐ 在线（C+）特殊规则：</strong>直达总公司审批。5万元以下单人审批，5万及以上双人审批。请从系统用户中选择审批节点负责人，同一节点可选多人共同审批。</div>';
+            }
+            } // end if !isHQMode && !isBranchMode
+
+            // 审批节点列表 — 根据模式确定节点数组
+            var nodes;
+            if (isHQMode) {
+                nodes = cfg._hqNodes || [];
+            } else if (isBranchMode) {
+                nodes = cfg._branchNodes || [];
+            } else {
+                var tier = cfg.tiers ? cfg.tiers[s.tierIdx] : null;
+                nodes = tier ? tier.nodes : [];
+            }
+            html += '<div style="margin-bottom: 16px;">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h4 style="margin:0;font-size:15px;">审批节点（共' + nodes.length + '个）</h4><span style="font-size:12px;color:var(--gray-500);">' + (isHQMode ? '总公司' : (isBranchMode ? '分公司' : tier.level)) + '</span></div>';
+            var colNo = 'width:52px;min-width:52px;text-align:center;flex-shrink:0;';
+            var colUser = 'flex:3;min-width:160px;text-align:left;';
+            var colName = 'flex:2;min-width:120px;text-align:left;';
+            var colLevel = 'width:130px;min-width:130px;flex-shrink:0;text-align:left;';
+            if (s.channel === '在线') {
+                // 在线(C+)专属：用户选择审批人
+                html += '<div class="cfg-node-header" style="display:flex;gap:10px;padding:10px 16px;font-size:11px;color:#555;font-weight:600;background:linear-gradient(to bottom,#fafafa,#f0f0f0);border:1px solid #ddd;border-bottom:none;border-radius:8px 8px 0 0;box-sizing:border-box;">';
+                html += '<div style="' + colNo + '">&#33410;&#28857;&#32534;&#21495;</div>';
+                html += '<div style="' + colUser + '">&#29992;&#25143;&#21517; / &#29992;&#25143;&#22995;&#21517;</div>';
+                html += '<div style="' + colName + 'padding-left:11px;box-sizing:border-box;">&#33410;&#28857;&#21517;&#31216;</div>';
+                html += '<div style="' + colLevel + 'padding-left:11px;box-sizing:border-box;">&#24635;&#20844;&#21496;/&#20998;&#20844;&#21496;/&#20013;&#25903;&#20844;&#21496;</div>';
+                html += '</div>';
+                nodes.forEach(function(node, i) {
+                    var isLast = (i === nodes.length - 1);
+                    var borderR = isLast ? 'border-radius:0 0 8px 8px;' : '';
+                    html += '<div class="cfg-node-card' + (approvalConfigState.selectedNodeIdx === i ? ' cfg-node-selected' : '') + '" style="display:block;border-top:none;border-radius:0;' + borderR + 'padding:14px 16px;min-height:72px;box-sizing:border-box;cursor:pointer;" onclick="approvalConfigSelectNode(' + i + ')">';
+                    html += '<div style="display:flex;gap:10px;align-items:flex-start;">';
+                    // 节点编号列
+                    html += '<div style="' + colNo + 'display:flex;align-items:flex-start;justify-content:center;padding-top:2px;">';
+                    html += '<div class="node-idx">' + (i + 1) + '</div>';
+                    html += '</div>';
+                    // 用户选择区域（对应colUser flex:3）
+                    html += '<div style="' + colUser + '">';
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">';
+                    var users = node.selectedUsers || [];
+                    for (var uj = 0; uj < users.length; uj++) {
+                        var su = users[uj];
+                        html += '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#e8f4fd;border:1px solid #bbdefb;border-radius:14px;font-size:12px;color:#1565c0;white-space:nowrap;box-shadow:0 1px 2px rgba(21,101,192,0.08);">';
+                        html += '<span style="font-weight:600;">' + (su.username || '') + '</span>';
+                        html += '<span style="color:#1976d2;">(' + (su.userDisplayName || '') + ')</span>';
+                        html += '<span onclick="approvalConfigRemoveUser(' + i + ',' + uj + ')" style="cursor:pointer;color:#90a4ae;margin-left:2px;font-size:11px;line-height:1;padding:2px;border-radius:50%;transition:background 0.2s;" onmouseover="this.style.background=\'#e1f5fe\'" onmouseout="this.style.background=\'transparent\'" title="&#31227;&#38500;&#27492;&#23457;&#25209;&#20154;">&#10005;</span>';
+                        html += '</span>';
+                    }
+                    html += '<div style="display:inline-flex;align-items:center;gap:4px;">';
+                    html += '<select id="userSelect_' + i + '" style="font-size:12px;padding:4px 8px;border:1px solid #c5cae9;border-radius:6px;background:#fff;color:#37474f;outline:none;cursor:pointer;min-width:120px;height:28px;box-sizing:border-box;">';
+                    html += '<option value="">&#xff0b; &#36873;&#25321;&#23457;&#25209;&#20154;</option>';
+                    html += userOptsHtml;
+                    html += '</select>';
+                    html += '<button onclick="approvalConfigAddUser(' + i + ')" style="font-size:12px;padding:4px 12px;height:28px;border:1px solid #1565c0;background:#1565c0;color:#fff;border-radius:6px;cursor:pointer;box-sizing:border-box;transition:background 0.2s;" onmouseover="this.style.background=\'#0d47a1\'" onmouseout="this.style.background=\'#1565c0\'">&#28155; &#21152;</button>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    // 节点名称（对应colName flex:2）
+                    html += '<div style="' + colName + '">';
+                    html += '<input type="text" value="' + (node.name || '').replace(/(PAA)|(PSA)/g,'').replace(/"/g, '&quot;') + '" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;font-weight:600;color:#333;background:#fafafa;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#1565c0\';this.style.background=\'#fff\';this.placeholder=\'\u53ef\u7f16\u8f91\u8282\u70b9\u540d\u79f0\';" onblur="this.style.borderColor=\'#e0e0e0\';this.style.background=\'#fafafa\';approvalConfigNotifyNode(' + i + ',\'name\',this.value)" title="&#33410;&#28857;&#21517;&#31216;" oninput="approvalConfigUpdateNode(' + i + ',\'name\',this.value)">';
+                    html += '</div>';
+                    // 层级（对应colLevel width:130px）
+                    html += '<div style="' + colLevel + '">';
+                    html += '<input type="text" value="' + (node.level || '').replace(/"/g, '&quot;') + '" list="levelDatalist" style="width:100%;padding:6px 10px;border:1px solid #c5cae9;border-radius:6px;font-size:12px;font-weight:600;color:#283593;background:#e8eaf6;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#3949ab\';this.style.background=\'#fff\';" onblur="this.style.borderColor=\'#c5cae9\';this.style.background=\'#e8eaf6\';approvalConfigNotifyNode(' + i + ',\'level\',this.value)" title="&#23457;&#25209;&#23618;&#32423;" oninput="approvalConfigUpdateNode(' + i + ',\'level\',this.value)">';
+                    html += '</div>';
+                    html += '</div>';
+                    // 功能标记
+                    html += '<div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--gray-500);padding-left:0;">';
+                    if (node.showCommissionRebate) html += '<span style="display:inline-flex;align-items:center;gap:4px;color:#e65100;"><span style="font-size:12px;">&#128204;</span> &#25187;&#22238;&#32493;&#20323;&#22797;&#36873;&#26694;&#65288;&#39318;&#33410;&#28857;&#65289;</span>';
+                    if (node.showRejectBack) html += '<span style="display:inline-flex;align-items:center;gap:4px;color:#1565c0;"><span style="font-size:12px;">&#8617;</span> &#39539;&#22238;&#25353;&#38062;</span>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+            } else {
+                // 个险PSA、个险PAA、银保、团险：4列表格布局
+                var isHQScope = (s.scope === 'default');
+                var isBranchScope = (s.scope === 'branch' || s.scope === 'midBranch');
+                var scopeLabel = s.scope === 'branch' ? '所属分公司' : (s.scope === 'midBranch' ? '所属机构' : '');
+                var scopeVal = s.target || '-';
+                html += '<div class="cfg-node-header" style="display:flex;gap:10px;padding:10px 16px;font-size:11px;color:#555;font-weight:600;background:linear-gradient(to bottom,#fafafa,#f0f0f0);border:1px solid #ddd;border-bottom:none;border-radius:8px 8px 0 0;box-sizing:border-box;">';
+                html += '<div style="' + colNo + '">节点编号</div>';
+                if (isHQScope) {
+                    html += '<div style="width:110px;min-width:110px;text-align:left;flex-shrink:0;">所属分公司</div>';
+                    html += '<div style="width:110px;min-width:110px;text-align:left;flex-shrink:0;">所属机构</div>';
+                } else if (isBranchScope) {
+                    html += '<div style="width:110px;min-width:110px;text-align:left;flex-shrink:0;">' + scopeLabel + '</div>';
+                }
+                html += '<div style="' + colUser + '">&#29992;&#25143;&#21517; / &#29992;&#25143;&#22995;&#21517;</div>';
+                html += '<div style="' + colName + 'padding-left:11px;box-sizing:border-box;">节点名称</div>';
+                html += '<div style="' + colLevel + 'padding-left:11px;box-sizing:border-box;">审批层级</div>';
+                html += '</div>';
+                nodes.forEach(function(node, i) {
+                    var isLast = (i === nodes.length - 1);
+                    var borderR = isLast ? 'border-radius:0 0 8px 8px;' : '';
+                    html += '<div class="cfg-node-card' + (approvalConfigState.selectedNodeIdx === i ? ' cfg-node-selected' : '') + '" style="display:block;border-top:none;border-radius:0;' + borderR + 'padding:14px 16px;min-height:72px;box-sizing:border-box;cursor:pointer;" onclick="approvalConfigSelectNode(' + i + ')">';
+                    html += '<div style="display:flex;gap:10px;align-items:flex-start;">';
+                    // 节点编号列
+                    html += '<div style="' + colNo + 'display:flex;align-items:flex-start;justify-content:center;padding-top:2px;">';
+                    html += '<div class="node-idx">' + (i + 1) + '</div>';
+                    html += '</div>';
+                    // 所属分公司/所属机构列（按分公司/中支配置时显示）
+                    if (isHQScope) {
+                        html += '<div style="width:110px;min-width:110px;flex-shrink:0;font-size:12px;color:var(--gray-500);font-weight:600;padding-top:6px;">-</div>';
+                        html += '<div style="width:110px;min-width:110px;flex-shrink:0;font-size:12px;color:var(--gray-500);font-weight:600;padding-top:6px;">-</div>';
+                    } else if (isBranchScope) {
+                        html += '<div style="width:110px;min-width:110px;flex-shrink:0;font-size:12px;color:#1565c0;font-weight:600;padding-top:6px;">' + scopeVal + '</div>';
+                    }
+                    // 用户名/用户姓名（对应colUser flex:3）
+                    html += '<div style="' + colUser + '">';
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">';
+                    var users = node.selectedUsers || [];
+                    for (var uj = 0; uj < users.length; uj++) {
+                        var su = users[uj];
+                        html += '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#e8f4fd;border:1px solid #bbdefb;border-radius:14px;font-size:12px;color:#1565c0;white-space:nowrap;box-shadow:0 1px 2px rgba(21,101,192,0.08);">';
+                        html += '<span style="font-weight:600;">' + (su.username || '') + '</span>';
+                        html += '<span style="color:#1976d2;">(' + (su.userDisplayName || '') + ')</span>';
+                        html += '<span onclick="approvalConfigRemoveUser(' + i + ',' + uj + ')" style="cursor:pointer;color:#90a4ae;margin-left:2px;font-size:11px;line-height:1;padding:2px;border-radius:50%;transition:background 0.2s;" onmouseover="this.style.background=\'#e1f5fe\'" onmouseout="this.style.background=\'transparent\'" title="移除该审批人">✕</span>';
+                        html += '</span>';
+                    }
+                    html += '<div style="display:inline-flex;align-items:center;gap:4px;">';
+                    html += '<select id="userSelect_' + i + '" style="font-size:12px;padding:4px 8px;border:1px solid #c5cae9;border-radius:6px;background:#fff;color:#37474f;outline:none;cursor:pointer;min-width:120px;height:28px;box-sizing:border-box;">';
+                    html += '<option value="">＋ 选择审批人</option>';
+                    html += userOptsHtml;
+                    html += '</select>';
+                    html += '<button onclick="approvalConfigAddUser(' + i + ')" style="font-size:12px;padding:4px 12px;height:28px;border:1px solid #1565c0;background:#1565c0;color:#fff;border-radius:6px;cursor:pointer;box-sizing:border-box;transition:background 0.2s;" onmouseover="this.style.background=\'#0d47a1\'" onmouseout="this.style.background=\'#1565c0\'">＋ 添加</button>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    // 节点名称（对应colName flex:2）
+                    html += '<div style="' + colName + '">';
+                    html += '<input type="text" value="' + (node.name || '').replace(/(PAA)|(PSA)/g,'').replace(/"/g, '&quot;') + '" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;font-weight:600;color:#333;background:#fafafa;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#1565c0\';this.style.background=\'#fff\';this.placeholder=\'可编辑节点名称\';" onblur="this.style.borderColor=\'#e0e0e0\';this.style.background=\'#fafafa\';approvalConfigNotifyNode(' + i + ',\'name\',this.value)" title="节点名称" oninput="approvalConfigUpdateNode(' + i + ',\'name\',this.value)">';
+                    html += '</div>';
+                    // 审批层级（对应colLevel width:130px）
+                    html += '<div style="' + colLevel + '">';
+                    html += '<input type="text" value="' + (node.level || '').replace(/"/g, '&quot;') + '" list="levelDatalist" style="width:100%;padding:6px 10px;border:1px solid #c5cae9;border-radius:6px;font-size:12px;font-weight:600;color:#283593;background:#e8eaf6;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#3949ab\';this.style.background=\'#fff\';" onblur="this.style.borderColor=\'#c5cae9\';this.style.background=\'#e8eaf6\';approvalConfigNotifyNode(' + i + ',\'level\',this.value)" title="审批层级" oninput="approvalConfigUpdateNode(' + i + ',\'level\',this.value)">';
+                    html += '</div>';
+                    html += '</div>';
+                    // 功能标记
+                    html += '<div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--gray-500);padding-left:0;">';
+                    if (node.showCommissionRebate) html += '<span style="display:inline-flex;align-items:center;gap:4px;color:#e65100;"><span style="font-size:12px;">&#128204;</span> 扣回续佣复选框（首节点）</span>';
+                    if (node.showRejectBack) html += '<span style="display:inline-flex;align-items:center;gap:4px;color:#1565c0;"><span style="font-size:12px;">&#8617;</span> 驳回按钮</span>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+            }
+            html += '</div>';
+
+            // 中支配置范围的复制按钮（由审批流管理J6操作）
+            if (s.scope === 'midBranch' && s.midBranchParent) {
+                if (s.tierIdx === 0 && !s.target && (s.channel === '个险PAA' || s.channel === '个险PSA') && getMidBranchListByBranch(s.midBranchParent).length === 0) {
+                    html += '<div style="margin-top:12px;padding:10px 14px;background:#e8f5e9;border:1px solid #c8e6c9;border-radius:8px;">';
+                    html += '<span style="font-size:12px;color:#2e7d32;font-weight:600;">城市型分公司（' + s.midBranchParent + '无中支机构）</span>';
+                    html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigCopyCityFromBranch()" style="margin-left:12px;padding:4px 14px;font-size:12px;color:#1b5e20;border-color:#4caf50;">📋 城市型5000元以下审批节点 复制 分公司层级</button>';
+                    html += '</div>';
+                }
+                if (s.target && s.tierIdx === 1) {
+                    html += '<div style="margin-top:12px;padding:10px 14px;background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;display:flex;align-items:center;gap:12px;">';
+                    html += '<span style="font-size:12px;color:#e65100;font-weight:600;">📋 ' + s.channel + ' · ' + s.midBranchParent + ' · ' + s.target + '</span>';
+                    html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigCopyFromMidAndBranch()" style="padding:4px 14px;font-size:12px;color:#1b5e20;border-color:#4caf50;">从中支、分公司复制审批节点</button>';
+                    html += '</div>';
+                }
+                if (s.target && s.tierIdx === 2) {
+                    html += '<div style="margin-top:12px;padding:10px 14px;background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;display:flex;align-items:center;gap:12px;">';
+                    html += '<span style="font-size:12px;color:#e65100;font-weight:600;">📋 ' + s.channel + ' · ' + s.midBranchParent + ' · ' + s.target + '</span>';
+                    html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigCopyFromMidBranchAndHq()" style="padding:4px 14px;font-size:12px;color:#1b5e20;border-color:#4caf50;">从中支、分公司、总公司复制审批节点</button>';
+                    html += '</div>';
+                }
+            }
+
+            // 操作按钮
+            html += '<div style="display:flex;gap:8px;margin-top:16px;">';
+            html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigAddNode()">＋ 添加节点</button>';
+            html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigRemoveLastNode()" style="color:#ea4335;border-color:#ea4335;">− 删除选中节点</button>';
+            html += '<button class="btn btn-sm btn-success" onclick="approvalConfigSave()">💾 保存配置</button>';
+            html += '<button class="btn btn-sm btn-outline" onclick="approvalConfigReset()">↻ 恢复默认</button>';
+            html += '</div>';
+            html += '<div class="info-box info-warning" style="margin-top: 12px;"><strong>💡 说明：</strong>审批流定义仅<span style="color:#e65100;font-weight:600;">分销售渠道</span>业务管理人员（J6）可操作配置。银保/团险≥50万授权分公司层级审批。</div>';
+
+            container.innerHTML = html;
+        }
 
         // 配置面板交互函数
         function approvalConfigSwitchChannel(ch) {
@@ -9359,193 +9436,6 @@ function switchAdminTab(tab) {
                 alert('恢复默认失败：' + (e2.message || '未知错误') + '\n请刷新页面后重试。');
             }
         }
-
-
-        // ============================================
-        // 新的审批流配置函数 (按销售渠道模板)
-        // ============================================
-
-        function renderApprovalFlowConfig() {
-            var container = document.getElementById('approvalConfigContainer');
-            if (!container) return;
-            var s = approvalConfigState;
-            var cfg = APPROVAL_FLOW_CONFIG;
-            var hqTemplate = cfg.hqTemplate;
-            if (!hqTemplate) return;
-            
-            var channelConfig = hqTemplate[s.channel];
-            if (!channelConfig) return;
-            
-            var nodes = approvalConfigGetNodes();
-            
-            var html = '';
-            
-            // 渠道标签
-            html += '<div class="cfg-channel-tabs">';
-            ['个险', '银保', '团险', '在线'].forEach(function(ch) {
-                var isActive = (ch === s.channel);
-                html += '<div class="cfg-channel-tab' + (isActive ? ' active' : '') + '" onclick="approvalConfigSwitchChannel(\'' + ch + '\')">' + ch + '</div>';
-            });
-            html += '</div>';
-            
-            // 个子渠道标签（仅个险）
-            if (s.channel === '个险' && channelConfig.subChannels) {
-                html += '<div class="cfg-subchannel-tabs" style="margin-top:12px;">';
-                Object.keys(channelConfig.subChannels).forEach(function(subCh) {
-                    var isActive = (subCh === s.subChannel);
-                    html += '<div class="cfg-tier-tab' + (isActive ? ' active' : '') + '" onclick="approvalConfigSwitchSubChannel(\'' + subCh + '\')">' + subCh + '</div>';
-                });
-                html += '</div>';
-            }
-            
-            // 金额区间标签（仅在线）
-            if (s.channel === '在线' && channelConfig.tiers) {
-                html += '<div class="cfg-tier-tabs" style="margin-top:12px;">';
-                channelConfig.tiers.forEach(function(tier, i) {
-                    if (tier === null) return;
-                    var isActive = (i === s.tierIdx);
-                    html += '<div class="cfg-tier-tab' + (isActive ? ' active' : '') + '" onclick="approvalConfigSwitchTier(' + i + ')">' + tier + '</div>';
-                });
-                html += '</div>';
-            }
-            
-            // 操作按钮
-            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 12px 0;">';
-            html += '<div style="display:flex;gap:8px;">';
-            html += '<button class="btn btn-primary btn-sm" onclick="approvalConfigAddNode()">+ 添加节点</button>';
-            html += '<button class="btn btn-danger btn-sm" onclick="approvalConfigRemoveSelectedNode()">删除选中节点</button>';
-            html += '</div>';
-            html += '<button class="btn btn-secondary btn-sm" onclick="approvalConfigExportJson()">导出总公司模板JSON</button>';
-            html += '</div>';
-            
-            // 节点列表
-            html += '<div style="margin-bottom:16px;">';
-            html += '<h4 style="margin:0 0 12px 0;font-size:15px;">审批节点（共' + nodes.length + '个）</h4>';
-            
-            if (nodes.length === 0) {
-                html += '<div style="text-align:center;padding:40px;color:#999;">暂无审批节点</div>';
-            } else {
-                nodes.forEach(function(node, i) {
-                    var isSelected = (i === s.selectedNodeIdx);
-                    html += '<div style="padding:12px 16px;border:1px solid ' + (isSelected ? '#1976d2' : '#e0e0e0') + ';border-radius:8px;margin-bottom:8px;background:' + (isSelected ? '#e3f2fd' : '#fff') + ';cursor:pointer;" onclick="approvalConfigSelectNode(' + i + ')">';
-                    html += '<div style="display:flex;align-items:center;gap:12px;">';
-                    html += '<span style="font-weight:600;color:#1976d2;">节点 ' + (i+1) + '</span>';
-                    html += '<input type="text" value="' + (node.name || '').replace(/"/g, '&quot;') + '" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;" onchange="approvalConfigUpdateNodeName(' + i + ', this.value)">';
-                    html += '</div>';
-                    html += '</div>';
-                });
-            }
-            
-            html += '</div>';
-            
-            container.innerHTML = html;
-        }
-
-        function approvalConfigSwitchChannel(channel) {
-            approvalConfigState.channel = channel;
-            approvalConfigState.subChannel = (channel === '个险') ? 'PAA' : '';
-            approvalConfigState.tierIdx = 0;
-            approvalConfigState.selectedNodeIdx = -1;
-            renderApprovalFlowConfig();
-        }
-
-        function approvalConfigSwitchSubChannel(subChannel) {
-            approvalConfigState.subChannel = subChannel;
-            approvalConfigState.tierIdx = 0;
-            approvalConfigState.selectedNodeIdx = -1;
-            renderApprovalFlowConfig();
-        }
-
-        function approvalConfigGetNodes() {
-            var cfg = APPROVAL_FLOW_CONFIG;
-            var hqTemplate = cfg.hqTemplate;
-            var s = approvalConfigState;
-            var channelConfig = hqTemplate[s.channel];
-            
-            if (s.channel === '个险') {
-                if (channelConfig.subChannels && channelConfig.subChannels[s.subChannel]) {
-                    return channelConfig.subChannels[s.subChannel].nodes[s.tierIdx] || [];
-                }
-            } else if (s.channel === '在线') {
-                return channelConfig.nodes ? (channelConfig.nodes[s.tierIdx] || []) : [];
-            } else {
-                return channelConfig.nodes ? (channelConfig.nodes[s.tierIdx] || []) : [];
-            }
-            return [];
-        }
-
-        function approvalConfigSelectNode(idx) {
-            approvalConfigState.selectedNodeIdx = idx;
-            renderApprovalFlowConfig();
-        }
-
-        function approvalConfigAddNode() {
-            var cfg = APPROVAL_FLOW_CONFIG;
-            var hqTemplate = cfg.hqTemplate;
-            var s = approvalConfigState;
-            var channelConfig = hqTemplate[s.channel];
-            
-            var newNode = { name: '新审批节点', role: '', editable: true };
-            
-            if (s.channel === '个险') {
-                channelConfig.subChannels[s.subChannel].nodes[s.tierIdx].push(newNode);
-            } else {
-                if (!channelConfig.nodes) channelConfig.nodes = [];
-                if (!channelConfig.nodes[s.tierIdx]) channelConfig.nodes[s.tierIdx] = [];
-                channelConfig.nodes[s.tierIdx].push(newNode);
-            }
-            
-            approvalConfigSaveSilent();
-            renderApprovalFlowConfig();
-        }
-
-        function approvalConfigRemoveSelectedNode() {
-            var s = approvalConfigState;
-            if (s.selectedNodeIdx < 0) { alert('请先选择节点'); return; }
-            
-            var cfg = APPROVAL_FLOW_CONFIG;
-            var hqTemplate = cfg.hqTemplate;
-            var channelConfig = hqTemplate[s.channel];
-            
-            if (s.channel === '个险') {
-                channelConfig.subChannels[s.subChannel].nodes[s.tierIdx].splice(s.selectedNodeIdx, 1);
-            } else {
-                channelConfig.nodes[s.tierIdx].splice(s.selectedNodeIdx, 1);
-            }
-            
-            s.selectedNodeIdx = -1;
-            approvalConfigSaveSilent();
-            renderApprovalFlowConfig();
-        }
-
-        function approvalConfigUpdateNodeName(nodeIdx, name) {
-            var nodes = approvalConfigGetNodes();
-            if (nodes[nodeIdx]) {
-                nodes[nodeIdx].name = name;
-                approvalConfigSaveSilent();
-            }
-        }
-
-        function approvalConfigSaveSilent() {
-            try {
-                localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
-            } catch(e) { console.error('Save failed:', e); }
-        }
-
-        function approvalConfigExportJson() {
-            var jsonStr = JSON.stringify(APPROVAL_FLOW_CONFIG.hqTemplate, null, 2);
-            var blob = new Blob([jsonStr], { type: 'application/json' });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = '总公司审批节点模板.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // ============================================
-        // 结束新的审批流配置函数
-        // ============================================
 
     </script>
 
