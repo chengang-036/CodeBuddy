@@ -2098,18 +2098,18 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
 
         let APPROVAL_FLOW_CONFIG = buildDefaultConfig();
-        // 数据迁移：兼容旧版 localStorage 数据
+        // 数据迁移：兼容旧版 localStorage 数据（版本不匹配则重置）
         (function migrateApprovalConfig() {
             try {
                 var raw = localStorage.getItem('approvalFlowConfig');
                 if (!raw) return;
                 var saved = JSON.parse(raw);
-                if (saved && saved.hqTemplate) {
+                if (saved && saved.version === '2.0.0' && saved.hqTemplate && saved.hqTemplate['个险PAA'] && saved.hqTemplate['个险PAA'].nodes[0].name === '总公司业务部门室经理') {
                     APPROVAL_FLOW_CONFIG = saved;
                     console.log('[审批流] 已从 localStorage 加载配置');
                     return;
                 }
-                console.log('[审批流] 检测到旧版数据，已重置为默认配置');
+                console.log('[审批流] 检测到版本变更或旧版数据，已重置为默认配置');
                 APPROVAL_FLOW_CONFIG = buildDefaultConfig();
                 localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
             } catch(e) {
