@@ -2060,73 +2060,203 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         // 全局审批流配置：channel → tiers → nodes
         // 特殊规则：银保/团险 ≥50w 使用分公司层（非总公司层）
         // C+ 独立配置
-        // 总公司审批节点模板默认值（按销售渠道）
-        const HQ_TEMPLATE_DEFAULT = {
+        // ========== 总公司审批节点默认模板 (2026-06-15) ==========
+        var HQ_TEMPLATE_DEFAULT = {
             '个险': {
                 subChannels: {
-                    'PSA': { tiers: [null], nodes: [[
-                        {name:'总公司保费续期部PSA处经理',role:'',editable:false},
-                        {name:'总公司保费续期部PSA分管总',role:'',editable:false},
-                        {name:'总公司财务部分管总',role:'',editable:false},
-                        {name:'总公司分管保费续期工作公司领导',role:'',editable:false}
-                    ]] },
-                    'PAA': { tiers: [null], nodes: [[
-                        {name:'总公司保费续期部PAA处经理',role:'',editable:false},
-                        {name:'总公司保费续期部PAA分管总',role:'',editable:false},
-                        {name:'总公司财务部分管总',role:'',editable:false},
-                        {name:'总公司分管保费续期工作公司领导',role:'',editable:false}
-                    ]] }
+                    'PAA': { nodes: [
+                        {name:'分公司部门经理初审', selectedUsers:[]},
+                        {name:'分公司部门总监复审', selectedUsers:[]},
+                        {name:'总公司个险部审核', selectedUsers:[]},
+                        {name:'总公司分管总审批', selectedUsers:[]}
+                    ]},
+                    'PSA': { nodes: [
+                        {name:'分公司部门经理初审', selectedUsers:[]},
+                        {name:'分公司部门总监复审', selectedUsers:[]},
+                        {name:'总公司个险部审核', selectedUsers:[]},
+                        {name:'总公司分管总审批', selectedUsers:[]}
+                    ]}
                 }
             },
-            '银保': { subChannels:null, tiers:[null], nodes:[[]] },
-            '团险': { subChannels:null, tiers:[null], nodes:[[]] },
-            '在线': {
-                subChannels:null,
-                tiers:['5万以下','5万及以上'],
-                nodes:[
-                    [{name:'总公司在线业务部审核岗',role:'',editable:false}],
-                    [{name:'总公司在线业务部审核岗',role:'',editable:false},{name:'总公司财务部分管总',role:'',editable:false}]
-                ]
-            }
+            '银保': { nodes: [] },
+            '团险': { nodes: [] },
+            '在线': { nodes: [
+                [{name:'初级审核员审批', selectedUsers:[]}],
+                [{name:'初级审核员审批', selectedUsers:[]}, {name:'高级审核员审批', selectedUsers:[]}]
+            ]}
         };
 
         function buildDefaultConfig() {
-            return {
-                version: '2.0.0',
-                hqTemplate: JSON.parse(JSON.stringify(HQ_TEMPLATE_DEFAULT)),
-                branchTemplates: {},   // 分公司审批流模板 (key: '渠道_子渠道_分公司名')
-                instTemplates: {}     // 所属机构审批流模板 (key: '渠道_子渠道_分公司_机构')
-            };
+            var cfg = { version:'2.0.0' };
+            cfg.hqTemplate = JSON.parse(JSON.stringify(HQ_TEMPLATE_DEFAULT));
+            cfg.branchTemplates = {};
+            cfg.instTemplates = {};
+            return cfg;
         }
+
+
+        let APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+        // ====== 分公司 & 中支 列表 ======
+
+
+        // 根据渠道和金额获取审批节点
         function getApprovalNodes(salesChannel, totalAmount, branch, subBranch, subChannel) {
             var cfg = APPROVAL_FLOW_CONFIG;
-            if (!cfg || !cfg.hqTemplate) return { channel: '', tierLabel: '-', tierLevel: '-', nodes: [] };
-            var hqTemplate = cfg.hqTemplate;
+            if (!cfg || !cfg.approvalConfigsInst) {
+                return { channel: '', tierLabel: '-', tierLevel: '-', nodes: [] };
+            }
+
+            // Determine channel and subChannel from salesChannel
             var ch = salesChannel || '';
             var subCh = subChannel || '-';
-            if (ch.indexOf('个险') >= 0) { ch = '个险'; subCh = (subChannel==='PSA')?'PSA':'PAA'; }
-            else if (ch.indexOf('银保') >= 0) ch = '银保';
-            else if (ch.indexOf('团险') >= 0) ch = '团险';
-            else if (ch.indexOf('在线') >= 0) ch = '在线';
+            if (ch.indexOf('个险') >= 0 || ch === '个险渠道') {
+                ch = '个险';
+                if (subChannel === 'PSA' || (salesChannel && salesChannel.indexOf('PSA') >= 0)) subCh = 'PSA';
+                else subCh = 'PAA';
+            } else if (ch.indexOf('银保') >= 0) {
+                ch = '银保'; subCh = '-';
+            } else if (ch.indexOf('团险') >= 0) {
+                ch = '团险'; subCh = '-';
+            } else if (ch.indexOf('在线') >= 0) {
+                ch = '在线'; subCh = '-';
+            }
 
-            var ccfg = hqTemplate[ch];
-            if (!ccfg) return { channel: ch||'', tierLabel: '-', tierLevel: '-', nodes: [] };
+            // 1. Try to match inst config (most specific)
+            var insts = cfg.approvalConfigsInst || [];
+            for (var i = 0; i < insts.length; i++) {
+                var inst = insts[i];
+                var chMatch = inst.channel && inst.channel.indexOf(ch) >= 0;
+                var subChMatch = !inst.subChannels || inst.subChannels.length === 0 || inst.subChannels.indexOf(subCh) >= 0 || inst.subChannels.indexOf('-') >= 0;
+                var brMatch = !inst.branch || inst.branch === branch;
+                var orgMatch = !inst.org || inst.org === subBranch;
+                var amountMatch = !inst.amountRange || (inst.amountRange.max === undefined || totalAmount < inst.amountRange.max) && (inst.amountRange.min === undefined || totalAmount >= inst.amountRange.min);
+                if (chMatch && subChMatch && brMatch && orgMatch && amountMatch) {
+                    return {
+                        channel: ch,
+                        tierLabel: inst.amountRange ? inst.amountRange.label : '-',
+                        tierLevel: '机构审批流',
+                        nodes: (inst.nodes || []).map(function(n) {
+                            return {
+                                name: n.name, role: n.name, level: n.order <= 5 ? '中支' : (n.order <= 11 ? '分公司' : '总公司'),
+                                status: 'pending', operator: '-', time: '-',
+                                isFirstNode: n.order === 1, showCommissionRebate: n.order === 1, showRejectBack: n.order > 1,
+                                isFinancial: n.name.indexOf('财务') >= 0,
+                                selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
+                            };
+                        })
+                    };
+                }
+            }
 
-            var rawNodes = [];
-            if (ch === '个险' && ccfg.subChannels && ccfg.subChannels[subCh]) rawNodes = ccfg.subChannels[subCh].nodes[0] || [];
-            else if (ch === '在线' && ccfg.nodes) rawNodes = ccfg.nodes[(totalAmount<50000)?0:1] || [];
-            else if (ccfg.nodes) rawNodes = ccfg.nodes[0] || [];
+            // 2. Try branch config
+            var branches = cfg.approvalConfigsBranch || [];
+            for (var i = 0; i < branches.length; i++) {
+                var br = branches[i];
+                var chMatch = br.channel && br.channel.indexOf(ch) >= 0;
+                var brMatch = br.branches && br.branches.indexOf(branch) >= 0;
+                if (chMatch && brMatch) {
+                    return {
+                        channel: ch, tierLabel: '-', tierLevel: '分公司',
+                        nodes: (br.nodes || []).map(function(n) {
+                            return {
+                                name: n.name, role: n.name, level: '分公司',
+                                status: 'pending', operator: '-', time: '-',
+                                isFirstNode: n.order === 1, showCommissionRebate: n.order === 1, showRejectBack: n.order > 1,
+                                isFinancial: n.name.indexOf('财务') >= 0,
+                                selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
+                            };
+                        })
+                    };
+                }
+            }
 
-            var tierLabel = (ch === '在线') ? ((totalAmount<50000)?'5万以下':'5万及以下') : '-';
-            var resultNodes = (rawNodes||[]).map(function(n, idx) {
-                return { name:n.name, role:n.role||n.name, level:'总公司', status:'pending', operator:'-', time:'-',
-                    isFirstNode:idx===0, showCommissionRebate:idx===0, showRejectBack:idx>0,
-                    isFinancial:(n.name||'').indexOf('财务')>=0,
-                    selectedUsers: (n.users||[]).map(function(u) { return { userID: u.userID||u.username||u, username: u.username||u||'', userDisplayName: u.userDisplayName||u.username||u||'' }; })
-                };
-            });
-            return { channel: ch, tierLabel: tierLabel, tierLevel: '总公司', nodes: resultNodes };
+            // 3. Try HQ config
+            var hqs = cfg.approvalConfigsHQ || [];
+            for (var i = 0; i < hqs.length; i++) {
+                var hq = hqs[i];
+                var chMatch = hq.channel && hq.channel.indexOf(ch) >= 0;
+                if (chMatch) {
+                    var nodes = [];
+                    if (hq.amountConfig === 'range' && hq.ranges) {
+                        for (var ri = 0; ri < hq.ranges.length; ri++) {
+                            var range = hq.ranges[ri];
+                            var inRange = (range.max === undefined || totalAmount < range.max) && (range.min === undefined || totalAmount >= range.min);
+                            if (inRange) {
+                                nodes = (range.nodes || []).map(function(n) {
+                                    return {
+                                        name: n.name, role: n.name, level: '总公司',
+                                        status: 'pending', operator: '-', time: '-',
+                                        isFirstNode: n.order === 1, showCommissionRebate: false, showRejectBack: true,
+                                        isFinancial: n.name.indexOf('财务') >= 0,
+                                        selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
+                                    };
+                                });
+                                return { channel: ch, tierLabel: range.label || '-', tierLevel: '总公司', nodes: nodes };
+                            }
+                        }
+                    }
+                    // all amountConfig
+                    nodes = (hq.nodes || []).map(function(n) {
+                        return {
+                            name: n.name, role: n.name, level: '总公司',
+                            status: 'pending', operator: '-', time: '-',
+                            isFirstNode: n.order === 1, showCommissionRebate: false, showRejectBack: true,
+                            isFinancial: n.name.indexOf('财务') >= 0,
+                            selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
+                        };
+                    });
+                    return { channel: ch, tierLabel: '-', tierLevel: '总公司', nodes: nodes };
+                }
+            }
+
+            // Fallback: empty
+            return { channel: ch, tierLabel: '-', tierLevel: '-', nodes: [] };
         }
+
+        // ==================== 外部数据加载（从 csv_export/ 目录） ====================
+        let FETCHED_DEFAULTS = null;  // { policies, payments, naturalPersons, scenarios, refunds, roles, permissions, rolePerms, users, userRoles }
+
+        async function fetchDefaultsFromFiles(baseDir) {
+            const BASE = baseDir || 'csv_export/';
+            const results = await Promise.allSettled([
+                fetch(BASE + '01_保单信息.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '02_缴费记录.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '03_自然人信息_反洗钱9字段.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '04_场景管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '05_退费受理记录.json').then(async r => {
+                    if (!r.ok) throw new Error(r.status);
+                    const text = await r.text();
+                    if (!text || !text.trim()) throw new Error('Empty JSON file');
+                    var data = JSON.parse(text);
+                    return Array.isArray(data) ? data : [];
+                }),
+                fetch(BASE + '06_角色管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '07_权限管理.csv?v=2').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '08_角色对应权限管理.csv?v=2').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '09_用户管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '10_用户角色管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '11_短信发送记录.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '12_微信发送记录.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '14_分公司管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+                fetch(BASE + '15_所属机构管理.csv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+            ]);
+            const [policies, payments, naturalPersons, scenarios, refunds, roles, permissions, rolePerms, users, userRoles, smsRecords, wechatRecords, branches, branchInsts] = results.map(r => r.status === 'fulfilled' ? r.value : '');
+            // 退费记录特殊情况：如果为空字符串（文件空或fetch失败），获取默认值时会回退到内置数据
+            FETCHED_DEFAULTS = { policies, payments, naturalPersons, scenarios, refunds, roles, permissions, rolePerms, users, userRoles, smsRecords, wechatRecords, branches, branchInsts };
+            // 检查是否有文件未成功加载
+            var failedFiles = [];
+            results.forEach((r, i) => {
+                if (r.status === 'rejected') {
+                    var names = ['保单信息','缴费记录','自然人信息','场景管理','退费受理记录','角色管理','权限管理','角色对应权限管理','用户管理','用户角色管理','短信发送记录','微信发送记录','分公司管理','所属机构管理'];
+                    failedFiles.push(names[i] + '(' + (r.reason && r.reason.message || '未知') + ')');
+                }
+            });
+            if (failedFiles.length > 0) console.warn('部分外部文件不可用 (' + BASE + '):', failedFiles.join(', '));
+            else console.log('FETCHED_DEFAULTS loaded from ' + BASE + ' files');
+            return FETCHED_DEFAULTS;
+        }
+
+        // ==================== 登录系统 ====================
         function getRoleNameByID(roleID) {
             var roles = getRoleStore();
             if (roles[roleID]) return roles[roleID];
@@ -3797,15 +3927,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             { key: '团险', label: '团险', hasSub: false },
             { key: '在线', label: '在线（C+）', hasSub: false }
         ];
-        let approvalConfigState = {
-            configScope: 'hq',      // 配置范围: hq=总公司 | branch=分公司 | inst=所属机构
-            channel: '个险',
-            subChannel: 'PAA',
-            branchName: '',
-            instOrgName: '',
-            tierIdx: 0,
-            selectedNodeIdx: -1
-        };
+        let approvalConfigState = { configScope:'hq', channel:'个险', subChannel:'PAA', tierIdx:0, branchName:'', instOrgName:'', selectedNodeIdx:-1 };
+        // 根据渠道获取配置键名（个险已拆分为两个独立键）
         function getApprovalConfigKey(s) {
             return s.channel; // '个险PAA'|'个险PSA'|'银保'|'团险'|'在线'
         }
@@ -3965,242 +4088,362 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             renderApprovalFlowConfig();
         }
 
+        // ========== 审批流管理配置面板 (新版 2026-06-15) ==========
         function renderApprovalFlowConfig() {
-            var container = document.getElementById('approvalConfigContainer');
+            var container = document.getElementById('approvalFlowConfigPanel');
             if (!container) return;
             var s = approvalConfigState;
-            var html = '';
+            var h = [];
 
-            // ====== 配置范围选择 ======
-            html += '<div class="cfg-scope-row" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:#f8f9fa;border-radius:10px;border:1px solid #e8eaed;">';
-            html += '<span style="font-size:13px;color:#555;font-weight:600;white-space:nowrap;">&#128203; \u914d\u7f6e\u8303\u56f4\uff1a</span>';
+            // ===== 配置范围选择 =====
+            h.push('<div class="cfg-scope-row" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:#f8f9fa;border-radius:10px;border:1px solid #e8eaed;">');
+            h.push('<span style="font-size:13px;color:#555;font-weight:600;white-space:nowrap;">&#128203; 配置范围：</span>');
             [
-                {k:'hq', l:'\u603b\u516c\u53f8\u6a21\u677f'},
-                {k:'branch', l:'\u5206\u516c\u53f8\u6a21\u677f'},
-                {k:'inst', l:'\u6240\u5c5e\u673a\u6784\u6a21\u677f'}
+                {k:'hq', l:'总公司模板'},
+                {k:'branch', l:'分公司模板'},
+                {k:'inst', l:'所属机构模板'}
             ].forEach(function(sc){
                 var ac=(s.configScope===sc.k);
-                html+='<div onclick="approvalConfigSwitchScope(\''+sc.k+'\')" style="cursor:pointer;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid '+(ac?'#1976d2':'#ddd')+';background:'+(ac?'#e3f2fd':'#fff')+';color:'+(ac?'#1976d2':'#555')+'">'+sc.l+'</div>';
+                // 使用双引号包裹JS参数值 → 生成: onclick="approvalConfigSwitchScope('hq')"
+                h.push('<div onclick="approvalConfigSwitchScope(\'' + sc.k + '\')" style="cursor:pointer;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid ' + (ac?'#1976d2':'#ddd') + ';background:' + (ac?'#e3f2fd':'#fff') + ';color:' + (ac?'#1976d2':'#555') + '">' + sc.l + '</div>');
             });
-            html+='</div>';
+            h.push('</div>');
 
-            // ====== 渠道标签 ======
-            html+='<div class="cfg-channel-tags">';
-            ['\u4e2a\u9669','\u94f6\u4fdd','\u56e2\u9669','\u5728\u7ebf'].forEach(function(ch){
+            // ===== 渠道标签 =====
+            h.push('<div class="cfg-channel-tags">');
+            ['个险','银保','团险','在线'].forEach(function(ch){
                 var ac=(s.channel===ch);
-                html+='<div class="cfg-channel-tab'+(ac?' active':'')+'" onclick="approvalConfigSwitchChannel(\''+ch+'\')">'+ch+'</div>';
+                h.push('<div class="cfg-channel-tab' + (ac?' active':'') + '" onclick="approvalConfigSwitchChannel(\'' + ch + '\')">' + ch + '</div>');
             });
-            html+='</div>';
+            h.push('</div>');
 
             // 子渠道 (仅个险)
-            if(s.channel==='\u4e2a\u9669'){
-                html+='<div style="margin-top:10px;display:flex;gap:6px;">';
+            if(s.channel==='个险'){
+                h.push('<div style="margin-top:10px;display:flex;gap:6px;">');
                 ['PAA','PSA'].forEach(function(sub){
                     var ac=(s.subChannel===sub);
-                    html+='<div onclick="approvalConfigSwitchSubChannel(\''+sub+'\')" style="cursor:pointer;padding:5px 18px;border-radius:6px;font-size:12px;border:1px solid '+(ac?'#1976d2':'#ddd')+';background:'+(ac?'#e3f2fd':'#fff')+';color:'+(ac?'#1976d2':'#555');">'+sub+'</div>';
+                    h.push('<div onclick="approvalConfigSwitchSubChannel(\'' + sub + '\')" style="cursor:pointer;padding:5px 18px;border-radius:6px;font-size:12px;border:1px solid ' + (ac?'#1976d2':'#ddd') + ';background:' + (ac?'#e3f2fd':'#fff') + ';color:' + (ac?'#1976d2':'#555') + '">' + sub + '</div>');
                 });
-                html+='</div>';
+                h.push('</div>');
             }
 
             // 金额区间 (仅在线+总公司模式)
-            if(s.channel==='\u5728\u7ebf'&&s.configScope==='hq'){
-                html+='<div class="cfg-tier-tabs" style="margin-top:10px;">';
-                ['5\u4e07\u4ee5\u4e0b','5\u4e07\u53ca\u4ee5\u4e0b'].forEach(function(lab,idx){
+            if(s.channel==='在线'&&s.configScope==='hq'){
+                h.push('<div class="cfg-tier-tabs" style="margin-top:10px;">');
+                ['5万以下','5万及以上'].forEach(function(lab,idx){
                     var ac=(s.tierIdx===idx);
-                    html+='<div class="cfg-tier-tab'+(ac?' active':'')+'" onclick="approvalConfigSwitchTier('+idx+')">'+lab+'</div>';
+                    h.push('<div class="cfg-tier-tab' + (ac?' active':'') + '" onclick="approvalConfigSwitchTier(' + idx + ')">' + lab + '</div>');
                 });
-                html+='</div>';
+                h.push('</div>');
             }
 
             // 分公司选择器 (branch模式)
             if(s.configScope==='branch'){
                 var blist=getBranchStore()||[];
-                html+='<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">';
-                html+='<span style="font-size:12px;color:#e65100;font-weight:600">\u5206\u516c\u53f8\uff1a</span>';
-                html+='<select id="branchSelect" onchange="approvalConfigSelectBranch(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- \u9009\u62e9 --</option>';
-                blist.forEach(function(b){var bn=b['\u5206\u516c\u53f8\u540d\u79f0']||b.name||b;html+='<option value="'+bn.replace(/"/g,'&quot;')"'+((s.branchName===bn)?' selected':'')+'>'+bn+'</option>';});
-                html+='</select>';
-                if(s.branchName) html+='<span style="font-size:11px;color:#e65100">\u5df2\u9009\uff1a<b>'+s.branchName+'</b></span>';
-                html+='</div>';
+                h.push('<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">');
+                h.push('<span style="font-size:12px;color:#e65100;font-weight:600">分公司：</span>');
+                h.push('<select id="branchSelect" onchange="approvalConfigSelectBranch(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- 选择 --</option>');
+                blist.forEach(function(b){var bn=b['分公司名称']||b.name||b;h.push('<option value="' + bn.replace(/"/g,'&quot;') + '"' + ((s.branchName===bn)?' selected':'') + '>' + bn + '</option>');});
+                h.push('</select>');
+                if(s.branchName) h.push('<span style="font-size:11px;color:#e65100">已选：<b>' + s.branchName + '</b></span>');
+                h.push('</div>');
             }
 
             // 所属机构选择器 (inst模式)
             if(s.configScope==='inst'){
                 var blist2=getBranchStore()||[];
-                html+='<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;"><span style="font-size:12px;color:#e65100;font-weight:600">\u5206\u516c\u53f8\uff1a</span>';
-                html+='<select id="instBranchSel" onchange="approvalConfigInstBranchChange(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- \u9009\u62e9 --</option>';
-                blist2.forEach(function(b){var bn=b['\u5206\u516c\u53f8\u540d\u79f0']||b.name||b;html+='<option value="'+bn.replace(/"/g,'&quot;')+'">'+bn+'</option>';});
-                html+='</select></div>';
+                h.push('<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;"><span style="font-size:12px;color:#e65100;font-weight:600">分公司：</span>');
+                h.push('<select id="instBranchSel" onchange="approvalConfigInstBranchChange(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- 选择 --</option>');
+                blist2.forEach(function(b){var bn=b['分公司名称']||b.name||b;h.push('<option value="' + bn.replace(/"/g,'&quot;') + '">' + bn + '</option>');});
+                h.push('</select></div>');
                 if(s.branchName){
                     var mids=getMidBranchListByBranch(s.branchName);
                     if(mids.length>0){
-                        html+='<div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:10px 14px;background:#e8f5e9;border-radius:8px;border:1px solid #c8e6c9;"><span style="font-size:12px;color:#2e7d32;font-weight:600">\u6240\u5c5e\u673a\u6784\uff1a</span>';
-                        html+='<select id="instOrgSel" onchange="approvalConfigInstOrgChange(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- \u9009\u62e9 --</option>';
-                        mids.forEach(function(m){var mn=m['\u4e2d\u652f\u540d\u79f0']||m.name||m;html+='<option value="'+mn.replace(/"/g,'&quot;')+'"'+((s.instOrgName===mn)?' selected':'')+'>'+mn+'</option>';});
-                        html+='</select></div>';
+                        h.push('<div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:10px 14px;background:#e8f5e9;border-radius:8px;border:1px solid #c8e6c9;"><span style="font-size:12px;color:#2e7d32;font-weight:600">所属机构：</span>');
+                        h.push('<select id="instOrgSel" onchange="approvalConfigInstOrgChange(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- 选择 --</option>');
+                        mids.forEach(function(m){var mn=m['中支名称']||m.name||m;h.push('<option value="' + mn.replace(/"/g,'&quot;') + '"' + ((s.instOrgName===mn)?' selected':'') + '>' + mn + '</option>');});
+                        h.push('</select></div>');
                     } else {
-                        html+='<div style="padding:8px 14px;color:#999;font-size:12px">\u8be5\u5206\u516c\u53f8\u65e0\u6240\u5c5e\u673a\u6784\uff0c76f4\u63a5\u4f7f\u7528\u5206\u516c\u53f8\u5ba1\u6279\u6d41</div>';
+                        h.push('<div style="padding:8px 14px;color:#999;font-size:12px">该分公司无所属机构，直接使用分公司审批流</div>');
                     }
                     if(s.instOrgName||mids.length===0){
-                        html+='<div class="cfg-special-note" style="margin-top:8px;padding:8px 12px;background:#fff8e1;border-radius:6px;font-size:12px"><strong>&#128196;\u89c4\u5219:</strong><ul style="margin:2px 0 0 14px;padding:0"><li>5000\u5143\u4ee5\u4e0b:\u72ec\u7acb\u914d\u7f6e</li><li>5000~50\u4e07:\u4ece\u5206\u516c\u53f8\u590d\u5236</li><li>50\u4e07+:\u4ece\u603b\u516c\u53f8\u590d\u5236</li></ul></div>';
+                        h.push('<div class="cfg-special-note" style="margin-top:8px;padding:8px 12px;background:#fff8e1;border-radius:6px;font-size:12px"><strong>&#128196;规则:</strong><ul style="margin:2px 0 0 14px;padding:0"><li>5000元以下:独立配置</li><li>5000~50万:从分公司复制</li><li>50万+:从总公司复制</li></ul></div>');
                     }
                 }
             }
 
             // 操作按钮栏
             var nodes=_getEffectiveNodes();
-            var sl=s.configScope==='hq'?'\u603b\u516c\u53f8':(s.configScope==='branch'?'\u5206\u516c\u53f8':'\u6240\u5c5e\u673a\u6784');
-            html+='<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 10px;flex-wrap:wrap;gap:8px;">';
-            html+='<div style="display:flex;gap:8px">';
-            html+='<button class="btn btn-primary btn-sm" onclick="_onAddNode()">+ \u6dfb\u52a0\u8282\u70b9</button>';
-            html+='<button class="btn btn-danger btn-sm" onclick="_onRemoveSelectedNode()">\u5220\u9664\u9009\u4e2d\u8282\u70b9</button>';
-            html+='</div>';
-            if(s.configScope==='hq') html+='<button class="btn btn-secondary btn-sm" onclick="_exportHqJson()">\u5bfc\u51faJSON</button>';
-            html+='</div>';
+            var sl=s.configScope==='hq'?'总公司':(s.configScope==='branch'?'分公司':'所属机构');
+            h.push('<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 10px;flex-wrap:wrap;gap:8px;">');
+            h.push('<div style="display:flex;gap:8px">');
+            h.push('<button class="btn btn-primary btn-sm" onclick="_onAddNode()">+ 添加节点</button>');
+            h.push('<button class="btn btn-danger btn-sm" onclick="_onRemoveSelectedNode()">删除选中节点</button>');
+            h.push('</div>');
+            if(s.configScope==='hq') h.push('<button class="btn btn-secondary btn-sm" onclick="_exportHqJson()">导出JSON</button>');
+            h.push('</div>');
 
             // 特殊提示
             if(s.configScope==='hq'){
-                if(s.channel==='\u94f6\u4fdd'||s.channel==='\u56e2\u9669') html+='<div style="margin-bottom:10px;padding:8px 12px;background:#e3f2fd;border-radius:6px;font-size:12px;color:#1565c0">\u2753 '+s.channel+' \u4e0d\u9700\u8981\u603b\u516c\u53f8\u5ba1\u6279\uff0c\u6a21\u677f\u9ed8\u8ba4\u4e3a\u7a7a</div>';
-                if(s.channel==='\u5728\u7ebf') html+='<div style="margin-bottom:10px;padding:8px 12px;background:#fce4ec;border-radius:6px;font-size:12px;color:#c62828">\u2753 \u5728\u7ebf:5\u4e07\u4ee5\u4e0b\u5355\u4eba\u5ba1\u6279\uff0c5\u4e07+\u53cc\u4eba\u5ba1\u6279</div>';
+                if(s.channel==='银保'||s.channel==='团险') h.push('<div style="margin-bottom:10px;padding:8px 12px;background:#e3f2fd;border-radius:6px;font-size:12px;color:#1565c0">&#10067; ' + s.channel + ' 不需要总公司审批，模板默认为空</div>');
+                if(s.channel==='在线') h.push('<div style="margin-bottom:10px;padding:8px 12px;background:#fce4ec;border-radius:6px;font-size:12px;color:#c62828">&#10067; 在线:5万以下单人审批，5万+双人审批</div>');
             }
 
             // 节点列表
-            html+='<div style="margin-bottom:16px;">';
-            html+='<h4 style="margin:0 0 10px 0;font-size:15px">\u5ba1\u6279\u8282\u70b9('+(!nodes?0:nodes.length)+'\u4e2a)<span style="font-size:11px;color:#999;font-weight:400;margin-left:8px">| '+sl+'</span></h4>';
+            h.push('<div style="margin-bottom:16px;">');
+            h.push('<h4 style="margin:0 0 10px 0;font-size:15px">审批节点(' + (!nodes?0:nodes.length) + '个)<span style="font-size:11px;color:#999;font-weight:400;margin-left:8px">| ' + sl + '</span></h4>');
 
             if(!nodes||nodes.length===0){
-                html+='<div style="text-align:center;padding:36px;color:#bbb;background:#fafafa;border:1px dashed #ddd;border-radius:8px">\u6682\u65e0\u8282\u70b9</div>';
+                h.push('<div style="text-align:center;padding:36px;color:#bbb;background:#fafafa;border:1px dashed #ddd;border-radius:8px">暂无节点</div>');
             } else {
                 // 表头
-                html+='<div style="display:flex;gap:8px;padding:8px 12px;font-size:11px;color:#666;font-weight:600;background:#f5f5f5;border:1px solid #ddd;border-bottom:none;border-radius:8px 8px 0 0;">';
-                html+='<div style="width:42px;text-align:center">#</div><div style="flex:2;min-width:100px">\u8282\u70b9\u540d</div><div style="flex:3;min-width:160px">\u5ba1\u6279\u4eba</div><div style="width:70px"></div></div>';
+                h.push('<div style="display:flex;gap:8px;padding:8px 12px;font-size:11px;color:#666;font-weight:600;background:#f5f5f5;border:1px solid #ddd;border-bottom:none;border-radius:8px 8px 0 0;">');
+                h.push('<div style="width:42px;text-align:center">#</div><div style="flex:2;min-width:100px">节点名</div><div style="flex:3;min-width:160px">审批人</div><div style="width:70px"></div></div>');
 
                 nodes.forEach(function(node,i){
                     var sel=(i===s.selectedNodeIdx);
-                    html+='<div onclick="approvalConfigSelectNode('+i+')" style="display:flex;gap:8px;align-items:center;padding:10px 12px;border:1px solid '+(sel?'#1976d2':'#e0e0e0')+';border-top:none;' + ((i===nodes.length-1)?'border-radius:0 0 8px 8px;':'') +'background:'+(sel?'#e3f2fd':'#fff')+';cursor:pointer;">';
-                    html+='<div style="width:42px;text-align:center"><span style="display:inline-flex;justify-content:center;align-items:center;width:26px;height:26px;border-radius:50%;background:'+(sel?'#1976d2':'#ccc')+';color:#fff;font-size:11px">'+(i+1)+'</span></div>';
-                    html+='<div style="flex:2;min-width:100px"><input type="text" value="'+((node.name||'').replace(/"/g,'&quot;'))+'" placeholder="\u8282\u70b9\u540d" style="width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px" onchange="_updateNodeName('+i+',this.value)"></div>';
-                    html+='<div style="flex:3;min-width:160px;display:flex;flex-wrap:wrap;gap:3px">';
+                    h.push('<div onclick="approvalConfigSelectNode(' + i + ')" style="display:flex;gap:8px;align-items:center;padding:10px 12px;border:1px solid ' + (sel?'#1976d2':'#e0e0e0') + ';border-top:none;' + ((i===nodes.length-1)?'border-radius:0 0 8px 8px;':'') + 'background:' + (sel?'#e3f2fd':'#fff') + ';cursor:pointer;">');
+                    h.push('<div style="width:42px;text-align:center"><span style="display:inline-flex;justify-content:center;align-items:center;width:26px;height:26px;border-radius:50%;background:' + (sel?'#1976d2':'#ccc') + ';color:#fff;font-size:11px">' + (i+1) + '</span></div>');
+                    h.push('<div style="flex:2;min-width:100px"><input type="text" value="' + ((node.name||'').replace(/"/g,'&quot;')) + '" placeholder="节点名" style="width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px" onchange="_updateNodeName(' + i + ',this.value)"></div>');
+                    h.push('<div style="flex:3;min-width:160px;display:flex;flex-wrap:wrap;gap:3px">');
                     var us=node.selectedUsers||[];
-                    if(us.length>0){us.forEach(function(u,ui){html+='<span style="padding:1px 6px;background:#e3f2fd;color:#1565c0;border-radius:3px;font-size:11px">'+(u.userDisplayName||u.username||u)+'<span onclick="event.stopPropagation();_onRemoveUser('+i+','+ui+')" style="cursor:pointer;color:#d32f2f;margin-left:2px">&times;</span></span>';});}
-                    else{html+='<span style="font-size:11px;color:#ccc">\u6682\u65e0</span>';}
-                    html+='</div>';
-                    html+='<div style="width:70px"><button onclick="event.stopPropagation();_showAddUser('+i+')" style="padding:2px 8px;font-size:11px;border:1px solid #1976d2;color:#1976d2;background:#fff;border-radius:4px;cursor:pointer">+</button></div>';
-                    html+='</div>';
+                    if(us.length>0){us.forEach(function(u,ui){h.push('<span style="padding:1px 6px;background:#e3f2fd;color:#1565c0;border-radius:3px;font-size:11px">' + (u.userDisplayName||u.username||u) + '<span onclick="event.stopPropagation();_onRemoveUser(' + i + ',' + ui + ')" style="cursor:pointer;color:#d32f2f;margin-left:2px">&times;</span></span>');});}
+                    else{h.push('<span style="font-size:11px;color:#ccc">暂缺</span>');}
+                    h.push('</div>');
+                    h.push('<div style="width:70px"><button onclick="event.stopPropagation();_showAddUser(' + i + ')" style="padding:2px 8px;font-size:11px;border:1px solid #1976d2;color:#1976d2;background:#fff;border-radius:4px;cursor:pointer">+</button></div>');
+                    h.push('</div>');
                 });
             }
-            html+='</div>';
-            container.innerHTML = html;
+            h.push('</div>');
+            container.innerHTML = h.join('');
         }
-        // ========== 审批流管理辅助函数 (新版) ==========
 
-        // ---- 核心数据操作 ----
-        function _getEffectiveNodes() {
-            var s=approvalConfigState,cfg=APPROVAL_FLOW_CONFIG;
-            if(s.configScope==='hq'){
-                var cc=cfg.hqTemplate[s.channel]; if(!cc)return [];
-                if(s.channel==='个险'&&cc.subChannels&&cc.subChannels[s.subChannel]) return cc.subChannels[s.subChannel].nodes[0];
-                if(s.channel==='在线'&&cc.nodes)return cc.nodes[s.tierIdx]||[];
-                if(cc.nodes)return cc.nodes[0]||[];
-                return [];
-            }else if(s.configScope==='branch'){
-                if(!s.branchName)return[];
-                var k=s.channel+'_'+s.subChannel+'_'+s.branchName;
-                if(!cfg.branchTemplates[k])cfg.branchTemplates[k]={tiers:[{label:'分公司层',level:'分公司',nodes:[]}]};
-                var bt=cfg.branchTemplates[k];
-                return bt.tiers&&bt.tiers[0]?bt.tiers[0].nodes:[];
-            }else{
-                var ik=s.channel+'_'+s.subChannel+'_'+s.branchName+'_'+s.instOrgName;
-                if(!cfg.instTemplates[ik])cfg.instTemplates[ik]={tiers:[
-                    {label:'5000元以下',level:'中支',nodes:[]},{label:'5000~50万',level:'分公司',nodes:[]},{label:'50万+',level:'总公司',nodes:[]}
-                ]};
-                var it=cfg.instTemplates[ik];
-                return it.tiers&&it.tiers[s.tierIdx]?it.tiers[s.tierIdx].nodes:[];
+
+
+        // 配置面板交互函数
+        function approvalConfigSwitchChannel(ch) {
+            approvalConfigState.channel = ch;
+            approvalConfigState.tierIdx = 0;
+            approvalConfigState.scope = 'default';
+            approvalConfigState.target = '';
+            approvalConfigState.midBranchParent = '';
+            approvalConfigState.selectedNodeIdx = -1;
+            renderApprovalFlowConfig();
+        }
+        function approvalConfigSwitchTier(idx) { approvalConfigState.tierIdx = idx; approvalConfigState.selectedNodeIdx = -1; renderApprovalFlowConfig(); }
+        function approvalConfigUpdateNode(idx, field, value) {
+            var nodes = approvalConfigGetNodes();
+            if (!nodes || !nodes[idx]) return;
+            nodes[idx][field] = value;
+        }
+        function approvalConfigNotifyNode(idx, field, value) {
+            var fieldLabel = field === 'name' ? '节点名称' : (field === 'level' ? '审批层级' : field);
+            showToast('节点 ' + (idx + 1) + ' ' + fieldLabel + ' 已更新: ' + value, 'success');
+        }
+        function approvalConfigSelectNode(idx) {
+            if (approvalConfigState.selectedNodeIdx === idx) {
+                approvalConfigState.selectedNodeIdx = -1; // 取消选中
+            } else {
+                approvalConfigState.selectedNodeIdx = idx;
+            }
+            renderApprovalFlowConfig();
+        }
+        // 根据当前配置范围获取节点数组（适配3层模型）
+        function approvalConfigGetNodes() {
+            var s = approvalConfigState;
+            var cfg = getCurrentConfig();
+            if (!cfg) return null;
+            if (s.scope === 'default' && s.channel !== '在线') return cfg._hqNodes || [];
+            if (s.scope === 'branch' && s.target) return cfg._branchNodes || [];
+            var tier = cfg.tiers[s.tierIdx];
+            return tier ? tier.nodes : null;
+        }
+        // 分公司层级默认5节点（仅分公司层级模式初始化用）
+        function getDefaultBranchNodes(ch) {
+            var lbl = (function(c) { if (c==='个险PAA') return '(PAA)'; if (c==='个险PSA') return '(PSA)'; return ''; })(ch);
+            return [
+                { name: '分公司业务部门内勤'+lbl, role: '分公司内勤', level: '分公司', status:'pending', operator:'-', time:'-', isFirstNode:true, showCommissionRebate:true, showRejectBack:false, selectedUsers:[] },
+                { name: '分公司业务部门室经理'+lbl, role: '分公司室经理', level: '分公司', status:'pending', operator:'-', time:'-', showCommissionRebate:false, showRejectBack:true, selectedUsers:[] },
+                { name: '分公司业务部门负责人', role: '分公司负责人', level: '分公司', status:'pending', operator:'-', time:'-', showCommissionRebate:false, showRejectBack:true, selectedUsers:[] },
+                { name: '分公司财务部门室经理', role: '分公司财务室经理', level: '分公司', status:'pending', operator:'-', time:'-', showCommissionRebate:false, showRejectBack:true, selectedUsers:[] },
+                { name: '分公司财务部门负责人', role: '分公司财务负责人', level: '分公司', status:'pending', operator:'-', time:'-', showCommissionRebate:false, showRejectBack:true, selectedUsers:[] }
+            ];
+        }
+        function approvalConfigAddNode() {
+            var s = approvalConfigState;
+            var nodes = approvalConfigGetNodes();
+            if (!nodes) return;
+            var cfg = getCurrentConfig();
+            var tier = cfg.tiers[s.tierIdx];
+            var lvl = tier ? tier.level : (s.scope === 'branch' ? '分公司' : '总公司');
+            var newNode = { name: '新审批节点', role: '', level: lvl, status: 'pending', operator: '-', time: '-', showCommissionRebate: false, showRejectBack: true, isFinancial: false, selectedUsers: [] };
+            nodes.push(newNode);
+            renderApprovalFlowConfig();
+            showToast('已添加节点', 'success');
+        }
+        function approvalConfigRemoveLastNode() {
+            var s = approvalConfigState;
+            var nodes = approvalConfigGetNodes();
+            if (!nodes || nodes.length === 0) { showToast('没有可删除的审批节点', 'error'); return; }
+            var idx = s.selectedNodeIdx;
+            if (idx < 0 || idx >= nodes.length) { showToast('请先点击选中要删除的节点', 'error'); return; }
+            nodes.splice(idx, 1);
+            s.selectedNodeIdx = -1;
+            renderApprovalFlowConfig();
+            showToast('已删除选中节点', 'success');
+        }
+        function approvalConfigSave() {
+            localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
+            // 同时保存当前scope和target信息，供审批链记录使用
+            var meta = { scope: approvalConfigState.scope, target: approvalConfigState.target, channel: approvalConfigState.channel, savedAt: new Date().toISOString() };
+            var metaList = [];
+            try { metaList = JSON.parse(localStorage.getItem('approvalFlowConfigMeta') || '[]'); } catch(e) {}
+            metaList.push(meta);
+            try { localStorage.setItem('approvalFlowConfigMeta', JSON.stringify(metaList)); } catch(e) {}
+            showNotification('审批流配置已保存', 'success');
+        }
+        // 在线(C+) 审批人管理函数
+        function approvalConfigAddUser(nodeIdx) {
+            var nodes = approvalConfigGetNodes();
+            if (!nodes || !nodes[nodeIdx]) return;
+            var selectEl = document.getElementById('userSelect_' + nodeIdx);
+            if (!selectEl || !selectEl.value) { showToast('请先选择一个系统用户', 'error'); return; }
+            var selectedUserId = selectEl.value;
+            // 查找用户信息
+            var userStore = getUserStore();
+            var foundUser = null;
+            for (var ui = 0; ui < userStore.length; ui++) {
+                if (userStore[ui]['用户ID'] === selectedUserId) { foundUser = userStore[ui]; break; }
+            }
+            if (!foundUser) { showToast('未找到该用户', 'error'); return; }
+            if (!nodes[nodeIdx].selectedUsers) nodes[nodeIdx].selectedUsers = [];
+            // 检查是否已存在
+            var exists = nodes[nodeIdx].selectedUsers.some(function(su) { return su.userID === selectedUserId; });
+            if (exists) { showToast('该用户已在此节点中', 'error'); return; }
+            nodes[nodeIdx].selectedUsers.push({
+                userID: foundUser['用户ID'],
+                username: foundUser['用户名'],
+                userDisplayName: foundUser['用户姓名']
+            });
+            selectEl.value = '';
+            renderApprovalFlowConfig();
+            showToast('已添加审批人: ' + foundUser['用户姓名'], 'success');
+        }
+        function approvalConfigRemoveUser(nodeIdx, userIdx) {
+            var nodes = approvalConfigGetNodes();
+            if (!nodes || !nodes[nodeIdx] || !nodes[nodeIdx].selectedUsers) return;
+            // 允许节点没有审批人
+            var removed = nodes[nodeIdx].selectedUsers[userIdx];
+            nodes[nodeIdx].selectedUsers.splice(userIdx, 1);
+            renderApprovalFlowConfig();
+            showToast('已移除审批人: ' + (removed ? removed.userDisplayName : ''), 'success');
+        }
+        function approvalConfigReset() {
+            if (confirm('确认恢复默认审批流配置？所有自定义修改将丢失。')) {
+                localStorage.removeItem('approvalFlowConfig');
+                APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+                approvalConfigState.scope = 'default';
+                approvalConfigState.target = '';
+                approvalConfigState.tierIdx = 0;
+                try { localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
+                renderApprovalFlowConfig();
+                showNotification('已恢复默认配置', 'success');
             }
         }
-
-        // 所有增删改操作必须调用此函数! 保存+刷新
-        function _saveAndRender(){try{localStorage.setItem('approvalFlowConfig',JSON.stringify(APPROVAL_FLOW_CONFIG));}catch(e){console.error(e);}renderApprovalFlowConfig();}
-
-        // ---- Scope 切换 ----
-        function approvalConfigSwitchScope(sc){approvalConfigState.configScope=sc;approvalConfigState.selectedNodeIdx=-1;if(sc!=='inst')approvalConfigState.instOrgName='';if(sc!=='branch'&&sc!=='inst')approvalConfigState.branchName='';renderApprovalFlowConfig();}
-
-        // ---- Channel/SubChannel/Tier 切换 ----
-        function approvalConfigSwitchChannel(ch){approvalConfigState.channel=ch;approvalConfigState.subChannel=(ch==='个险')?'PAA':'';approvalConfigState.tierIdx=0;approvalConfigState.selectedNodeIdx=-1;renderApprovalFlowConfig();}
-        function approvalConfigSwitchSubChannel(subCh){approvalConfigState.subChannel=subCh;approvalConfigState.tierIdx=0;approvalConfigState.selectedNodeIdx=-1;renderApprovalFlowConfig();}
-        function approvalConfigSwitchTier(idx){approvalConfigState.tierIdx=idx;approvalConfigState.selectedNodeIdx=-1;renderApprovalFlowConfig();}
-
-        // ---- Branch/Inst 选择 ----
-        function approvalConfigSelectBranch(bn){approvalConfigState.branchName=bn||'';approvalConfigState.instOrgName='';approvalConfigState.selectedNodeIdx=-1;renderApprovalFlowConfig();}
-        function approvalConfigInstBranchChange(bn){approvalConfigState.branchName=bn||'';approvalConfigState.instOrgName='';approvalConfigState.selectedNodeIdx=-1;renderApprovalFlowConfig();}
-        function approvalConfigInstOrgChange(on){approvalConfigState.instOrgName=on||'';approvalConfigState.selectedNodeIdx=-1;renderApprovalFlowConfig();}
-
-        // ---- 节点操作 ----
-        function approvalConfigSelectNode(idx){approvalConfigState.selectedNodeIdx=idx;renderApprovalFlowConfig();}
-        function _onAddNode(){
-            var n=_getEffectiveNodes(),lvl=(approvalConfigState.configScope==='hq')?'总公司':((approvalConfigState.configScope==='branch')?'分公司':'中支/分公司');
-            n.push({name:'新审批节点',role:'',level:lvl,status:'pending',operator:'-',time:'-',showCommissionRebate:false,showRejectBack:true,selectedUsers:[]});
-            _saveAndRender();showToast('已添加','success');
-        }
-        function _onRemoveSelectedNode(){
-            var s=approvalConfigState;if(s.selectedNodeIdx<0){showToast('请先选择','error');return;}
-            var n=_getEffectiveNodes();if(!n||!n[s.selectedNodeIdx]){showToast('操作失败','error');return;}
-            n.splice(s.selectedNodeIdx,1);s.selectedNodeIdx=-1;_saveAndRender();showToast('已删除','success');
-        }
-        function _updateNodeName(idx,name){var n=_getEffectiveNodes();if(n&&n[idx]){n[idx].name=name;try{localStorage.setItem('approvalFlowConfig',JSON.stringify(APPROVAL_FLOW_CONFIG));}catch(e){}}}
-
-        // ---- 审批人操作 ----
-        function _showAddUser(nodeIdx){
-            var us=getUserStore();if(!us||us.length===0){showToast('无用户','error');return;}
-            var opts='';us.forEach(function(u){opts+='<option value="'+u['用户ID']+'">'+u['用户名']+' ('+u['用户姙名']+')</option>';});
-            var d=document.createElement('div');d.id='_auDlg';
-            d.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;';
-            d.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px;min-width:340px;box-shadow:0 8px 32px rgba(0,0,0,0.2);"><h4 style="margin:0 0 12px 0">添加审批人</h4><select id="_auSel" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-bottom:12px">'+opts+'</select><div style="display:flex;gap:8px;justify-content:flex-end"><button onclick="_doAddUser('+nodeIdx+')" style="padding:6px 18px;background:#1976d2;color:#fff;border:none;border-radius:6px;cursor:pointer">确定</button><button onclick="document.getElementById('_auDlg').remove()" style="padding:6px 18px;background:#eee;border:none;border-radius:6px;cursor:pointer">取消</button></div></div>';
-            document.body.appendChild(d);
-        }
-        function _doAddUser(nodeIdx){
-            var sel=document.getElementById('_auSel');if(!sel||!sel.value)return;
-            var uid=sel.value,us=getUserStore(),fu=null;
-            for(var i=0;i<us.length;i++){if(us[i]['用户ID']===uid){fu=us[i];break;}}
-            if(!fu)return;
-            var n=_getEffectiveNodes();if(!n||!n[nodeIdx])return;
-            if(!n[nodeIdx].selectedUsers)n[nodeIdx].selectedUsers=[];
-            if(n[nodeIdx].selectedUsers.some(function(u){return u.userID===uid;})){showToast('已存在','error');return;}
-            n[nodeIdx].selectedUsers.push({userID:fu['用户ID'],username:fu['用户名'],userDisplayName:fu['用户姙名']});
-            document.getElementById('_auDlg').remove();_saveAndRender();
-            showToast('已添加: '+fu['用户姙名'],'success');
-        }
-        function _onRemoveUser(nodeIdx,userIdx){
-            var n=_getEffectiveNodes();if(!n||!n[nodeIdx]||!n[nodeIdx].selectedUsers)return;
-            // 不限制最少人数!
-            var rm=n[nodeIdx].selectedUsers[userIdx];
-            n[nodeIdx].selectedUsers.splice(userIdx,1);_saveAndRender();
-            showToast('移除: '+(rm?(rm.userDisplayName||rm.username):''),'success');
-        }
-
-        // ---- 导出JSON ----
-        function _exportHqJson(){
-            var s=JSON.stringify(APPROVAL_FLOW_CONFIG.hqTemplate,null,2),b=new Blob([s],{type:'application/json;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');
-            a.href=u;a.download='总公司模板_'+new Date().toISOString().slice(0,10)+'.json';
-            document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);showToast('导出成功','success');
-        }
-
-        // ---- 兼容旧接口 ----
-        function approvalConfigGetNodes(){return _getEffectiveNodes();}
-        function approvalConfigAddNode(){_onAddNode();}
-        function approvalConfigRemoveLastNode(){_onRemoveSelectedNode();}
-        function approvalConfigAddUser(ni){_showAddUser(ni);}
-        function approvalConfigSave(){_saveAndRender();showToast('已保存','success');}
-        function approvalConfigReset(){
-            if(confirm('确认恢复默认?')){
-                localStorage.removeItem('approvalFlowConfig');APPROVAL_FLOW_CONFIG=buildDefaultConfig();
-                approvalConfigState={configScope:'hq',channel:'个险',subChannel:'PAA',branchName:'',instOrgName:'',tierIdx:0,selectedNodeIdx:-1};
-                try{localStorage.setItem('approvalFlowConfig',JSON.stringify(APPROVAL_FLOW_CONFIG));}catch(e){}
-                renderApprovalFlowConfig();showNotification('已恢复','success');
+        function getMidBranchListByBranch(branchName) {
+            var items = getBranchInstStore();
+            var list = [];
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].branch === branchName) { list.push(items[i].institution); }
             }
+            return list;
         }
-        function approvalConfigSaveSilent(){try{localStorage.setItem('approvalFlowConfig',JSON.stringify(APPROVAL_FLOW_CONFIG));}catch(e){}}
-        // ========== 辅助函数结束 ==========
+        function collectUsers(tiers, label) {
+            var users = [];
+            for (var ti = 0; ti < tiers.length; ti++) {
+                var tier = tiers[ti];
+                if (!tier || !tier.nodes) continue;
+                for (var ni = 0; ni < tier.nodes.length; ni++) {
+                    var node = tier.nodes[ni];
+                    if (node.selectedUsers && node.selectedUsers.length > 0) {
+                        for (var ui = 0; ui < node.selectedUsers.length; ui++) {
+                            users.push(node.selectedUsers[ui]);
+                        }
+                    }
+                }
+            }
+            return users;
+        }
+        function collectUsers2(tiers, label) { return collectUsers(tiers, label); }
+        function collectUsersFromNodes(nodes, label) {
+            var users = [];
+            if (!nodes) return users;
+            for (var ni = 0; ni < nodes.length; ni++) {
+                var node = nodes[ni];
+                if (node.selectedUsers && node.selectedUsers.length > 0) {
+                    for (var ui = 0; ui < node.selectedUsers.length; ui++) {
+                        users.push(node.selectedUsers[ui]);
+                    }
+                }
+            }
+            return users;
+        }
+        function approvalConfigCopyFromMidAndBranch() {
+            var s = approvalConfigState;
+            if (s.scope !== 'midBranch' || !s.midBranchParent || !s.target) {
+                showToast('请先选择分公司和中支机构', 'error'); return;
+            }
+            var cfg = getCurrentConfig();
+            if (!cfg) return;
+            if (!cfg.tiers) cfg.tiers = [];
+            while (cfg.tiers.length <= 1) { cfg.tiers.push({ label: '-', level: '-', nodes: [] }); }
+            showToast('3层模型下，请直接在JSON视图中编辑数据', 'warning');
+        }
+        function approvalConfigCopyFromMidBranchAndHq() {
+            var s = approvalConfigState;
+            if (s.scope !== 'midBranch' || !s.midBranchParent || !s.target) {
+                showToast('请先选择分公司和中支机构', 'error'); return;
+            }
+            var cfg = getCurrentConfig();
+            if (!cfg) return;
+            if (!cfg.tiers) cfg.tiers = [];
+            while (cfg.tiers.length <= 2) { cfg.tiers.push({ label: '-', level: '-', nodes: [] }); }
+            showToast('3层模型下，请直接在JSON视图中编辑数据', 'warning');
+        }
+        function approvalConfigCopyFromMidBranchAndHq() {
+            var s = approvalConfigState;
+            if (s.scope !== 'midBranch' || !s.midBranchParent || !s.target) {
+                showToast('请先选择分公司和中支机构', 'error'); return;
+            }
+            var cfg = getCurrentConfig();
+            if (!cfg) return;
+            if (!cfg.tiers) cfg.tiers = [];
+            while (cfg.tiers.length <= 2) { cfg.tiers.push({ label: '-', level: '-', nodes: [] }); }
+            showToast('3层模型下，请直接在JSON视图中编辑数据', 'warning');
+        }
+        function approvalConfigCopyCityFromBranch() {
+            showToast('3层模型下，请直接在JSON视图中编辑数据', 'warning');
+        }
+        function approvalConfigSaveSilent() {
+            var data = APPROVAL_FLOW_CONFIG;
+            try { localStorage.setItem('approvalFlowConfig', JSON.stringify(data)); } catch(e) {}
+        }
+        // 初始化：加载审批链配置
+        (function initApprovalConfig() {
+            var saved = null;
+            try { saved = JSON.parse(localStorage.getItem('approvalFlowConfig')); } catch(e) {}
+            if (saved && typeof saved === 'object' && saved.approvalConfigsHQ) {
+                // 用已保存配置，确保三个数组存在
+                if (!saved.approvalConfigsHQ) saved.approvalConfigsHQ = [];
+                if (!saved.approvalConfigsBranch) saved.approvalConfigsBranch = [];
+                if (!saved.approvalConfigsInst) saved.approvalConfigsInst = [];
+                APPROVAL_FLOW_CONFIG = saved;
+            } else {
+                // 无有效保存数据，使用默认配置
+                APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+            }
+        })();
+
         function refreshApproval() {
             // 审批流管理已迁移至审批流配置视图，此处保留为空避免调用报错
         }
@@ -8980,7 +9223,133 @@ function switchAdminTab(tab) {
             }
         }
 
-    </script>
+    
+        // ========== 审批流管理辅助函数 (新版) ==========
+        // ---- 核心数据操作 ----
+        function _getEffectiveNodes() {
+            var s=approvalConfigState, cfg=APPROVAL_FLOW_CONFIG;
+            if(s.configScope==='hq'){
+                var cc=cfg.hqTemplate[s.channel]; if(!cc)return [];
+                if(s.channel==='个险'&&cc.subChannels&&cc.subChannels[s.subChannel]) return cc.subChannels[s.subChannel].nodes;
+                if(s.channel==='在线'&&cc.nodes)return cc.nodes[s.tierIdx]||[];
+                if(cc.nodes)return cc.nodes;
+                return [];
+            }else if(s.configScope==='branch'){
+                if(!s.branchName)return [];
+                var k=s.channel+'_'+s.subChannel+'_'+s.branchName;
+                if(!cfg.branchTemplates[k])cfg.branchTemplates[k]={tiers:[{label:'分公司层',level:'分公司',nodes:[]}]};
+                return cfg.branchTemplates[k].tiers[0].nodes;
+            }else{
+                var ik=s.channel+'_'+s.subChannel+'_'+s.branchName+'_'+s.instOrgName;
+                if(!cfg.instTemplates[ik])cfg.instTemplates[ik]={tiers:[
+                    {label:'5000元以下',level:'中支',nodes:[]},{label:'5000~50万',level:'分公司',nodes:[]},{label:'50万+',level:'总公司',nodes:[]}
+                ]};
+                return cfg.instTemplates[ik].tiers[s.tierIdx].nodes;
+            }
+        }
+
+        function _saveAndRender() {
+            try { localStorage.setItem(APPROVAL_FLOW_KEY, JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
+            renderApprovalFlowConfig();
+        }
+
+        function _onAddNode() {
+            var nodes=_getEffectiveNodes(); if(!nodes)return;
+            nodes.push({name:'新节点',selectedUsers:[]});
+            _saveAndRender();
+            showToast('已添加节点','success');
+        }
+
+        function _onRemoveSelectedNode() {
+            var s=approvalConfigState, nodes=_getEffectiveNodes();
+            if(!nodes||s.selectedNodeIdx<0||s.selectedNodeIdx>=nodes.length) return;
+            nodes.splice(s.selectedNodeIdx,1);
+            s.selectedNodeIdx=-1;
+            _saveAndRender();
+            showToast('已删除节点','success');
+        }
+
+        function _onRemoveUser(nodeIdx, userIdx) {
+            var nodes=_getEffectiveNodes();
+            if(!nodes||!nodes[nodeIdx]||!nodes[nodeIdx].selectedUsers) return;
+            nodes[nodeIdx].selectedUsers.splice(userIdx,1);
+            _saveAndRender();
+            showToast('已移除审批人','success');
+        }
+
+        function _updateNodeName(nodeIdx, val) {
+            var nodes=_getEffectiveNodes();
+            if(!nodes||!nodes[nodeIdx]) return;
+            nodes[nodeIdx].name=val;
+            try { localStorage.setItem(APPROVAL_FLOW_KEY, JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
+        }
+
+        function _exportHqJson() {
+            var json=JSON.stringify(APPROVAL_FLOW_CONFIG.hqTemplate,null,2);
+            var blob=new Blob([json],{type:'application/json'});
+            var url=URL.createObjectURL(blob);
+            var a=document.createElement('a');
+            a.href=url; a.download='审批流总公司模板.json';
+            a.click(); URL.revokeObjectURL(url);
+            showToast('已导出总公司模板JSON','success');
+        }
+
+        // ---- 配置范围/渠道切换 ----
+        function approvalConfigSwitchScope(sc) {
+            approvalConfigState.configScope=sc;
+            approvalConfigState.branchName='';
+            approvalConfigState.instOrgName='';
+            approvalConfigState.selectedNodeIdx=-1;
+            renderApprovalFlowConfig();
+        }
+
+        function approvalConfigSwitchChannel(ch) {
+            approvalConfigState.channel=ch;
+            approvalConfigState.subChannel=(ch==='个险'?'PAA':'');
+            approvalConfigState.tierIdx=0;
+            approvalConfigState.selectedNodeIdx=-1;
+            renderApprovalFlowConfig();
+        }
+
+        function approvalConfigSwitchSubChannel(subCh) {
+            approvalConfigState.subChannel=subCh;
+            approvalConfigState.tierIdx=0;
+            approvalConfigState.selectedNodeIdx=-1;
+            renderApprovalFlowConfig();
+        }
+
+        function approvalConfigSwitchTier(idx) {
+            approvalConfigState.tierIdx=idx;
+            approvalConfigState.selectedNodeIdx=-1;
+            renderApprovalFlowConfig();
+        }
+
+        function approvalConfigSelectBranch(val) {
+            approvalConfigState.branchName=val;
+            approvalConfigState.instOrgName='';
+            approvalConfigState.selectedNodeIdx=-1;
+            renderApprovalFlowConfig();
+        }
+
+        function approvalConfigInstBranchChange(val) {
+            approvalConfigState.branchName=val;
+            approvalConfigState.instOrgName='';
+            renderApprovalFlowConfig();
+        }
+
+        function approvalConfigInstOrgChange(val) {
+            approvalConfigState.instOrgName=val;
+            approvalConfigState.tierIdx=0;
+            approvalConfigState.selectedNodeIdx=-1;
+            renderApprovalFlowConfig();
+        }
+
+        function approvalConfigSelectNode(idx) {
+            approvalConfigState.selectedNodeIdx=idx;
+            renderApprovalFlowConfig();
+        }
+
+</script>
 
     <!-- &#25552;&#20132;&#32467;&#26524;&#24377;&#31383; -->
     <div id="resultModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
