@@ -4041,10 +4041,15 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
 
         function approvalConfigSwitchScope(scope) {
-            approvalConfigState.scope = scope;
+            approvalConfigState.configScope = scope;
             approvalConfigState.target = '';
             approvalConfigState.midBranchParent = '';
-            approvalConfigState.tierIdx = 0;
+            // 切换到所属机构模板时，若未选择所属机构，金额区间不选择
+            if(scope==='inst' && !approvalConfigState.instOrgName){
+                approvalConfigState.tierIdx = -1;
+            } else {
+                approvalConfigState.tierIdx = 0;
+            }
             approvalConfigState.selectedNodeIdx = -1;
             renderApprovalFlowConfig();
         }
@@ -4240,7 +4245,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // 金额区间切换标签 (所属机构模板模式 - 在选择器之后显示)
             // 在线渠道不使用所属机构模板，不显示金额区间
             // 无所属机构（中支）时也显示，允许用户直接配置
-            if(s.configScope==='inst' && s.channel!=='在线' && s.branchName){
+            // 仅当选择了所属机构后才显示金额区间
+            if(s.configScope==='inst' && s.channel!=='在线' && s.branchName && s.instOrgName){
                 h.push('<div class="cfg-tier-tabs" style="margin-top:12px;">');
                 ['5000元以下','5000~50万','50万+'].forEach(function(lab,idx){
                     var ac=(s.tierIdx===idx);
@@ -4263,8 +4269,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var nodes=_getEffectiveNodes();
             var sl=s.configScope==='hq'?'总公司':(s.configScope==='branch'?'分公司':'所属机构');
             // 是否有有效目标可选
-            // 机构模板：有中支需选中所属机构；无中支（instOrgName==='-'）只需选中分公司
-            var hasTarget = (s.configScope==='hq') || (s.configScope==='branch'&&!!s.branchName) || (s.configScope==='inst'&&!!s.branchName);
+            // 机构模板：需选中分公司和所属机构（无中支时instOrgName自动设为'-'）
+            var hasTarget = (s.configScope==='hq') || (s.configScope==='branch'&&!!s.branchName) || (s.configScope==='inst'&&!!s.branchName&&!!s.instOrgName);
             // 机构模板模式下，tierIdx>0 默认可编辑（用户可复制节点后调整）
             // 仅在节点为空时提示参考来源，不限制编辑
             var isReadOnlyTier = false;
@@ -4275,8 +4281,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             h.push('<button class="btn btn-danger btn-sm"' + disBtn + ' onclick="' + (hasTarget?'_onRemoveSelectedNode()':'') + '">删除选中节点</button>');
             h.push('</div>');
             if(s.configScope==='hq') h.push('<button class="btn btn-secondary btn-sm" onclick="_exportHqJson()">导出JSON</button>');
-            // 机构模板模式 + 已选分公司：显示"复制审批节点"按钮（在线渠道不显示，无中支时也显示）
-            if(s.configScope==='inst' && s.branchName && s.channel!=='在线'){
+            // 机构模板模式 + 已选分公司和所属机构：显示"复制审批节点"按钮（在线渠道不显示）
+            if(s.configScope==='inst' && s.branchName && s.instOrgName && s.tierIdx>=0 && s.channel!=='在线'){
                 var noMid = (!s.instOrgName || s.instOrgName==='-'); // 无中支
                 var isGeXianLabel = (s.channel==='个险'||s.channel.indexOf('个险')===0);
                 var copyLabel = '';
@@ -9680,12 +9686,15 @@ function switchAdminTab(tab) {
         function approvalConfigInstBranchChange(val) {
             approvalConfigState.branchName=val;
             approvalConfigState.instOrgName='';
+            approvalConfigState.tierIdx=-1;
+            approvalConfigState.selectedNodeIdx=-1;
             renderApprovalFlowConfig();
         }
 
         function approvalConfigInstOrgChange(val) {
             approvalConfigState.instOrgName=val;
-            approvalConfigState.tierIdx=0;
+            // 选择所属机构后，金额区间默认到5000元以下；未选择时，金额区间不选择
+            approvalConfigState.tierIdx=val?0:-1;
             approvalConfigState.selectedNodeIdx=-1;
             renderApprovalFlowConfig();
         }
