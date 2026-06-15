@@ -4145,14 +4145,18 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
             // 分公司选择器 (branch模式)
             if(s.configScope==='branch'){
-                var blist=getBranchStore()||[];
-                h.push('<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">');
-                h.push('<span style="font-size:12px;color:#e65100;font-weight:600">分公司：</span>');
-                h.push('<select id="branchSelect" onchange="approvalConfigSelectBranch(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- 选择 --</option>');
-                blist.forEach(function(b){var bn=b['分公司名称']||b.name||b;h.push('<option value="' + bn.replace(/"/g,'&quot;') + '"' + ((s.branchName===bn)?' selected':'') + '>' + bn + '</option>');});
-                h.push('</select>');
-                if(s.branchName) h.push('<span style="font-size:11px;color:#e65100">已选：<b>' + s.branchName + '</b></span>');
-                h.push('</div>');
+                if(s.channel==='在线'){
+                    h.push('<div style="margin-top:12px;padding:10px 14px;background:#e3f2fd;border-radius:8px;border:1px solid #bbdefb;color:#1565c0;font-size:13px;">&#10067; 在线渠道不使用分公司层审批模板，请在<b>总公司模板</b>中配置</div>');
+                } else {
+                    var blist=getBranchStore()||[];
+                    h.push('<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">');
+                    h.push('<span style="font-size:12px;color:#e65100;font-weight:600">分公司：</span>');
+                    h.push('<select id="branchSelect" onchange="approvalConfigSelectBranch(this.value)" style="flex:1;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;"><option value="">-- 选择 --</option>');
+                    blist.forEach(function(b){var bn=b['分公司名称']||b.name||b;h.push('<option value="' + bn.replace(/"/g,'&quot;') + '"' + ((s.branchName===bn)?' selected':'') + '>' + bn + '</option>');});
+                    h.push('</select>');
+                    if(s.branchName) h.push('<span style="font-size:11px;color:#e65100">已选：<b>' + s.branchName + '</b></span>');
+                    h.push('</div>');
+                }
             }
 
             // 所属机构选择器 (inst模式)
@@ -4181,10 +4185,13 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // 操作按钮栏
             var nodes=_getEffectiveNodes();
             var sl=s.configScope==='hq'?'总公司':(s.configScope==='branch'?'分公司':'所属机构');
+            // 是否有有效目标可选（分公司模板需选分公司，机构模板需选机构）
+            var hasTarget = (s.configScope==='hq') || (s.configScope==='branch'&&!!s.branchName) || (s.configScope==='inst'&&!!s.instOrgName);
+            var disBtn = hasTarget ? '' : ' disabled title="请先选择' + (s.configScope==='branch'?'分公司':(s.configScope==='inst'?'所属机构':'目标')) + '" style="opacity:0.5;cursor:not-allowed;"';
             h.push('<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 10px;flex-wrap:wrap;gap:8px;">');
             h.push('<div style="display:flex;gap:8px">');
-            h.push('<button class="btn btn-primary btn-sm" onclick="_onAddNode()">+ 添加节点</button>');
-            h.push('<button class="btn btn-danger btn-sm" onclick="_onRemoveSelectedNode()">删除选中节点</button>');
+            h.push('<button class="btn btn-primary btn-sm"' + disBtn + ' onclick="' + (hasTarget?'_onAddNode()':'') + '">+ 添加节点</button>');
+            h.push('<button class="btn btn-danger btn-sm"' + disBtn + ' onclick="' + (hasTarget?'_onRemoveSelectedNode()':'') + '">删除选中节点</button>');
             h.push('</div>');
             if(s.configScope==='hq') h.push('<button class="btn btn-secondary btn-sm" onclick="_exportHqJson()">导出JSON</button>');
             h.push('</div>');
@@ -9377,6 +9384,9 @@ function switchAdminTab(tab) {
         }
 
         function _onAddNode() {
+            var s=approvalConfigState;
+            if(s.configScope==='branch'&&!s.branchName){showToast('请先选择分公司','warning');return;}
+            if(s.configScope==='inst'&&!s.instOrgName){showToast('请先选择所属机构','warning');return;}
             var nodes=_getEffectiveNodes(); if(!nodes)return;
             nodes.push({name:'新节点',selectedUsers:[]});
             _saveAndRender();
@@ -9384,7 +9394,10 @@ function switchAdminTab(tab) {
         }
 
         function _onRemoveSelectedNode() {
-            var s=approvalConfigState, nodes=_getEffectiveNodes();
+            var s=approvalConfigState;
+            if(s.configScope==='branch'&&!s.branchName){showToast('请先选择分公司','warning');return;}
+            if(s.configScope==='inst'&&!s.instOrgName){showToast('请先选择所属机构','warning');return;}
+            var nodes=_getEffectiveNodes();
             if(!nodes||s.selectedNodeIdx<0||s.selectedNodeIdx>=nodes.length) return;
             nodes.splice(s.selectedNodeIdx,1);
             s.selectedNodeIdx=-1;
