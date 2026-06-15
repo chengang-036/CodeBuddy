@@ -9249,7 +9249,7 @@ function switchAdminTab(tab) {
         }
 
         function _saveAndRender() {
-            try { localStorage.setItem(APPROVAL_FLOW_KEY, JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
+            try { localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
             renderApprovalFlowConfig();
         }
 
@@ -9281,7 +9281,7 @@ function switchAdminTab(tab) {
             var nodes=_getEffectiveNodes();
             if(!nodes||!nodes[nodeIdx]) return;
             nodes[nodeIdx].name=val;
-            try { localStorage.setItem(APPROVAL_FLOW_KEY, JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
+            try { localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
         }
 
         function _exportHqJson() {
