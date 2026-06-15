@@ -2082,8 +2082,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             '团险': { nodes: [] },
             '在线': {
                 tiers: [
-                    { label:'5万以下', nodes: [ {name:'初级审核员审批', selectedUsers:[]} ] },
-                    { label:'5万及以上', nodes: [ {name:'初级审核员审批', selectedUsers:[]}, {name:'高级审核员审批', selectedUsers:[]} ] }
+                    { label:'5万以下', nodes: [ {name:'5万元以下单人审批', selectedUsers:[]} ] },
+                    { label:'5万及以上', nodes: [ {name:'5万元以上双人审批（初审）', selectedUsers:[]}, {name:'5万元以上双人审批（复审）', selectedUsers:[]} ] }
                 ]
             }
         };
@@ -2121,10 +2121,10 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         // ====== 分公司 & 中支 列表 ======
 
 
-        // 根据渠道和金额获取审批节点
+        // 根据渠道和金额获取审批节点（新格式：读 hqTemplate/branchTemplates/instTemplates）
         function getApprovalNodes(salesChannel, totalAmount, branch, subBranch, subChannel) {
             var cfg = APPROVAL_FLOW_CONFIG;
-            if (!cfg || !cfg.approvalConfigsInst) {
+            if (!cfg) {
                 return { channel: '', tierLabel: '-', tierLevel: '-', nodes: [] };
             }
 
@@ -2143,89 +2143,100 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 ch = '在线'; subCh = '-';
             }
 
-            // 1. Try to match inst config (most specific)
-            var insts = cfg.approvalConfigsInst || [];
-            for (var i = 0; i < insts.length; i++) {
-                var inst = insts[i];
-                var chMatch = inst.channel && inst.channel.indexOf(ch) >= 0;
-                var subChMatch = !inst.subChannels || inst.subChannels.length === 0 || inst.subChannels.indexOf(subCh) >= 0 || inst.subChannels.indexOf('-') >= 0;
-                var brMatch = !inst.branch || inst.branch === branch;
-                var orgMatch = !inst.org || inst.org === subBranch;
-                var amountMatch = !inst.amountRange || (inst.amountRange.max === undefined || totalAmount < inst.amountRange.max) && (inst.amountRange.min === undefined || totalAmount >= inst.amountRange.min);
-                if (chMatch && subChMatch && brMatch && orgMatch && amountMatch) {
-                    return {
-                        channel: ch,
-                        tierLabel: inst.amountRange ? inst.amountRange.label : '-',
-                        tierLevel: '机构审批流',
-                        nodes: (inst.nodes || []).map(function(n) {
-                            return {
-                                name: n.name, role: n.name, level: n.order <= 5 ? '中支' : (n.order <= 11 ? '分公司' : '总公司'),
-                                status: 'pending', operator: '-', time: '-',
-                                isFirstNode: n.order === 1, showCommissionRebate: n.order === 1, showRejectBack: n.order > 1,
-                                isFinancial: n.name.indexOf('财务') >= 0,
-                                selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
-                            };
-                        })
-                    };
+            var chKey = ch;
+            if (ch === '个险' && subCh === 'PAA') chKey = '个险PAA';
+            else if (ch === '个险' && subCh === 'PSA') chKey = '个险PSA';
+
+            // Helper: convert template node to runtime node
+            function _toRuntimeNode(n, level) {
+                var users = [];
+                if (n.selectedUsers && n.selectedUsers.length > 0) {
+                    users = n.selectedUsers.map(function(s) {
+                        return { userID: s.userID || s, username: s.userDisplayName || s.userID || s, userDisplayName: s.userDisplayName || s.userID || s };
+                    });
                 }
+                return {
+                    name: n.name, role: n.name, level: level,
+                    status: 'pending', operator: '-', time: '-',
+                    isFirstNode: false, showCommissionRebate: false, showRejectBack: true,
+                    isFinancial: (n.name || '').indexOf('财务') >= 0,
+                    selectedUsers: users
+                };
             }
 
-            // 2. Try branch config
-            var branches = cfg.approvalConfigsBranch || [];
-            for (var i = 0; i < branches.length; i++) {
-                var br = branches[i];
-                var chMatch = br.channel && br.channel.indexOf(ch) >= 0;
-                var brMatch = br.branches && br.branches.indexOf(branch) >= 0;
-                if (chMatch && brMatch) {
-                    return {
-                        channel: ch, tierLabel: '-', tierLevel: '分公司',
-                        nodes: (br.nodes || []).map(function(n) {
-                            return {
-                                name: n.name, role: n.name, level: '分公司',
-                                status: 'pending', operator: '-', time: '-',
-                                isFirstNode: n.order === 1, showCommissionRebate: n.order === 1, showRejectBack: n.order > 1,
-                                isFinancial: n.name.indexOf('财务') >= 0,
-                                selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
-                            };
-                        })
-                    };
-                }
-            }
-
-            // 3. Try HQ config
-            var hqs = cfg.approvalConfigsHQ || [];
-            for (var i = 0; i < hqs.length; i++) {
-                var hq = hqs[i];
-                var chMatch = hq.channel && hq.channel.indexOf(ch) >= 0;
-                if (chMatch) {
-                    var nodes = [];
-                    if (hq.amountConfig === 'range' && hq.ranges) {
-                        for (var ri = 0; ri < hq.ranges.length; ri++) {
-                            var range = hq.ranges[ri];
-                            var inRange = (range.max === undefined || totalAmount < range.max) && (range.min === undefined || totalAmount >= range.min);
-                            if (inRange) {
-                                nodes = (range.nodes || []).map(function(n) {
-                                    return {
-                                        name: n.name, role: n.name, level: '总公司',
-                                        status: 'pending', operator: '-', time: '-',
-                                        isFirstNode: n.order === 1, showCommissionRebate: false, showRejectBack: true,
-                                        isFinancial: n.name.indexOf('财务') >= 0,
-                                        selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
-                                    };
-                                });
-                                return { channel: ch, tierLabel: range.label || '-', tierLevel: '总公司', nodes: nodes };
-                            }
+            // 1. Try inst template (most specific): key = channel + '_' + branch + '_' + subBranch
+            if (cfg.instTemplates) {
+                var instKey = chKey + '_' + (branch || '') + '_' + (subBranch || '');
+                var instEntry = cfg.instTemplates[instKey];
+                if (instEntry && instEntry.tiers) {
+                    // Find matching tier by amount
+                    for (var ti = 0; ti < instEntry.tiers.length; ti++) {
+                        var tier = instEntry.tiers[ti];
+                        var inRange = true;
+                        if (tier.minAmount !== undefined && totalAmount < tier.minAmount) inRange = false;
+                        if (tier.maxAmount !== undefined && totalAmount >= tier.maxAmount) inRange = false;
+                        if (inRange) {
+                            var nodes = (tier.nodes || []).map(function(n, idx) {
+                                var rn = _toRuntimeNode(n, '机构审批流');
+                                rn.isFirstNode = (idx === 0);
+                                rn.showCommissionRebate = (idx === 0);
+                                return rn;
+                            });
+                            return { channel: ch, tierLabel: tier.label || '-', tierLevel: '机构审批流', nodes: nodes };
                         }
                     }
-                    // all amountConfig
-                    nodes = (hq.nodes || []).map(function(n) {
-                        return {
-                            name: n.name, role: n.name, level: '总公司',
-                            status: 'pending', operator: '-', time: '-',
-                            isFirstNode: n.order === 1, showCommissionRebate: false, showRejectBack: true,
-                            isFinancial: n.name.indexOf('财务') >= 0,
-                            selectedUsers: (n.approvers || []).map(function(a) { return { userID: a, username: a, userDisplayName: a }; })
-                        };
+                }
+            }
+
+            // 2. Try branch template: key = channel + '_' + branch
+            if (cfg.branchTemplates) {
+                var brKey = chKey + '_' + (branch || '');
+                var brEntry = cfg.branchTemplates[brKey];
+                if (brEntry && brEntry.tiers) {
+                    for (var ti = 0; ti < brEntry.tiers.length; ti++) {
+                        var tier = brEntry.tiers[ti];
+                        var inRange = true;
+                        if (tier.minAmount !== undefined && totalAmount < tier.minAmount) inRange = false;
+                        if (tier.maxAmount !== undefined && totalAmount >= tier.maxAmount) inRange = false;
+                        if (inRange) {
+                            var nodes = (tier.nodes || []).map(function(n, idx) {
+                                var rn = _toRuntimeNode(n, '分公司');
+                                rn.isFirstNode = (idx === 0);
+                                rn.showCommissionRebate = (idx === 0);
+                                return rn;
+                            });
+                            return { channel: ch, tierLabel: tier.label || '-', tierLevel: '分公司', nodes: nodes };
+                        }
+                    }
+                }
+            }
+
+            // 3. Try HQ template (fallback)
+            if (cfg.hqTemplate && cfg.hqTemplate[chKey]) {
+                var hqEntry = cfg.hqTemplate[chKey];
+                if (hqEntry.tiers) {
+                    // 在线渠道：按金额区间匹配
+                    for (var ti = 0; ti < hqEntry.tiers.length; ti++) {
+                        var tier = hqEntry.tiers[ti];
+                        var inRange = true;
+                        if (tier.minAmount !== undefined && totalAmount < tier.minAmount) inRange = false;
+                        if (tier.maxAmount !== undefined && totalAmount >= tier.maxAmount) inRange = false;
+                        if (inRange) {
+                            var nodes = (tier.nodes || []).map(function(n, idx) {
+                                var rn = _toRuntimeNode(n, '总公司');
+                                rn.isFirstNode = (idx === 0);
+                                rn.showCommissionRebate = (idx === 0);
+                                return rn;
+                            });
+                            return { channel: ch, tierLabel: tier.label || '-', tierLevel: '总公司', nodes: nodes };
+                        }
+                    }
+                } else if (hqEntry.nodes) {
+                    var nodes = hqEntry.nodes.map(function(n, idx) {
+                        var rn = _toRuntimeNode(n, '总公司');
+                        rn.isFirstNode = (idx === 0);
+                        rn.showCommissionRebate = (idx === 0);
+                        return rn;
                     });
                     return { channel: ch, tierLabel: '-', tierLevel: '总公司', nodes: nodes };
                 }
@@ -3955,61 +3966,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             return s.channel; // '个险PAA'|'个险PSA'|'银保'|'团险'|'在线'
         }
         // 根据scope获取当前配置（适配3层模型：HQ/Branch/Inst）
-        function getCurrentConfig() {
-            var s = approvalConfigState;
-            var cfg = APPROVAL_FLOW_CONFIG;
-            if (!cfg) return null;
-            // Map old channel keys to new model
-            var ch = s.channel; // e.g. '个险PAA'
-            var chName = ch.replace('PAA','').replace('PSA','');
-            if (chName === '个险') chName = '个险';
-            var subCh = ch.indexOf('PAA')>=0 ? 'PAA' : (ch.indexOf('PSA')>=0 ? 'PSA' : '-');
 
-            if (s.scope === 'default') {
-                // Find matching HQ config
-                var hqs = cfg.approvalConfigsHQ || [];
-                for (var i = 0; i < hqs.length; i++) {
-                    var hq = hqs[i];
-                    if (hq.channel && hq.channel.indexOf(chName) >= 0) {
-                        // Convert new format to legacy format for editor compatibility
-                        var tiers = [];
-                        if (hq.amountConfig === 'range' && hq.ranges) {
-                            hq.ranges.forEach(function(r) {
-                                tiers.push({ label: r.label, level: '总公司', maxAmount: r.max || Infinity, nodes: (r.nodes||[]).map(_newNodeToLegacy) });
-                            });
-                        } else {
-                            tiers.push({ label: '全部金额', level: '总公司', maxAmount: Infinity, nodes: (hq.nodes||[]).map(_newNodeToLegacy) });
-                        }
-                        return { tiers: tiers, _hqNodes: (hq.nodes||[]).map(_newNodeToLegacy) };
-                    }
-                }
-                return { tiers: [], _hqNodes: [] };
-            }
-            if (s.scope === 'branch' && s.target) {
-                var brs = cfg.approvalConfigsBranch || [];
-                for (var i = 0; i < brs.length; i++) {
-                    var br = brs[i];
-                    if (br.channel && br.channel.indexOf(chName) >= 0 && br.branches && br.branches.indexOf(s.target) >= 0) {
-                        return { tiers: [{ label: '全部金额', level: '分公司', maxAmount: Infinity, nodes: (br.nodes||[]).map(_newNodeToLegacy) }], _branchNodes: (br.nodes||[]).map(_newNodeToLegacy) };
-                    }
-                }
-                return { tiers: [], _branchNodes: [] };
-            }
-            if (s.scope === 'midBranch' && s.target) {
-                var insts = cfg.approvalConfigsInst || [];
-                for (var i = 0; i < insts.length; i++) {
-                    var inst = insts[i];
-                    if (inst.channel && inst.channel.indexOf(chName) >= 0 && inst.org === s.target) {
-                        return { tiers: [{ label: inst.amountRange ? inst.amountRange.label : '全部金额', level: '中支', maxAmount: (inst.amountRange && inst.amountRange.max) || Infinity, nodes: (inst.nodes||[]).map(_newNodeToLegacy) }] };
-                    }
-                }
-                return { tiers: [] };
-            }
-            return { tiers: [] };
-        }
-        function _newNodeToLegacy(n) {
-            return { name: n.name, role: n.name, level: '总公司', status: 'pending', operator: '-', time: '-', isFirstNode: n.order===1, showCommissionRebate: n.order===1, showRejectBack: n.order>1, isFinancial: (n.name||'').indexOf('财务')>=0, selectedUsers: (n.approvers||[]).map(function(a) { return { userID: a, username: a, userDisplayName: a }; }) };
-        }
+
         function approvalConfigSwitchScope(scope) {
             approvalConfigState.scope = scope;
             approvalConfigState.target = '';
@@ -4134,7 +4092,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // ===== 渠道标签 =====
             h.push('<div class="cfg-channel-tags">');
             ['个险','银保','团险','在线'].forEach(function(ch){
-                var ac=(s.channel===ch);
+                var ac=(s.channel===ch||(ch==='个险'&&s.channel.startsWith('个险')));
                 h.push('<div class="cfg-channel-tab' + (ac?' active':'') + '" onclick="approvalConfigSwitchChannel(\'' + ch + '\')">' + ch + '</div>');
             });
             h.push('</div>');
@@ -4226,7 +4184,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     var sel=(i===s.selectedNodeIdx);
                     h.push('<div onclick="approvalConfigSelectNode(' + i + ')" style="display:flex;gap:8px;align-items:center;padding:10px 12px;border:1px solid ' + (sel?'#1976d2':'#e0e0e0') + ';border-top:none;' + ((i===nodes.length-1)?'border-radius:0 0 8px 8px;':'') + 'background:' + (sel?'#e3f2fd':'#fff') + ';cursor:pointer;">');
                     h.push('<div style="width:42px;text-align:center"><span style="display:inline-flex;justify-content:center;align-items:center;width:26px;height:26px;border-radius:50%;background:' + (sel?'#1976d2':'#ccc') + ';color:#fff;font-size:11px">' + (i+1) + '</span></div>');
-                    h.push('<div style="flex:2;min-width:100px"><input type="text" value="' + ((node.name||'').replace(/"/g,'&quot;')) + '" placeholder="节点名" style="width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px" onchange="_updateNodeName(' + i + ',this.value)"></div>');
+                    h.push('<div style="flex:2;min-width:100px"><input type="text" value="' + ((node.name||'').replace(/"/g,'&quot;')) + '" placeholder="节点名" style="width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px" onclick="event.stopPropagation()" onchange="_updateNodeName(' + i + ',this.value)" onkeydown="event.stopPropagation()"></div>');
                     h.push('<div style="flex:3;min-width:160px;display:flex;flex-wrap:wrap;gap:3px">');
                     var us=node.selectedUsers||[];
                     if(us.length>0){us.forEach(function(u,ui){h.push('<span style="padding:1px 6px;background:#e3f2fd;color:#1565c0;border-radius:3px;font-size:11px">' + (u.userDisplayName||u.username||u) + '<span onclick="event.stopPropagation();_onRemoveUser(' + i + ',' + ui + ')" style="cursor:pointer;color:#d32f2f;margin-left:2px">&times;</span></span>');});}
@@ -4270,108 +4228,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             }
             renderApprovalFlowConfig();
         }
-        // 根据当前配置范围获取节点数组（适配3层模型）
-        function approvalConfigGetNodes() {
-            var s = approvalConfigState;
-            var cfg = getCurrentConfig();
-            if (!cfg) return null;
-            if (s.scope === 'default' && s.channel !== '在线') return cfg._hqNodes || [];
-            if (s.scope === 'branch' && s.target) return cfg._branchNodes || [];
-            var tier = cfg.tiers[s.tierIdx];
-            return tier ? tier.nodes : null;
-        }
-        // 分公司层级默认5节点（仅分公司层级模式初始化用）
-        function getDefaultBranchNodes(ch) {
-            var lbl = (function(c) { if (c==='个险PAA') return '(PAA)'; if (c==='个险PSA') return '(PSA)'; return ''; })(ch);
-            return [
-                { name: '分公司业务部门内勤'+lbl, role: '分公司内勤', level: '分公司', status:'pending', operator:'-', time:'-', isFirstNode:true, showCommissionRebate:true, showRejectBack:false, selectedUsers:[] },
-                { name: '分公司业务部门室经理'+lbl, role: '分公司室经理', level: '分公司', status:'pending', operator:'-', time:'-', showCommissionRebate:false, showRejectBack:true, selectedUsers:[] },
-                { name: '分公司业务部门负责人', role: '分公司负责人', level: '分公司', status:'pending', operator:'-', time:'-', showCommissionRebate:false, showRejectBack:true, selectedUsers:[] },
-                { name: '分公司财务部门室经理', role: '分公司财务室经理', level: '分公司', status:'pending', operator:'-', time:'-', showCommissionRebate:false, showRejectBack:true, selectedUsers:[] },
-                { name: '分公司财务部门负责人', role: '分公司财务负责人', level: '分公司', status:'pending', operator:'-', time:'-', showCommissionRebate:false, showRejectBack:true, selectedUsers:[] }
-            ];
-        }
-        function approvalConfigAddNode() {
-            var s = approvalConfigState;
-            var nodes = approvalConfigGetNodes();
-            if (!nodes) return;
-            var cfg = getCurrentConfig();
-            var tier = cfg.tiers[s.tierIdx];
-            var lvl = tier ? tier.level : (s.scope === 'branch' ? '分公司' : '总公司');
-            var newNode = { name: '新审批节点', role: '', level: lvl, status: 'pending', operator: '-', time: '-', showCommissionRebate: false, showRejectBack: true, isFinancial: false, selectedUsers: [] };
-            nodes.push(newNode);
-            renderApprovalFlowConfig();
-            showToast('已添加节点', 'success');
-        }
-        function approvalConfigRemoveLastNode() {
-            var s = approvalConfigState;
-            var nodes = approvalConfigGetNodes();
-            if (!nodes || nodes.length === 0) { showToast('没有可删除的审批节点', 'error'); return; }
-            var idx = s.selectedNodeIdx;
-            if (idx < 0 || idx >= nodes.length) { showToast('请先点击选中要删除的节点', 'error'); return; }
-            nodes.splice(idx, 1);
-            s.selectedNodeIdx = -1;
-            renderApprovalFlowConfig();
-            showToast('已删除选中节点', 'success');
-        }
-        function approvalConfigSave() {
-            localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
-            // 同时保存当前scope和target信息，供审批链记录使用
-            var meta = { scope: approvalConfigState.scope, target: approvalConfigState.target, channel: approvalConfigState.channel, savedAt: new Date().toISOString() };
-            var metaList = [];
-            try { metaList = JSON.parse(localStorage.getItem('approvalFlowConfigMeta') || '[]'); } catch(e) {}
-            metaList.push(meta);
-            try { localStorage.setItem('approvalFlowConfigMeta', JSON.stringify(metaList)); } catch(e) {}
-            showNotification('审批流配置已保存', 'success');
-        }
-        // 在线(C+) 审批人管理函数
-        function approvalConfigAddUser(nodeIdx) {
-            var nodes = approvalConfigGetNodes();
-            if (!nodes || !nodes[nodeIdx]) return;
-            var selectEl = document.getElementById('userSelect_' + nodeIdx);
-            if (!selectEl || !selectEl.value) { showToast('请先选择一个系统用户', 'error'); return; }
-            var selectedUserId = selectEl.value;
-            // 查找用户信息
-            var userStore = getUserStore();
-            var foundUser = null;
-            for (var ui = 0; ui < userStore.length; ui++) {
-                if (userStore[ui]['用户ID'] === selectedUserId) { foundUser = userStore[ui]; break; }
-            }
-            if (!foundUser) { showToast('未找到该用户', 'error'); return; }
-            if (!nodes[nodeIdx].selectedUsers) nodes[nodeIdx].selectedUsers = [];
-            // 检查是否已存在
-            var exists = nodes[nodeIdx].selectedUsers.some(function(su) { return su.userID === selectedUserId; });
-            if (exists) { showToast('该用户已在此节点中', 'error'); return; }
-            nodes[nodeIdx].selectedUsers.push({
-                userID: foundUser['用户ID'],
-                username: foundUser['用户名'],
-                userDisplayName: foundUser['用户姓名']
-            });
-            selectEl.value = '';
-            renderApprovalFlowConfig();
-            showToast('已添加审批人: ' + foundUser['用户姓名'], 'success');
-        }
-        function approvalConfigRemoveUser(nodeIdx, userIdx) {
-            var nodes = approvalConfigGetNodes();
-            if (!nodes || !nodes[nodeIdx] || !nodes[nodeIdx].selectedUsers) return;
-            // 允许节点没有审批人
-            var removed = nodes[nodeIdx].selectedUsers[userIdx];
-            nodes[nodeIdx].selectedUsers.splice(userIdx, 1);
-            renderApprovalFlowConfig();
-            showToast('已移除审批人: ' + (removed ? removed.userDisplayName : ''), 'success');
-        }
-        function approvalConfigReset() {
-            if (confirm('确认恢复默认审批流配置？所有自定义修改将丢失。')) {
-                localStorage.removeItem('approvalFlowConfig');
-                APPROVAL_FLOW_CONFIG = buildDefaultConfig();
-                approvalConfigState.scope = 'default';
-                approvalConfigState.target = '';
-                approvalConfigState.tierIdx = 0;
-                try { localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
-                renderApprovalFlowConfig();
-                showNotification('已恢复默认配置', 'success');
-            }
-        }
+        // ====== 保留：分公司/所属机构联动 ======
         function getMidBranchListByBranch(branchName) {
             var items = getBranchInstStore();
             var list = [];
@@ -4410,42 +4267,6 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             }
             return users;
         }
-        function approvalConfigCopyFromMidAndBranch() {
-            var s = approvalConfigState;
-            if (s.scope !== 'midBranch' || !s.midBranchParent || !s.target) {
-                showToast('请先选择分公司和中支机构', 'error'); return;
-            }
-            var cfg = getCurrentConfig();
-            if (!cfg) return;
-            if (!cfg.tiers) cfg.tiers = [];
-            while (cfg.tiers.length <= 1) { cfg.tiers.push({ label: '-', level: '-', nodes: [] }); }
-            showToast('3层模型下，请直接在JSON视图中编辑数据', 'warning');
-        }
-        function approvalConfigCopyFromMidBranchAndHq() {
-            var s = approvalConfigState;
-            if (s.scope !== 'midBranch' || !s.midBranchParent || !s.target) {
-                showToast('请先选择分公司和中支机构', 'error'); return;
-            }
-            var cfg = getCurrentConfig();
-            if (!cfg) return;
-            if (!cfg.tiers) cfg.tiers = [];
-            while (cfg.tiers.length <= 2) { cfg.tiers.push({ label: '-', level: '-', nodes: [] }); }
-            showToast('3层模型下，请直接在JSON视图中编辑数据', 'warning');
-        }
-        function approvalConfigCopyFromMidBranchAndHq() {
-            var s = approvalConfigState;
-            if (s.scope !== 'midBranch' || !s.midBranchParent || !s.target) {
-                showToast('请先选择分公司和中支机构', 'error'); return;
-            }
-            var cfg = getCurrentConfig();
-            if (!cfg) return;
-            if (!cfg.tiers) cfg.tiers = [];
-            while (cfg.tiers.length <= 2) { cfg.tiers.push({ label: '-', level: '-', nodes: [] }); }
-            showToast('3层模型下，请直接在JSON视图中编辑数据', 'warning');
-        }
-        function approvalConfigCopyCityFromBranch() {
-            showToast('3层模型下，请直接在JSON视图中编辑数据', 'warning');
-        }
         function approvalConfigSaveSilent() {
             var data = APPROVAL_FLOW_CONFIG;
             try { localStorage.setItem('approvalFlowConfig', JSON.stringify(data)); } catch(e) {}
@@ -4454,14 +4275,11 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         (function initApprovalConfig() {
             var saved = null;
             try { saved = JSON.parse(localStorage.getItem('approvalFlowConfig')); } catch(e) {}
-            if (saved && typeof saved === 'object' && saved.approvalConfigsHQ) {
-                // 用已保存配置，确保三个数组存在
-                if (!saved.approvalConfigsHQ) saved.approvalConfigsHQ = [];
-                if (!saved.approvalConfigsBranch) saved.approvalConfigsBranch = [];
-                if (!saved.approvalConfigsInst) saved.approvalConfigsInst = [];
+            // 只认新格式（有 hqTemplate 字段）
+            if (saved && typeof saved === 'object' && saved.hqTemplate) {
                 APPROVAL_FLOW_CONFIG = saved;
             } else {
-                // 无有效保存数据，使用默认配置
+                // 无有效保存数据或数据是旧格式，使用默认配置
                 APPROVAL_FLOW_CONFIG = buildDefaultConfig();
             }
         })();
@@ -6114,24 +5932,72 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var data;
 
             if (cfg.isApprovalChain) {
-                // 审批链记录：按3层模型展平
+                // 审批链记录：按3层模型展平（新格式）
                 var config = APPROVAL_FLOW_CONFIG || {};
-                var insts = config.approvalConfigsInst || [];
-                insts.forEach(function(inst) {
-                    var channels = (inst.channel || []).join(',');
-                    var subChs = (inst.subChannels || []).join(',');
-                    var branchName = inst.branch || '-';
-                    var orgName = inst.org || '-';
-                    var amountLabel = (inst.amountRange && inst.amountRange.label) || '-';
-                    (inst.nodes || []).forEach(function(node) {
-                        (node.approvers || []).forEach(function(approver) {
-                            rows.push([node.order, channels, subChs, branchName, orgName, amountLabel, node.name || '', approver, approver]);
-                        });
-                        if (!node.approvers || node.approvers.length === 0) {
-                            rows.push([node.order, channels, subChs, branchName, orgName, amountLabel, node.name || '', '-', '-']);
+                var rows = [];
+
+                // Helper: convert selectedUsers to string
+                function _usersStr(node) {
+                    var su = node.selectedUsers || [];
+                    if (su.length === 0) return '-';
+                    return su.map(function(s) { return s.userDisplayName || s.userID || s; }).join(', ');
+                }
+
+                // 1. hqTemplate
+                if (config.hqTemplate) {
+                    Object.keys(config.hqTemplate).forEach(function(chKey) {
+                        var entry = config.hqTemplate[chKey];
+                        var mainCh = chKey, subCh = '-';
+                        if (chKey === '个险PAA') { mainCh = '个险'; subCh = 'PAA'; }
+                        else if (chKey === '个险PSA') { mainCh = '个险'; subCh = 'PSA'; }
+                        if (entry.tiers) {
+                            entry.tiers.forEach(function(tier) {
+                                (tier.nodes || []).forEach(function(node, nIdx) {
+                                    rows.push([nIdx+1, mainCh, subCh, '-', '-', tier.label || '-', node.name || '', _usersStr(node), _usersStr(node)]);
+                                });
+                            });
+                        } else {
+                            (entry.nodes || []).forEach(function(node, nIdx) {
+                                rows.push([nIdx+1, mainCh, subCh, '-', '-', '-', node.name || '', _usersStr(node), _usersStr(node)]);
+                            });
                         }
                     });
-                });
+                }
+
+                // 2. branchTemplates
+                if (config.branchTemplates) {
+                    Object.keys(config.branchTemplates).forEach(function(bKey) {
+                        var bt = config.branchTemplates[bKey];
+                        var parts = bKey.split('_');
+                        var chPart = parts[0] || '', bName = parts.slice(1).join('_') || '-';
+                        var mainCh = chPart, subCh = '-';
+                        if (chPart === '个险PAA') { mainCh = '个险'; subCh = 'PAA'; }
+                        else if (chPart === '个险PSA') { mainCh = '个险'; subCh = 'PSA'; }
+                        (bt.tiers || []).forEach(function(tier) {
+                            (tier.nodes || []).forEach(function(node, nIdx) {
+                                rows.push([nIdx+1, mainCh, subCh, bName, '-', tier.label || '-', node.name || '', _usersStr(node), _usersStr(node)]);
+                            });
+                        });
+                    });
+                }
+
+                // 3. instTemplates
+                if (config.instTemplates) {
+                    Object.keys(config.instTemplates).forEach(function(iKey) {
+                        var it = config.instTemplates[iKey];
+                        var parts = iKey.split('_');
+                        var chPart = parts[0] || '', bName = parts[1] || '-', iOrg = parts.slice(2).join('_') || '-';
+                        var mainCh = chPart, subCh = '-';
+                        if (chPart === '个险PAA') { mainCh = '个险'; subCh = 'PAA'; }
+                        else if (chPart === '个险PSA') { mainCh = '个险'; subCh = 'PSA'; }
+                        (it.tiers || []).forEach(function(tier) {
+                            (tier.nodes || []).forEach(function(node, nIdx) {
+                                rows.push([nIdx+1, mainCh, subCh, bName, iOrg, tier.label || '-', node.name || '', _usersStr(node), _usersStr(node)]);
+                            });
+                        });
+                    });
+                }
+
                 data = rows;
             } else {
                 data = cfg.getStore();
@@ -6650,17 +6516,35 @@ function switchAdminTab(tab) {
                 var html = '<div style="font-family:Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.7;color:#d4d4d4;">';
                 html += '<div style="color:#569cd6;margin-bottom:8px;">\ud83d\udce6 \u672c\u5730\u6570\u636e\u6765\u6e90: <span style="color:#ce9178;">localStorage (approvalFlowConfig)</span></div>';
 
-                var hqCount = (config.approvalConfigsHQ || []).length;
-                var branchCount = (config.approvalConfigsBranch || []).length;
-                var instCount = (config.approvalConfigsInst || []).length;
+                // ---- 统计 (新格式) ----
+                var hqCount = 0, branchCount = 0, instCount = 0;
+                if (config && config.hqTemplate) {
+                    Object.keys(config.hqTemplate).forEach(function(k){
+                        var e = config.hqTemplate[k];
+                        if (e.tiers) { e.tiers.forEach(function(t){hqCount+=(t.nodes||[]).length;}); }
+                        else { hqCount += (e.nodes||[]).length; }
+                    });
+                }
+                if (config && config.branchTemplates) {
+                    Object.keys(config.branchTemplates).forEach(function(k){
+                        var bt = config.branchTemplates[k];
+                        (bt.tiers||[]).forEach(function(t){branchCount+=(t.nodes||[]).length;});
+                    });
+                }
+                if (config && config.instTemplates) {
+                    Object.keys(config.instTemplates).forEach(function(k){
+                        var it = config.instTemplates[k];
+                        (it.tiers||[]).forEach(function(t){instCount+=(t.nodes||[]).length;});
+                    });
+                }
                 html += '<div style="color:#569cd6;margin-bottom:16px;">\u603b\u516c\u53f8\u6a21\u677f: <span style="color:#b5cea8;">' + hqCount + '</span> \u6761 | \u5206\u516c\u53f8\u6a21\u677f: <span style="color:#b5cea8;">' + branchCount + '</span> \u6761 | \u673a\u6784\u5ba1\u6279\u6d41: <span style="color:#b5cea8;">' + instCount + '</span> \u6761</div>';
 
                 // Section: 总公司审批链模板
-                html += _renderConfigSection(config.approvalConfigsHQ, '\ud83d\udccb \u603b\u516c\u53f8\u5ba1\u6279\u94fe\u6a21\u677f', 'hq');
+                html += _renderHqTemplateJson(config.hqTemplate);
                 // Section: 分公司审批链模板
-                html += _renderConfigSection(config.approvalConfigsBranch, '\ud83d\udccb \u5206\u516c\u53f8\u5ba1\u6279\u94fe\u6a21\u677f', 'branch');
+                html += _renderBranchTemplatesJson(config.branchTemplates);
                 // Section: 所属机构审批流
-                html += _renderConfigSection(config.approvalConfigsInst, '\ud83d\udccb \u6240\u5c5e\u673a\u6784\u5ba1\u6279\u6d41', 'inst');
+                html += _renderInstTemplatesJson(config.instTemplates);
 
                 html += '</div>';
                 panel.innerHTML = html;
@@ -6722,6 +6606,87 @@ function switchAdminTab(tab) {
             }
             return lines.join('\n');
         }
+
+        // ---- JSON视图: 新格式渲染函数 ----
+        function _renderHqTemplateJson(hqTpl) {
+            if (!hqTpl || Object.keys(hqTpl).length === 0) {
+                return '<div style="margin-bottom:12px;padding:8px 12px;background:#2d2d2d;border-radius:6px;border-left:3px solid #808080;">' +
+                    '<div style="color:#808080;">\ud83d\udccb \u603b\u516c\u53f8\u5ba1\u6279\u94fe\u6a21\u677f \u2014 \u6682\u65e0\u6570\u636e</div></div>';
+            }
+            var html = '';
+            var chOrder = ['\u4e2a\u9669PAA','\u4e2a\u9669PSA','\u94f6\u4fdd','\u56e2\u9669','\u5728\u7ebf'];
+            chOrder.forEach(function(chKey) {
+                if (!hqTpl[chKey]) return;
+                var entry = hqTpl[chKey];
+                var label = chKey;
+                if (chKey === '\u4e2a\u9669PAA') label = '\u4e2a\u9669 (PAA)';
+                else if (chKey === '\u4e2a\u9669PSA') label = '\u4e2a\u9669 (PSA)';
+                html += '<div style="margin-bottom:8px;padding:8px 12px;background:#2d2d2d;border-radius:6px;border-left:3px solid #4ec9b0;">';
+                html += '<div style="color:#4ec9b0;cursor:pointer;" onclick="var p=this.nextElementSibling;p.style.display=p.style.display===\'none\'?\'block\':\'none\';">\u25bc ' + label + '</div>';
+                html += '<pre style="margin:0;padding:8px;background:#1e1e1e;border-radius:4px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;font-size:11px;display:block;">';
+                if (entry.tiers) {
+                    entry.tiers.forEach(function(tier) {
+                        html += '<span style="color:#569cd6;">\u2502 Tier: <span style="color:#ce9178;">' + (tier.label||'') + '</span></span>\n';
+                        (tier.nodes||[]).forEach(function(n, ni){
+                            var users = (n.selectedUsers||[]).map(function(s){return s.userDisplayName||s.userID||'-';}).join(', ');
+                            html += '    <span style="color:#b5cea8;">#' + (ni+1) + '</span> <span style="color:#dcdcaa;">' + n.name + '</span> \u2192 <span style="color:#ce9178;">' + users + '</span>\n';
+                        });
+                    });
+                } else {
+                    (entry.nodes||[]).forEach(function(n, ni){
+                        var users = (n.selectedUsers||[]).map(function(s){return s.userDisplayName||s.userID||'-';}).join(', ');
+                        html += '  <span style="color:#b5cea8;">#' + (ni+1) + '</span> <span style="color:#dcdcaa;">' + n.name + '</span> \u2192 <span style="color:#ce9178;">' + users + '</span>\n';
+                    });
+                }
+                html += '</pre></div>';
+            });
+            return html;
+        }
+        function _renderBranchTemplatesJson(branchTpl) {
+            if (!branchTpl || Object.keys(branchTpl).length === 0) {
+                return '<div style="margin-bottom:12px;padding:8px 12px;background:#2d2d2d;border-radius:6px;border-left:3px solid #808080;">' +
+                    '<div style="color:#808080;">\ud83d\udccb \u5206\u516c\u53f8\u5ba1\u6279\u94fe\u6a21\u677f \u2014 \u6682\u65e0\u6570\u636e</div></div>';
+            }
+            var html = '';
+            Object.keys(branchTpl).sort().forEach(function(bKey) {
+                var bt = branchTpl[bKey];
+                html += '<div style="margin-bottom:8px;padding:8px 12px;background:#2d2d2d;border-radius:6px;border-left:3px solid #dcdcaa;">';
+                html += '<div style="color:#dcdcaa;cursor:pointer;" onclick="var p=this.nextElementSibling;p.style.display=p.style.display===\'none\'?\'block\':\'none\';">\u25bc ' + bKey.replace(/_/g,' / ') + '</div>';
+                html += '<pre style="margin:0;padding:8px;background:#1e1e1e;border-radius:4px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;font-size:11px;display:block;">';
+                (bt.tiers||[]).forEach(function(tier){
+                    html += '<span style="color:#569cd6;">\u2502 <span style="color:#ce9178;">' + (tier.label||'') + '</span></span>\n';
+                    (tier.nodes||[]).forEach(function(n, ni){
+                        var users = (n.selectedUsers||[]).map(function(s){return s.userDisplayName||s.userID||'-';}).join(', ');
+                        html += '    <span style="color:#b5cea8;">#' + (ni+1) + '</span> <span style="color:#dcdcaa;">' + n.name + '</span> \u2192 <span style="color:#ce9178;">' + users + '</span>\n';
+                    });
+                });
+                html += '</pre></div>';
+            });
+            return html;
+        }
+        function _renderInstTemplatesJson(instTpl) {
+            if (!instTpl || Object.keys(instTpl).length === 0) {
+                return '<div style="margin-bottom:12px;padding:8px 12px;background:#2d2d2d;border-radius:6px;border-left:3px solid #808080;">' +
+                    '<div style="color:#808080;">\ud83d\udccb \u6240\u5c5e\u673a\u6784\u5ba1\u6279\u6d41 \u2014 \u6682\u65e0\u6570\u636e</div></div>';
+            }
+            var html = '';
+            Object.keys(instTpl).sort().forEach(function(iKey) {
+                var it = instTpl[iKey];
+                html += '<div style="margin-bottom:8px;padding:8px 12px;background:#2d2d2d;border-radius:6px;border-left:3px solid #c586c0;">';
+                html += '<div style="color:#c586c0;cursor:pointer;" onclick="var p=this.nextElementSibling;p.style.display=p.style.display===\'none\'?\'block\':\'none\';">\u25bc ' + iKey.replace(/_/g,' / ') + '</div>';
+                html += '<pre style="margin:0;padding:8px;background:#1e1e1e;border-radius:4px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;font-size:11px;display:block;">';
+                (it.tiers||[]).forEach(function(tier){
+                    html += '<span style="color:#569cd6;">\u2502 <span style="color:#ce9178;">' + (tier.label||'') + '</span></span>\n';
+                    (tier.nodes||[]).forEach(function(n, ni){
+                        var users = (n.selectedUsers||[]).map(function(s){return s.userDisplayName||s.userID||'-';}).join(', ');
+                        html += '    <span style="color:#b5cea8;">#' + (ni+1) + '</span> <span style="color:#dcdcaa;">' + n.name + '</span> \u2192 <span style="color:#ce9178;">' + users + '</span>\n';
+                    });
+                });
+                html += '</pre></div>';
+            });
+            return html;
+        }
+
         function adminClearRefunds() {
             if (!confirm('确认清空所有续期退费记录？此操作将清除本地存储的退费数据，不可恢复！')) return;
             var data = getData();
@@ -7216,28 +7181,55 @@ function switchAdminTab(tab) {
                 try {
                     var acg = JSON.parse(rawApproval);
                     lines.push('\u6570\u636e\u6765\u6e90: localStorage (approvalFlowConfig)  <a href="#" onclick="jumpToApprovalChainJSONView();return false;" style="color:#1a73e8;text-decoration:underline;font-weight:600;">&#128196; &#26597;&#30475;JSON&#35270;&#22270; &#8599;</a>');
-                    var hqArr = acg.approvalConfigsHQ || [];
-                    var brArr = acg.approvalConfigsBranch || [];
-                    var instArr = acg.approvalConfigsInst || [];
-                    lines.push('\u603b\u516c\u53f8\u6a21\u677f: ' + hqArr.length + '\u6761');
-                    lines.push('\u5206\u516c\u53f8\u6a21\u677f: ' + brArr.length + '\u6761');
-                    lines.push('\u673a\u6784\u5ba1\u6279\u6d41: ' + instArr.length + '\u6761');
+                    // 新格式：统计 hqTemplate/branchTemplates/instTemplates
+                    var hqCount = 0, branchCount = 0, instCount = 0;
+                    if (acg.hqTemplate) {
+                        Object.keys(acg.hqTemplate).forEach(function(k) {
+                            var e = acg.hqTemplate[k];
+                            if (e.tiers) { e.tiers.forEach(function(t){ hqCount += (t.nodes||[]).length; }); }
+                            else { hqCount += (e.nodes||[]).length; }
+                        });
+                    }
+                    if (acg.branchTemplates) {
+                        Object.keys(acg.branchTemplates).forEach(function(k) {
+                            (acg.branchTemplates[k].tiers||[]).forEach(function(t){ branchCount += (t.nodes||[]).length; });
+                        });
+                    }
+                    if (acg.instTemplates) {
+                        Object.keys(acg.instTemplates).forEach(function(k) {
+                            (acg.instTemplates[k].tiers||[]).forEach(function(t){ instCount += (t.nodes||[]).length; });
+                        });
+                    }
+                    lines.push('总公司模板: ' + hqCount + '条节点');
+                    lines.push('分公司模板: ' + branchCount + '条节点');
+                    lines.push('机构审批流: ' + instCount + '条节点');
 
-                    hqArr.forEach(function(hq, i) {
-                        lines.push('  \u251c\u2500 [\u603b\u516c\u53f8 ' + (i+1) + '] \u6e20\u9053: ' + (hq.channel||[]).join(',') + ' \u5b50\u6e20\u9053: ' + (hq.subChannels||[]).join(',') + ' \u91d1\u989d\u914d\u7f6e: ' + (hq.amountConfig||'-'));
-                        if (hq.amountConfig === 'range' && hq.ranges) {
-                            hq.ranges.forEach(function(r) {
-                                lines.push('  \u2502   \u2514\u2500 ' + (r.label||'') + ': ' + (r.nodes||[]).length + '\u4e2a\u8282\u70b9');
-                            });
-                        }
-                        if (hq.nodes) lines.push('  \u2502   \u2514\u2500 ' + hq.nodes.length + '\u4e2a\u8282\u70b9');
-                    });
-                    brArr.forEach(function(br, i) {
-                        lines.push('  \u251c\u2500 [\u5206\u516c\u53f8 ' + (i+1) + '] \u6e20\u9053: ' + (br.channel||[]).join(',') + ' \u5206\u516c\u53f8: ' + (br.branches||[]).join(',') + ' ' + (br.nodes||[]).length + '\u4e2a\u8282\u70b9');
-                    });
-                    instArr.forEach(function(inst, i) {
-                        lines.push('  \u2514\u2500 [\u673a\u6784 ' + (i+1) + '] \u6e20\u9053: ' + (inst.channel||[]).join(',') + ' ' + (inst.branch||'-') + '/' + (inst.org||'-') + ' ' + (inst.nodes||[]).length + '\u4e2a\u8282\u70b9');
-                    });
+                    // 详细展开 hqTemplate
+                    if (acg.hqTemplate) {
+                        var chOrder = ['个险PAA','个险PSA','银保','团险','在线'];
+                        chOrder.forEach(function(chKey) {
+                            if (!acg.hqTemplate[chKey]) return;
+                            var entry = acg.hqTemplate[chKey];
+                            var label = chKey;
+                            if (chKey === '个险PAA') label = '个险 (PAA)';
+                            else if (chKey === '个险PSA') label = '个险 (PSA)';
+                            lines.push('  ├─ [总公司] ' + label);
+                            if (entry.tiers) {
+                                entry.tiers.forEach(function(tier) {
+                                    lines.push('  │   └─ ' + (tier.label||'') + ': ' + (tier.nodes||[]).length + '个节点');
+                                    (tier.nodes||[]).forEach(function(n) {
+                                        var us = (n.selectedUsers||[]).map(function(s){return s.userDisplayName||s.userID||'-';}).join(', ');
+                                        lines.push('  │       • ' + n.name + ' (' + us + ')');
+                                    });
+                                });
+                            } else {
+                                (entry.nodes||[]).forEach(function(n) {
+                                    var us = (n.selectedUsers||[]).map(function(s){return s.userDisplayName||s.userID||'-';}).join(', ');
+                                    lines.push('  │   • ' + n.name + ' (' + us + ')');
+                                });
+                            }
+                        });
+                    }
                 } catch(e) {
                     lines.push('\u6570\u636e\u89e3\u6790\u5931\u8d25: ' + e.message);
                 }
@@ -7578,12 +7570,28 @@ function switchAdminTab(tab) {
             lines.push('加载时机: script初始化 (buildDefaultConfig) → DOMContentLoaded时恢复 localStorage');
             if (APPROVAL_FLOW_CONFIG && typeof APPROVAL_FLOW_CONFIG === 'object') {
                 lines.push('version: ' + (APPROVAL_FLOW_CONFIG.version || 'unknown'));
-                var hqArr = APPROVAL_FLOW_CONFIG.approvalConfigsHQ || [];
-                var brArr = APPROVAL_FLOW_CONFIG.approvalConfigsBranch || [];
-                var instArr = APPROVAL_FLOW_CONFIG.approvalConfigsInst || [];
-                lines.push('总公司模板: ' + hqArr.length + '条');
-                lines.push('分公司模板: ' + brArr.length + '条');
-                lines.push('机构审批流: ' + instArr.length + '条');
+                // 新格式统计
+                var hqCount = 0, branchCount = 0, instCount = 0;
+                if (APPROVAL_FLOW_CONFIG.hqTemplate) {
+                    Object.keys(APPROVAL_FLOW_CONFIG.hqTemplate).forEach(function(k) {
+                        var e = APPROVAL_FLOW_CONFIG.hqTemplate[k];
+                        if (e.tiers) { e.tiers.forEach(function(t){ hqCount += (t.nodes||[]).length; }); }
+                        else { hqCount += (e.nodes||[]).length; }
+                    });
+                }
+                if (APPROVAL_FLOW_CONFIG.branchTemplates) {
+                    Object.keys(APPROVAL_FLOW_CONFIG.branchTemplates).forEach(function(k) {
+                        (APPROVAL_FLOW_CONFIG.branchTemplates[k].tiers||[]).forEach(function(t){ branchCount += (t.nodes||[]).length; });
+                    });
+                }
+                if (APPROVAL_FLOW_CONFIG.instTemplates) {
+                    Object.keys(APPROVAL_FLOW_CONFIG.instTemplates).forEach(function(k) {
+                        (APPROVAL_FLOW_CONFIG.instTemplates[k].tiers||[]).forEach(function(t){ instCount += (t.nodes||[]).length; });
+                    });
+                }
+                lines.push('总公司模板: ' + hqCount + '条节点');
+                lines.push('分公司模板: ' + branchCount + '条节点');
+                lines.push('机构审批流: ' + instCount + '条节点');
             } else {
                 lines.push('状态: 未初始化');
             }
@@ -8918,65 +8926,118 @@ function switchAdminTab(tab) {
 
         // ==================== 审批链记录 ====================
         function clearApprovalConfig() {
-            if (!confirm('确认清空所有审批链数据？此操作不可撤销！')) return;
-            APPROVAL_FLOW_CONFIG = { version: '1.0.0', approvalConfigsHQ: [], approvalConfigsBranch: [], approvalConfigsInst: [] };
-            try { localStorage.removeItem('approvalFlowConfig'); } catch(e) {}
-            try { localStorage.removeItem('approvalFlowConfigMeta'); } catch(e) {}
+            if (!confirm('\u786e\u8ba4\u6e05\u7a7a\u6240\u6709\u5ba1\u6279\u94fe\u6570\u636e\uff1f\u6b64\u64cd\u4f5c\u4e0d\u53ef\u64a4\u9500\uff01')) return;
+            APPROVAL_FLOW_CONFIG = buildDefaultConfig();
+            try { localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
             refreshAdminApprovalChain();
-            showToast('审批链数据已清空', 'success');
+            showToast('\u5ba1\u6279\u94fe\u6570\u636e\u5df2\u6e05\u7a7a', 'success');
         }
         function refreshAdminApprovalChain() {
             var tbody = document.getElementById('adminApprovalChainBody');
             var cfg = APPROVAL_FLOW_CONFIG;
+            console.log('[审批链记录] refreshAdminApprovalChain 被调用, cfg=', cfg);
             var rows = [];
+            var hqCount = 0, branchCount = 0, instCount = 0;
+
+            // ---- 总公司模板 (hqTemplate) ----
+            if (cfg && cfg.hqTemplate) {
+                Object.keys(cfg.hqTemplate).forEach(function(chKey) {
+                    var entry = cfg.hqTemplate[chKey];
+                    // 解析 channel / subChannel
+                    var mainCh = chKey, subCh = '-';
+                    if (chKey === '个险PAA') { mainCh = '\u4e2a\u9669'; subCh = 'PAA'; }
+                    else if (chKey === '个险PSA') { mainCh = '\u4e2a\u9669'; subCh = 'PSA'; }
+
+                    var nodeList;
+                    if (entry.tiers) {
+                        // 在线渠道有 tiers
+                        entry.tiers.forEach(function(tier) {
+                            (tier.nodes || []).forEach(function(node, nIdx) {
+                                hqCount++;
+                                if (node.selectedUsers && node.selectedUsers.length > 0) {
+                                    node.selectedUsers.forEach(function(u) {
+                                        var un = (u && u.userDisplayName) ? u.userDisplayName : (u && u.userID) ? String(u.userID) : (typeof u === 'string' ? u : '-');
+                                        rows.push({nodeNumber:nIdx+1,channel:mainCh,subChannel:subCh,branch:'-',org:'-',amountRange:tier.label||'-',nodeName:node.name,userName:un,userDisplayName:un});
+                                    });
+                                } else {
+                                    rows.push({nodeNumber:nIdx+1,channel:mainCh,subChannel:subCh,branch:'-',org:'-',amountRange:tier.label||'-',nodeName:node.name,userName:'-',userDisplayName:'-'});
+                                }
+                            });
+                        });
+                    } else {
+                        // 普通渠道有 nodes
+                        (entry.nodes || []).forEach(function(node, nIdx) {
+                            hqCount++;
+                            if (node.selectedUsers && node.selectedUsers.length > 0) {
+                                node.selectedUsers.forEach(function(u) {
+                                    var un = (u && u.userDisplayName) ? u.userDisplayName : (u && u.userID) ? String(u.userID) : (typeof u === 'string' ? u : '-');
+                                    rows.push({nodeNumber:nIdx+1,channel:mainCh,subChannel:subCh,branch:'-',org:'-',amountRange:'-',nodeName:node.name,userName:un,userDisplayName:un});
+                                });
+                            } else {
+                                rows.push({nodeNumber:nIdx+1,channel:mainCh,subChannel:subCh,branch:'-',org:'-',amountRange:'-',nodeName:node.name,userName:'-',userDisplayName:'-'});
+                            }
+                        });
+                    }
+                });
+            }
+
+            // ---- 分公司模板 (branchTemplates) ----
+            if (cfg && cfg.branchTemplates) {
+                Object.keys(cfg.branchTemplates).forEach(function(bKey) {
+                    var parts = bKey.split('_');
+                    var chPart = parts[0] || '', bName = parts.slice(1).join('_') || '-';
+                    var mainCh = chPart, subCh = '-';
+                    if (chPart === '个险PAA') { mainCh = '\u4e2a\u9669'; subCh = 'PAA'; }
+                    else if (chPart === '个险PSA') { mainCh = '\u4e2a\u9669'; subCh = 'PSA'; }
+
+                    var bt = cfg.branchTemplates[bKey];
+                    (bt.tiers || []).forEach(function(tier) {
+                        (tier.nodes || []).forEach(function(node, nIdx) {
+                            branchCount++;
+                            if (node.selectedUsers && node.selectedUsers.length > 0) {
+                                node.selectedUsers.forEach(function(u) {
+                                    var un = (u && u.userDisplayName) ? u.userDisplayName : (u && u.userID) ? String(u.userID) : (typeof u === 'string' ? u : '-');
+                                    rows.push({nodeNumber:nIdx+1,channel:mainCh,subChannel:subCh,branch:bName,org:'-',amountRange:tier.label||'-',nodeName:node.name,userName:un,userDisplayName:un});
+                                });
+                            } else {
+                                rows.push({nodeNumber:nIdx+1,channel:mainCh,subChannel:subCh,branch:bName,org:'-',amountRange:tier.label||'-',nodeName:node.name,userName:'-',userDisplayName:'-'});
+                            }
+                        });
+                    });
+                });
+            }
+
+            // ---- 所属机构模板 (instTemplates) ----
+            if (cfg && cfg.instTemplates) {
+                Object.keys(cfg.instTemplates).forEach(function(iKey) {
+                    var parts = iKey.split('_');
+                    var chPart = parts[0] || '', bName = parts[1] || '-', iOrgName = parts.slice(2).join('_') || '-';
+                    var mainCh = chPart, subCh = '-';
+                    if (chPart === '个险PAA') { mainCh = '\u4e2a\u9669'; subCh = 'PAA'; }
+                    else if (chPart === '个险PSA') { mainCh = '\u4e2a\u9669'; subCh = 'PSA'; }
+
+                    var it = cfg.instTemplates[iKey];
+                    (it.tiers || []).forEach(function(tier) {
+                        (tier.nodes || []).forEach(function(node, nIdx) {
+                            instCount++;
+                            if (node.selectedUsers && node.selectedUsers.length > 0) {
+                                node.selectedUsers.forEach(function(u) {
+                                    var un = (u && u.userDisplayName) ? u.userDisplayName : (u && u.userID) ? String(u.userID) : (typeof u === 'string' ? u : '-');
+                                    rows.push({nodeNumber:nIdx+1,channel:mainCh,subChannel:subCh,branch:bName,org:iOrgName,amountRange:tier.label||'-',nodeName:node.name,userName:un,userDisplayName:un});
+                                });
+                            } else {
+                                rows.push({nodeNumber:nIdx+1,channel:mainCh,subChannel:subCh,branch:bName,org:iOrgName,amountRange:tier.label||'-',nodeName:node.name,userName:'-',userDisplayName:'-'});
+                            }
+                        });
+                    });
+                });
+            }
 
             // Summary counts
-            var hqCount = (cfg.approvalConfigsHQ || []).length;
-            var branchCount = (cfg.approvalConfigsBranch || []).length;
-            var instCount = (cfg.approvalConfigsInst || []).length;
             var summaryEl = document.getElementById('adminApprovalChainSummary');
             if (summaryEl) {
                 summaryEl.textContent = '\u603b\u516c\u53f8\u6a21\u677f: ' + hqCount + '\u6761 | \u5206\u516c\u53f8\u6a21\u677f: ' + branchCount + '\u6761 | \u673a\u6784\u5ba1\u6279\u6d41: ' + instCount + '\u6761';
             }
-
-            // Flatten approvalConfigsInst into rows
-            var insts = cfg.approvalConfigsInst || [];
-            insts.forEach(function(inst) {
-                var channels = (inst.channel || []).join(',');
-                var subChs = (inst.subChannels || []).join(',');
-                var branchName = inst.branch || '-';
-                var orgName = inst.org || '-';
-                var amountLabel = (inst.amountRange && inst.amountRange.label) || '-';
-
-                (inst.nodes || []).forEach(function(node) {
-                    (node.approvers || []).forEach(function(approver) {
-                        rows.push({
-                            nodeNumber: node.order,
-                            channel: channels,
-                            subChannel: subChs,
-                            branch: branchName,
-                            org: orgName,
-                            amountRange: amountLabel,
-                            nodeName: node.name,
-                            userName: approver,
-                            userDisplayName: approver
-                        });
-                    });
-                    if (!node.approvers || node.approvers.length === 0) {
-                        rows.push({
-                            nodeNumber: node.order,
-                            channel: channels,
-                            subChannel: subChs,
-                            branch: branchName,
-                            org: orgName,
-                            amountRange: amountLabel,
-                            nodeName: node.name,
-                            userName: '-',
-                            userDisplayName: '-'
-                        });
-                    }
-                });
-            });
 
             if (rows.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--gray-500);padding:40px;">\u6682\u65e0\u5ba1\u6279\u94fe\u8bb0\u5f55\uff0c\u8bf7\u5148\u5728\u201c\u5ba1\u6279\u6d41\u7ba1\u7406\u201d\u4e2d\u914d\u7f6e\u5ba1\u6279\u8282\u70b9</td></tr>';
@@ -9271,8 +9332,21 @@ function switchAdminTab(tab) {
         }
 
         function _saveAndRender() {
-            try { localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG)); } catch(e) {}
+            try {
+                var json = JSON.stringify(APPROVAL_FLOW_CONFIG);
+                localStorage.setItem('approvalFlowConfig', json);
+                // 验证写入成功
+                var verify = localStorage.getItem('approvalFlowConfig');
+                if (!verify) throw new Error('localStorage 写入失败（可能已满）');
+                console.log('[审批流] _saveAndRender 保存成功, 大小: ' + json.length + ' bytes');
+            } catch(e) {
+                showToast('\u4fdd\u5b58\u5931\u8d25\uff1a' + (e.message||e), 'error');
+                console.error('[审批流] \u4fdd\u5b58\u5931\u8d25', e);
+                renderApprovalFlowConfig();
+                return;
+            }
             renderApprovalFlowConfig();
+            try { refreshAdminApprovalChain(); } catch(e) {}
         }
 
         function _onAddNode() {
@@ -9326,7 +9400,14 @@ function switchAdminTab(tab) {
                 var u = users[i];
                 var name = u['用户姓名'] || u['username'] || u['用户ID'] || ('用户' + i);
                 var uid = u['用户ID'] || i;
-                opts += '<option value="' + uid + '">' + name + ' (' + (u['角色名']||u['role']||'-') + ')</option>';
+                // 通过用户-角色映射表查找角色名
+                var roleIds = findUserRoles(uid);
+                var roleName = '-';
+                if (roleIds && roleIds.length > 0) {
+                    roleName = getRoleNameByID(roleIds[0]);
+                    if (roleIds.length > 1) roleName += ' 等';
+                }
+                opts += '<option value="' + uid + '">' + name + ' (' + roleName + ')</option>';
             }
             if (!opts) { showToast('暂无系统用户，请先在用户管理中添加', 'error'); return; }
 
@@ -9426,10 +9507,6 @@ function switchAdminTab(tab) {
             renderApprovalFlowConfig();
         }
 
-        function approvalConfigSelectNode(idx) {
-            approvalConfigState.selectedNodeIdx=idx;
-            renderApprovalFlowConfig();
-        }
 
 </script>
 
