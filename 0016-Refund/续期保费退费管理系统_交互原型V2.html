@@ -5435,6 +5435,10 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('mcRefundReason').textContent = refund.refundReason || '-';
             document.getElementById('mobileRefundReason').value = refund.refundReason || '';
             
+            // 填充验证字段（供 submitMobileMaterial 提交时匹配退费记录）
+            var _idNoField = document.getElementById('mobileIdNo');
+            if (_idNoField) _idNoField.value = refund.holderId || (loginState && loginState.idNo) || '';
+            
             // 填充保单详细信息（从保单数据获取，不再硬编码）
             var pd = getPolicyStore()[refund.policyNo] || {};
             document.getElementById('mcMainRisk').textContent = pd.mainRisk || refund.mainRisk || '-';
