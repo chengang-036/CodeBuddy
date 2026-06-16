@@ -5450,9 +5450,19 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var currentUserName = (loginState && loginState.userName) || '';
             var currentUsername = (loginState && loginState.username) || '';
             // 按用户权限过滤：仅显示当前用户属于pending节点审批人的退费记录
+            // ★ 修复：排除当前用户已经审批过任何节点的记录（已流转到下一节点，再显示会导致流程混乱）
             var pendingList = data.refunds.filter(function(r) {
                 if (r.status !== 3 || !r.approvalNodes) return false;
                 var pendingNode = r.approvalNodes.find(function(n) { return n.status === 'pending'; });
+                if (!pendingNode) return false;
+                // ★ 修复：排除当前用户已经审批过任何节点的记录
+                // （已流转到下一节点，再显示会导致流程混乱）
+                // 注意：必须用 n.operator === currentOperatorName() 判断实际操作人，
+                // 不能用 isCurrentUserInNodeUsers(n)（它检查的是selectedUsers，即所有潜在审批人）
+                var currentUserAlreadyOperated = r.approvalNodes.some(function(n) {
+                    return n.status === 'completed' && n.operator === currentOperatorName();
+                });
+                if (currentUserAlreadyOperated) return false;
                 return isCurrentUserInNodeUsers(pendingNode);
             });
             document.getElementById('mobilePendingApprovals').innerHTML = pendingList.length ? pendingList.map(r => `
@@ -5463,6 +5473,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         }
 
         function showMobileApprovalList() {
+            refreshMobileApprovals();                      // ★ 返回列表时强制刷新
             document.getElementById('mobileApprovalList').style.display = 'block';
             document.getElementById('mobileApprovalDetail').style.display = 'none';
         }
