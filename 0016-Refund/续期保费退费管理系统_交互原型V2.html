@@ -1548,7 +1548,10 @@
                 <div id="mobileLoggedInContent" style="display:none;">
                     <!-- &#24403;&#21069;&#36523;&#20221;&#26465; -->
                     <div id="mobileIdentityBar" style="background:#f0f4ff;padding:10px 14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:13px;">
-                        <span>&#24403;&#21069;&#35282;&#33394;&#65306;<strong id="mobileRoleName"></strong></span>
+                        <div style="display:flex;flex-direction:column;gap:2px;">
+                            <span style="font-size:12px;opacity:0.75;">&#24403;&#21069;&#29992;&#25143;&#65306;<strong id="mobileUserInfo"></strong></span>
+                            <span>&#24403;&#21069;&#35282;&#33394;&#65306;<strong id="mobileRoleName"></strong></span>
+                        </div>
                         <button class="mobile-btn" style="background:var(--danger);color:white;font-size:11px;padding:5px 40px;border-radius:4px;white-space:nowrap;width:auto;" onclick="doLogout()">&#36864;&#20986;</button>
                     </div>
 
@@ -1903,7 +1906,7 @@
                     <!-- &#36864;&#36153;&#21407;&#22240; -->
                     <div class="mobile-card">
                         <h4 style="margin-bottom: 8px; font-size: 14px; color: var(--primary);">&#128221; &#36864;&#36153;&#21407;&#22240;</h4>
-                        <div id="mobileRefundReason" style="font-size: 13px; color: var(--gray-700);"></div>
+                        <div id="mobileApprovalRefundReason" style="font-size: 13px; color: var(--gray-700);"></div>
                     </div>
                     <!-- &#23457;&#25209;&#27969;&#31243; -->
                     <div class="mobile-card">
@@ -1934,7 +1937,6 @@
                         </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
                             <button class="mobile-btn mobile-btn-success" onclick="mobileApproveConfirm()" style="flex:1;">&#9989; &#21516;&#24847;</button>
-                            <button class="mobile-btn" id="mobileRejectBackBtn" style="flex:1;background:#f9a825;color:white;display:none;" onclick="mobileRejectBack()">&#8617; &#39539;&#22238;</button>
                             <button class="mobile-btn mobile-btn-danger" onclick="mobileReject()" style="flex:1;">&#10060; &#25298;&#32477;</button>
                         </div>
                     </div>
@@ -2741,6 +2743,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (loggedInContent) loggedInContent.style.display = 'block';
                 // 更新角色名
                 document.getElementById('mobileRoleName').textContent = loginState.roleName;
+                // 当前用户信息（同PC版：用户名（用户姓名））
+                document.getElementById('mobileUserInfo').textContent = (loginState.username || '') + '（' + (loginState.userName || '') + '）';
                 // 客户块：只有Q6或Q7权限可见
                 var showCust = loginState.perms.includes('Q6') || loginState.perms.includes('Q7');
                 document.getElementById('mobileCustomerBlock').style.display = showCust ? 'block' : 'none';
@@ -5560,7 +5564,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             }
 
             // 退费原因
-            document.getElementById('mobileRefundReason').textContent = refund.refundReason || '未填写';
+            document.getElementById('mobileApprovalRefundReason').textContent = refund.refundReason || '未填写';
 
             // 审批流程节点
             var channelInfo = '';
@@ -5583,16 +5587,10 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // 审批操作区：判断当前节点
             var currentNode = refund.approvalNodes ? refund.approvalNodes.find(function(n) { return n.status === 'pending'; }) : null;
             var showCommission = currentNode && currentNode.showCommissionRebate;
-            var showRejectBack = currentNode && currentNode.showRejectBack;
             document.getElementById('mobileCommissionRebate').style.display = showCommission ? 'block' : 'none';
-            document.getElementById('mobileRejectBackBtn').style.display = showRejectBack ? 'inline-block' : 'none';
             document.getElementById('mobileRejectReasonInput').style.display = 'none';
             document.getElementById('mobileApproveOpinion').value = '';
             document.getElementById('mobileRejectReason').value = '';
-            if (currentNode && !showCommission && !showRejectBack) {
-                // 首节点（只有同意、拒绝，无驳回）- C+场景
-                document.getElementById('mobileRejectBackBtn').style.display = 'none';
-            }
             // 如果没有待审批节点，隐藏操作区
             var actionArea = document.getElementById('mobileActionArea');
             actionArea.style.display = (currentNode && refund.status === 3) ? 'block' : 'none';
