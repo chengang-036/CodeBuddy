@@ -5409,7 +5409,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 html += '<div style="padding:10px;border-bottom:1px solid #eee;font-size:12px;">';
                 html += '<div style="color:#666;margin-bottom:4px;">' + escapeHtml(timeStr) + '</div>';
                 html += '<div style="color:#333;line-height:1.4;">' + escapeHtml(shortText) + '</div>';
-                html += '<div style="text-align:right;margin-top:6px;"><span onclick="document.getElementById('smsNotifListArea').style.display='none';document.getElementById('wxNotifListArea').style.display='none';openMobileModule('' + targetModule + '')" style="font-size:11px;color:#1a73e8;cursor:pointer;">去处理 →</span></div>';
+                html += '<div style="text-align:right;margin-top:6px;"><span onclick="document.getElementById(&quot;smsNotifListArea&quot;).style.display=&quot;none&quot;;document.getElementById(&quot;wxNotifListArea&quot;).style.display=&quot;none&quot;;openMobileModule(&quot;' + targetModule + '&quot;)" style="font-size:11px;color:#1a73e8;cursor:pointer;">去处理 →</span></div>';
                 html += '</div>';
             }
             container.innerHTML = html;
