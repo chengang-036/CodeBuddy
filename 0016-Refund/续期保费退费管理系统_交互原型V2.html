@@ -1581,9 +1581,11 @@
                             </div>
 
                             <div style="display: flex; gap: 8px;">
-                                <button id="smsBtnMaterial" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerMaterial')">📎 材料补充</button>
-                                <button id="smsBtnQuery" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerQuery')">🔍 \u67e5\u8be2\u8fdb\u5ea6</button>
+                                <button id="smsBtnMaterial" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="toggleSmsList(this, 'material')">📎 材料补充</button>
+                                <button id="smsBtnQuery" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="toggleSmsList(this, 'query')">🔍 \u67e5\u8be2\u8fdb\u5ea6</button>
                             </div>
+                            <!-- 短信清单展开区（默认隐藏） -->
+                            <div id="smsNotifListArea" style="display:none; margin-top:10px;"></div>
                         </div>
                         <!-- 💬 微信通知 -->
                         <div class="mobile-card" style="background: #f0fff4; border-left: 4px solid #07c160; padding: 14px; margin-bottom: 12px;">
@@ -1599,9 +1601,11 @@
                             </div>
 
                             <div style="display: flex; gap: 8px;">
-                                <button id="wechatBtnMaterial" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerMaterial')">📎 材料补充</button>
-                                <button id="wechatBtnQuery" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerQuery')">🔍 \u67e5\u8be2\u8fdb\u5ea6</button>
+                                <button id="wechatBtnMaterial" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="toggleWechatList(this, 'material')">📎 材料补充</button>
+                                <button id="wechatBtnQuery" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="toggleWechatList(this, 'query')">🔍 \u67e5\u8be2\u8fdb\u5ea6</button>
                             </div>
+                            <!-- 微信清单展开区（默认隐藏） -->
+                            <div id="wxNotifListArea" style="display:none; margin-top:10px;"></div>
                         </div>
                     </div>
                     <!-- 员工功能块（员工角色可见） -->
@@ -5345,6 +5349,74 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             showMaterialForm(refund);
         }
         
+        // 切换短信清单显示/隐藏，并按类别过滤渲染列表
+        function toggleSmsList(btn, category) {
+            var area = document.getElementById('smsNotifListArea');
+            if (!area) return;
+            if (area.style.display === 'block' && area.dataset.category === category) {
+                area.style.display = 'none';
+                return;
+            }
+            area.style.display = 'block';
+            area.dataset.category = category;
+            renderNotificationList(area, getSmsStore(), category);
+        }
+
+        // 切换微信清单显示/隐藏
+        function toggleWechatList(btn, category) {
+            var area = document.getElementById('wxNotifListArea');
+            if (!area) return;
+            if (area.style.display === 'block' && area.dataset.category === category) {
+                area.style.display = 'none';
+                return;
+            }
+            area.style.display = 'block';
+            area.dataset.category = category;
+            renderNotificationList(area, getWechatStore(), category);
+        }
+
+        // 渲染通知清单列表
+        function renderNotificationList(container, store, category) {
+            if (!loginState || !loginState.policyNo) { container.innerHTML = '<p style="font-size:11px;color:#999;padding:8px;">请先登录</p>'; return; }
+            var pno = loginState.policyNo;
+            var isMaterial = (category === 'material');
+            var items = [];
+            for (var i = 0; i < store.length; i++) {
+                if (store[i]['保单号'] !== pno) continue;
+                var textContent = store[i][(store[0] && store[0]['短信内容'] ? '短信内容' : '微信内容')] || '';
+                var hasKeyword = false;
+                if (isMaterial) hasKeyword = (textContent.indexOf('材料') >= 0 || textContent.indexOf('补充') >= 0);
+                else hasKeyword = (textContent.indexOf('查询') >= 0 || textContent.indexOf('进度') >= 0);
+                if (!hasKeyword && textContent) continue;
+                items.push({ index: i, data: store[i], text: textContent });
+            }
+            // 关键词过滤为空则回退全部
+            if (items.length === 0) {
+                for (var j = 0; j < store.length; j++) {
+                    if (store[j]['保单号'] === pno) items.push({ index: j, data: store[j], text: store[j][(store[0] && store[0]['短信内容'] ? '短信内容' : '微信内容')] || '' });
+                }
+            }
+            if (items.length === 0) {
+                container.innerHTML = '<p style="font-size:12px;color:#999;text-align:center;padding:10px;">暂无相关通知</p>';
+                return;
+            }
+            var html = '';
+            for (var k = 0; k < items.length; k++) {
+                var item = items[k];
+                var timeStr = item.data['发送时间'] || item.data['时间'] || '-';
+                var shortText = item.text.substring(0, 40) + (item.text.length > 40 ? '...' : '');
+                var targetModule = isMaterial ? 'customerMaterial' : 'customerQuery';
+                html += '<div style="padding:10px;border-bottom:1px solid #eee;font-size:12px;">';
+                html += '<div style="color:#666;margin-bottom:4px;">' + escapeHtml(timeStr) + '</div>';
+                html += '<div style="color:#333;line-height:1.4;">' + escapeHtml(shortText) + '</div>';
+                html += '<div style="text-align:right;margin-top:6px;"><span onclick="document.getElementById('smsNotifListArea').style.display='none';document.getElementById('wxNotifListArea').style.display='none';openMobileModule('' + targetModule + '')" style="font-size:11px;color:#1a73e8;cursor:pointer;">去处理 →</span></div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
         // 显示材料补充表单（共用函数：验证通过后填充并展示表单）
         function showMaterialForm(refund) {
             document.getElementById('mobileCustomerMaterial').style.display = 'block';
