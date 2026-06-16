@@ -6533,8 +6533,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             if (tabName === 'refunds') {
                 data = getData().refunds || [];
             } else if (tabName === 'approvalChain') {
-                // 导出审批链三层模型配置
-                data = getData().approvalChain || { hqTemplate: {}, branchTemplates: {}, instTemplates: {} };
+                // 导出审批链三层模型配置（从全局变量获取）
+                data = APPROVAL_FLOW_CONFIG || { hqTemplate: {}, branchTemplates: {}, instTemplates: {} };
             } else {
                 showToast('不支持的导出目标: ' + tabName, 'error');
                 return;
@@ -6551,8 +6551,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            var count = Array.isArray(data) ? data.length : Object.keys(data).length;
-            showToast('JSON导出成功，共 ' + count + ' 条记录', 'success');
+            var count = Array.isArray(data) ? data.length : (data.hqTemplate ? Object.keys(data.hqTemplate).length + Object.keys(data.branchTemplates || {}).length + Object.keys(data.instTemplates || {}).length : 0);
+            showToast('JSON导出成功', 'success');
         }
 
         function adminImportJSON(tabName, fileInput) {
@@ -6583,31 +6583,27 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     }
                     
                     if (confirm('即将导入 ' + dataCount + ' 条记录到 ' + tabName + '，将覆盖现有数据。确认继续？')) {
-                        var data = getData();
                         if (tabName === 'refunds') {
+                            var data = getData();
                             data.refunds = importedData;
-                        } else if (tabName === 'approvalChain') {
-                            // 合并导入的审批链配置（保留原有结构）
-                            data.approvalChain = Object.assign({
-                                hqTemplate: {},
-                                branchTemplates: {},
-                                instTemplates: {}
-                            }, importedData);
-                        } else {
-                            showToast('不支持的导入目标: ' + tabName, 'error');
-                            return;
-                        }
-                        saveData(data);
-                        
-                        // 刷新对应表格
-                        if (tabName === 'refunds') {
+                            saveData(data);
                             refreshAdminRefundsTable();
                         } else if (tabName === 'approvalChain') {
+                            // 保存到全局变量和localStorage
+                            APPROVAL_FLOW_CONFIG = importedData;
+                            try {
+                                localStorage.setItem('approvalFlowConfig', JSON.stringify(importedData));
+                            } catch(err) {
+                                console.error('保存审批链配置失败:', err);
+                            }
                             refreshAdminApprovalChain();
-                            // 同时刷新审批流管理模块（如果存在）
+                            // 同时刷新审批流管理模块
                             if (typeof initApprovalFlow === 'function') {
                                 initApprovalFlow();
                             }
+                        } else {
+                            showToast('不支持的导入目标: ' + tabName, 'error');
+                            return;
                         }
                         
                         showToast(tabName + ' JSON导入成功', 'success');
