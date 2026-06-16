@@ -5449,6 +5449,15 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var data = getData();
             var currentUserName = (loginState && loginState.userName) || '';
             var currentUsername = (loginState && loginState.username) || '';
+            var opName = currentOperatorName();
+            console.log('[移动端审批列表] refreshMobileApprovals 入参:', {
+                loginState_userName: currentUserName,
+                loginState_username: currentUsername,
+                currentOperatorName: opName,
+                currentUserRole: currentUserRole,
+                totalRefunds: data.refunds.length,
+                status3Count: data.refunds.filter(function(r){return r.status===3;}).length
+            });
             // 按用户权限过滤：仅显示当前用户属于pending节点审批人的退费记录
             // ★ 修复：排除当前用户已经审批过任何节点的记录（已流转到下一节点，再显示会导致流程混乱）
             var pendingList = data.refunds.filter(function(r) {
@@ -5460,11 +5469,20 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 注意：必须用 n.operator === currentOperatorName() 判断实际操作人，
                 // 不能用 isCurrentUserInNodeUsers(n)（它检查的是selectedUsers，即所有潜在审批人）
                 var currentUserAlreadyOperated = r.approvalNodes.some(function(n) {
-                    return n.status === 'completed' && n.operator === currentOperatorName();
+                    var match = n.status === 'completed' && n.operator === opName;
+                    if (match) {
+                        console.log('[移动端审批列表] ⛔ 排除记录 ' + r.id + ': 节点"' + n.name + '"已由"' + n.operator + '"审批, 当前操作人="' + opName + '"');
+                    }
+                    return match;
                 });
                 if (currentUserAlreadyOperated) return false;
-                return isCurrentUserInNodeUsers(pendingNode);
+                var inNodeUsers = isCurrentUserInNodeUsers(pendingNode);
+                if (inNodeUsers) {
+                    console.log('[移动端审批列表] ✅ 显示记录 ' + r.id + ', 待审节点="' + pendingNode.name + '"');
+                }
+                return inNodeUsers;
             });
+            console.log('[移动端审批列表] 过滤结果: 总=' + data.refunds.length + ' → 显示=' + pendingList.length);
             document.getElementById('mobilePendingApprovals').innerHTML = pendingList.length ? pendingList.map(r => `
                 <div class="mobile-card" onclick="openMobileApprovalDetail('${r.id}')">
                     <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><strong>${r.policyNo}</strong><span class="status-tag status-3">待审批</span></div>
@@ -5485,6 +5503,17 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const data = getData();
             const refund = data.refunds.find(r => r.id === id);
             if (!refund) return;
+            // ★ 诊断：打印当前读取的审批节点状态
+            console.log('[移动端审批详情] 打开记录 ' + id + ', status=' + refund.status + ' ' + refund.statusName);
+            if (refund.approvalNodes) {
+                refund.approvalNodes.forEach(function(n, i) {
+                    console.log('[移动端审批详情]   节点[' + i + '] "' + n.name + '" status=' + n.status +
+                        ' operator="' + n.operator + '" time="' + n.time + '"');
+                });
+                var firstPendingIdx = refund.approvalNodes.findIndex(function(n){return n.status==='pending';});
+                console.log('[移动端审批详情]   首个pending节点索引=' + firstPendingIdx +
+                    (firstPendingIdx>=0 ? ' ("' + refund.approvalNodes[firstPendingIdx].name + '")' : ' (无)'));
+            }
             currentMobileApprovalId = id;
             const policyData = getPolicyStore()[refund.policyNo] || {};
 
@@ -5601,10 +5630,14 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             if (!refund || !refund.approvalNodes) return;
 
             var currentNode = refund.approvalNodes.find(function(n) { return n.status === 'pending'; });
+            console.log('[移动端审批] ★ mobileApprove 开始, currentMobileApprovalId=' + currentMobileApprovalId +
+                ', 当前操作人=' + currentOperatorName() +
+                (currentNode ? ', 待审节点="' + currentNode.name + '"' : ', 无待审节点!'));
             if (currentNode) {
                 currentNode.status = 'completed';
                 currentNode.operator = currentOperatorName();
                 currentNode.time = new Date().format('yyyy-MM-dd hh:mm');
+                console.log('[移动端审批]   节点"' + currentNode.name + '"已标记为 completed, operator="' + currentNode.operator + '"');
             }
 
             var nextNode = refund.approvalNodes.find(function(n) { return n.status === 'pending'; });
@@ -5613,6 +5646,17 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 refund.statusName = '审批未完成';
                 refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批同意', operator: currentOperatorName(), detail: opinion + ' → 流转至下一节点: ' + nextNode.name });
                 saveData(data);
+                // ★ 验证：回读确认数据已正确保存
+                var verify = getData();
+                var vr = verify.refunds.find(function(r){return r.id===currentMobileApprovalId;});
+                if (vr && vr.approvalNodes) {
+                    console.log('[移动端审批] ✓ saveData验证成功, 节点状态:');
+                    vr.approvalNodes.forEach(function(n,i){
+                        console.log('   ['+i+'] '+n.name+' status='+n.status+' operator="'+n.operator+'"');
+                    });
+                } else {
+                    console.error('[移动端审批] ✗ saveData验证失败! 未找到记录');
+                }
                 showNotification('审批已同意，流转至: ' + nextNode.name, 'success');
             } else {
                 // 最后一个审批节点：审批完成，根据原卡/非原卡判断后续流程
