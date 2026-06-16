@@ -5462,32 +5462,14 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 status3Count: data.refunds.filter(function(r){return r.status===3;}).length
             });
             // 按用户权限过滤：仅显示当前用户属于pending节点审批人的退费记录
-            // ★ 修复：排除当前用户已经审批过任何节点的记录（已流转到下一节点，再显示会导致流程混乱）
+            // ★ 修复：移除 currentUserAlreadyOperated 过滤
+            //   原逻辑只要用户在任意已完成节点操作过就排除记录，过于激进。
+            //   正确做法：只要存在 pending 节点且用户在 selectedUsers 中，就应显示。
+            //   （拒绝后重新审批的场景下，pending 节点可能已有旧 operatorID，但不影响显示判断）
             var pendingList = data.refunds.filter(function(r) {
                 if (r.status !== 3 || !r.approvalNodes) return false;
                 var pendingNode = r.approvalNodes.find(function(n) { return n.status === 'pending'; });
                 if (!pendingNode) return false;
-                // ★ 修复：排除当前用户已经审批过任何节点的记录
-                // （已流转到下一节点，再显示会导致流程混乱）
-                // ★ 双重判定：优先用 operatorID（userID）匹配，fallback 到 operator（displayName）匹配
-                //    原因：loginState 可能在审批后被其他操作覆盖导致 userName/username 变化，
-                //          但 operatorID 是审批时刻写入的快照，不会被后续操作影响
-                var myUserID = (loginState && loginState.userID) || '';
-                var myOpName = currentOperatorName();
-                var currentUserAlreadyOperated = r.approvalNodes.some(function(n) {
-                    if (n.status !== 'completed') return false;
-                    // 优先用 userID 精确匹配
-                    if (myUserID && n.operatorID && n.operatorID === myUserID) return true;
-                    // fallback: 用 displayName 匹配（兼容旧数据无 operatorID 的情况）
-                    if (n.operator === myOpName && !n.operatorID) return true;
-                    // 如果有 operatorID 但不匹配，即使 displayName 碰巧相同也不算（防止不同人同名）
-                    return false;
-                });
-                if (currentUserAlreadyOperated) {
-                    console.log('[移动端审批列表] ⛔ 排除记录 ' + r.id + ': 当前userID="' + myUserID +
-                        '" 已匹配到已完成节点的operatorID, 当前userName="' + myOpName + '"');
-                    return false;
-                }
                 var inNodeUsers = isCurrentUserInNodeUsers(pendingNode);
                 if (inNodeUsers) {
                     console.log('[移动端审批列表] ✅ 显示记录 ' + r.id + ', 待审节点="' + pendingNode.name + '"');
@@ -5720,10 +5702,18 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 var completedNodes = refund.approvalNodes.filter(function(n) { return n.status === 'completed'; });
                 var lastCompleted = completedNodes[completedNodes.length - 1];
                 if (lastCompleted) { lastCompleted.status = 'pending'; lastCompleted.operator = '-'; lastCompleted.time = '-'; }
-                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.operatorID = (loginState && loginState.userID) || ''; currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
+                // ★ 修复：把 lastCompleted 之后的所有节点（含被拒绝的当前节点）也重置为 pending
+                //    这样上一节点重新审批通过后，nextNode 能正常找到对应节点，流程正确流转
+                var lcIdx = refund.approvalNodes.indexOf(lastCompleted);
+                for (var i = lcIdx + 1; i < refund.approvalNodes.length; i++) {
+                    refund.approvalNodes[i].status = 'pending';
+                    refund.approvalNodes[i].operator = '-';
+                    refund.approvalNodes[i].operatorID = '';
+                    refund.approvalNodes[i].time = '-';
+                }
                 refund.status = 3;
                 refund.statusName = '审批未完成';
-                refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批拒绝', operator: currentOperatorName(), detail: opinion + ' → 退回至: ' + (lastCompleted ? lastCompleted.name : '上一节点') });
+                refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批拒绝', operator: currentOperatorName(), detail: opinion + ' → 退回至: ' + (lastCompleted ? lastCompleted.name : '上一节点') + '（后续节点已重置为待处理）' });
                 showNotification('审批已拒绝，退回至: ' + (lastCompleted ? lastCompleted.name : '上一节点'), 'warning');
             }
 
