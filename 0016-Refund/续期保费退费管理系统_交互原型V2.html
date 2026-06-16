@@ -2173,6 +2173,40 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                         });
                     }
 
+                    // 迁移4：修复旧版 tier 缺少 minAmount/maxAmount 导致金额匹配失效的 Bug
+                    // 旧代码初始化 instTemplates 时只写了 label/level/nodes，没有金额范围
+                    // 导致 _matchTier() 所有金额都命中第一个 tier（"5000元以下"）
+                    function fixTierAmountBounds(tiersObj, tmplLabel) {
+                        if (!tiersObj) return;
+                        Object.keys(tiersObj).forEach(function(tk) {
+                            var entry = tiersObj[tk];
+                            if (!entry || !entry.tiers || !entry.tiers.length) return;
+                            var needsFix = false;
+                            for (var ti = 0; ti < entry.tiers.length; ti++) {
+                                var t = entry.tiers[ti];
+                                if (t.minAmount === undefined && t.maxAmount === undefined) { needsFix = true; break; }
+                            }
+                            if (!needsFix) return;
+                            updated = true;
+                            // 根据tier数量和label推断金额边界
+                            if (entry.tiers.length === 1) {
+                                entry.tiers[0].minAmount = 0;
+                                entry.tiers[0].maxAmount = Infinity;
+                            } else if (entry.tiers.length >= 3) {
+                                // 3个tier：按顺序推断 <5000 | 5000~50万 | ≥50万
+                                entry.tiers[0].minAmount = 0; entry.tiers[0].maxAmount = 5000;
+                                entry.tiers[1].minAmount = 5000; entry.tiers[1].maxAmount = 500000;
+                                entry.tiers[2].minAmount = 500000; entry.tiers[2].maxAmount = Infinity;
+                            } else if (entry.tiers.length === 2) {
+                                entry.tiers[0].minAmount = 0; entry.tiers[0].maxAmount = 500000;
+                                entry.tiers[1].minAmount = 500000; entry.tiers[1].maxAmount = Infinity;
+                            }
+                            console.log('[审批流] 迁移：为' + tmplLabel + ' ' + tk + ' 补全 ' + entry.tiers.length + '个tier的金额范围(minAmount/maxAmount)');
+                        });
+                    }
+                    fixTierAmountBounds(APPROVAL_FLOW_CONFIG.instTemplates, '机构模板');
+                    fixTierAmountBounds(APPROVAL_FLOW_CONFIG.branchTemplates, '分公司模板');
+
                     if (updated || cleaned) {
                         localStorage.setItem('approvalFlowConfig', JSON.stringify(APPROVAL_FLOW_CONFIG));
                         console.log('[审批流] 迁移完成：空分公司/机构模板已填充默认节点 / 脏数据已清理');
@@ -2226,6 +2260,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     users = n.selectedUsers.map(function(s) {
                         return { userID: s.userID || s, username: s.userDisplayName || s.userID || s, userDisplayName: s.userDisplayName || s.userID || s };
                     });
+                } else if (!n.selectedUsers) {
+                    console.warn('[审批流] _toRuntimeNode: 节点"' + (n.name||'?') + '"无selectedUsers字段(模板数据缺失)');
                 }
                 return {
                     name: n.name, role: n.name, level: level,
@@ -2236,85 +2272,103 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 };
             }
 
-            // 1. Try inst template (most specific): key = channel + '_' + branch + '_' + subBranch
+            // Helper: 在指定 tiers 数组中按金额匹配 tier 并返回运行时节点
+            function _matchTier(tiers, levelLabel) {
+                if (!tiers || !tiers.length) return null;
+                for (var ti = 0; ti < tiers.length; ti++) {
+                    var tier = tiers[ti];
+                    var inRange = true;
+                    if (tier.minAmount !== undefined && totalAmount < tier.minAmount) inRange = false;
+                    if (tier.maxAmount !== undefined && totalAmount >= tier.maxAmount) inRange = false;
+                    if (inRange) {
+                        var nodes = (tier.nodes || []).map(function(n, idx) {
+                            var rn = _toRuntimeNode(n, levelLabel);
+                            rn.isFirstNode = (idx === 0);
+                            rn.showCommissionRebate = (idx === 0);
+                            return rn;
+                        });
+                        return { channel: ch, tierLabel: tier.label || '-', tierLevel: levelLabel, nodes: nodes };
+                    }
+                }
+                return null;
+            }
+
+            // ========== 三层竞争查询（修复：恢复三层模式，每层内按金额匹配tier） ==========
+            // 查询优先级：instTemplates(最具体) → branchTemplates → hqTemplate(兜底)
+            // 每层内部按金额范围(minAmount/maxAmount)匹配对应tier
+            // 用户在Q9为同一机构配了多个金额区间的tier，如：
+            //   <5000: 5节点(纯中支) | 5000~50万: 9节点(中支+分公司) | ≥50万: 13节点(中支+分公司+总公司)
+
+            console.log('[审批流] getApprovalNodes 入参:', {
+                salesChannel: salesChannel, totalAmount: totalAmount,
+                branch: branch, subBranch: subBranch, subChannel: subChannel,
+                chKey: chKey
+            });
+
+            // --- 第1层：所属机构模板（instTemplates）---
             if (cfg.instTemplates) {
                 var instKey = chKey + '_' + (branch || '') + '_' + (subBranch || '');
                 var instEntry = cfg.instTemplates[instKey];
+                console.log('[审批流] 第1层(inst) 查询key:', instKey,
+                    '→', instEntry ? ('找到,' + instEntry.tiers.length + '个tier') : '未找到');
                 if (instEntry && instEntry.tiers) {
-                    // Find matching tier by amount
-                    for (var ti = 0; ti < instEntry.tiers.length; ti++) {
-                        var tier = instEntry.tiers[ti];
-                        var inRange = true;
-                        if (tier.minAmount !== undefined && totalAmount < tier.minAmount) inRange = false;
-                        if (tier.maxAmount !== undefined && totalAmount >= tier.maxAmount) inRange = false;
-                        if (inRange) {
-                            var nodes = (tier.nodes || []).map(function(n, idx) {
-                                var rn = _toRuntimeNode(n, '机构审批流');
-                                rn.isFirstNode = (idx === 0);
-                                rn.showCommissionRebate = (idx === 0);
-                                return rn;
-                            });
-                            return { channel: ch, tierLabel: tier.label || '-', tierLevel: '机构审批流', nodes: nodes };
-                        }
+                    // debug: 打印每个tier的金额范围和节点/用户数
+                    instEntry.tiers.forEach(function(t, ti) {
+                        var userCount = 0;
+                        (t.nodes||[]).forEach(function(n){ userCount += (n.selectedUsers||[]).length; });
+                        console.log('[审批流]   tier[' + ti + '] label=' + t.label +
+                            ' min=' + t.minAmount + ' max=' + t.maxAmount +
+                            ' nodes=' + (t.nodes||[]).length + ' users=' + userCount);
+                    });
+                    var result = _matchTier(instEntry.tiers, '机构审批流');
+                    if (result) {
+                        var resultUserCount = 0;
+                        result.nodes.forEach(function(n){ resultUserCount += (n.selectedUsers||[]).length; });
+                        console.log('[审批流] ✓ 命中inst模板! tierLabel=' + result.tierLabel +
+                            ' nodes=' + result.nodes.length + ' selectedUsers总数=' + resultUserCount);
+                        return result;
                     }
                 }
             }
 
-            // 2. Try branch template: key = channel + '_' + branch
+            // --- 第2层：分公司模板（branchTemplates）---
             if (cfg.branchTemplates) {
                 var brKey = chKey + '_' + (branch || '');
                 var brEntry = cfg.branchTemplates[brKey];
+                console.log('[审批流] 第2层(branch) 查询key:', brKey,
+                    '→', brEntry ? ('找到,' + brEntry.tiers.length + '个tier') : '未找到');
                 if (brEntry && brEntry.tiers) {
-                    for (var ti = 0; ti < brEntry.tiers.length; ti++) {
-                        var tier = brEntry.tiers[ti];
-                        var inRange = true;
-                        if (tier.minAmount !== undefined && totalAmount < tier.minAmount) inRange = false;
-                        if (tier.maxAmount !== undefined && totalAmount >= tier.maxAmount) inRange = false;
-                        if (inRange) {
-                            var nodes = (tier.nodes || []).map(function(n, idx) {
-                                var rn = _toRuntimeNode(n, '分公司');
-                                rn.isFirstNode = (idx === 0);
-                                rn.showCommissionRebate = (idx === 0);
-                                return rn;
-                            });
-                            return { channel: ch, tierLabel: tier.label || '-', tierLevel: '分公司', nodes: nodes };
-                        }
+                    var result2 = _matchTier(brEntry.tiers, '分公司');
+                    if (result2) {
+                        var uc2 = 0; result2.nodes.forEach(function(n){ uc2 += (n.selectedUsers||[]).length; });
+                        console.log('[审批流] ✓ 命中branch模板! tierLabel=' + result2.tierLabel +
+                            ' nodes=' + result2.nodes.length + ' selectedUsers总数=' + uc2);
+                        return result2;
                     }
                 }
             }
 
-            // 3. Try HQ template (fallback)
+            // --- 第3层：总公司模板（hqTemplate，兜底）---
             if (cfg.hqTemplate && cfg.hqTemplate[chKey]) {
                 var hqEntry = cfg.hqTemplate[chKey];
+                console.log('[审批流] 第3层(hq) 查询key:', chKey,
+                    '→', hqEntry ? ('找到, tiers=' + !!(hqEntry.tiers) + ' nodes=' + !!(hqEntry.nodes)) : '未找到');
                 if (hqEntry.tiers) {
-                    // 在线渠道：按金额区间匹配
-                    for (var ti = 0; ti < hqEntry.tiers.length; ti++) {
-                        var tier = hqEntry.tiers[ti];
-                        var inRange = true;
-                        if (tier.minAmount !== undefined && totalAmount < tier.minAmount) inRange = false;
-                        if (tier.maxAmount !== undefined && totalAmount >= tier.maxAmount) inRange = false;
-                        if (inRange) {
-                            var nodes = (tier.nodes || []).map(function(n, idx) {
-                                var rn = _toRuntimeNode(n, '总公司');
-                                rn.isFirstNode = (idx === 0);
-                                rn.showCommissionRebate = (idx === 0);
-                                return rn;
-                            });
-                            return { channel: ch, tierLabel: tier.label || '-', tierLevel: '总公司', nodes: nodes };
-                        }
-                    }
+                    var result3 = _matchTier(hqEntry.tiers, '总公司');
+                    if (result3) return result3;
                 } else if (hqEntry.nodes) {
-                    var nodes = hqEntry.nodes.map(function(n, idx) {
+                    var nodes3 = hqEntry.nodes.map(function(n, idx) {
                         var rn = _toRuntimeNode(n, '总公司');
                         rn.isFirstNode = (idx === 0);
                         rn.showCommissionRebate = (idx === 0);
                         return rn;
                     });
-                    return { channel: ch, tierLabel: '-', tierLevel: '总公司', nodes: nodes };
+                    return { channel: ch, tierLabel: '-', tierLevel: '总公司', nodes: nodes3 };
                 }
             }
 
-            // Fallback: empty
+            // 兜底：空结果
+            console.warn('[审批流] ⚠ 三层均未命中! chKey=' + chKey + ' branch=' + branch + ' subBranch=' + subBranch + ' amount=' + totalAmount);
             return { channel: ch, tierLabel: '-', tierLevel: '-', nodes: [] };
         }
 
@@ -2816,7 +2870,13 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 var bankName    = r['开户行']         || r['银行名称']   || '';
                 var totalPremium = r['总保费']        || '';
                 var salesChannel = r['销售渠道']       || '';
-                var subChannel  = r['销售子渠道']      || '-';
+                var subChannel  = r['销售子渠道']      || '';
+                // 防御修复：个险渠道缺少销售子渠道时，默认PAA并输出警告
+                if (!subChannel && salesChannel && (salesChannel.indexOf('个险') >= 0 || salesChannel === '个险渠道')) {
+                    subChannel = 'PAA';
+                    console.warn('[保单解析] 保单 ' + (r['保单号']||'?') + ' 销售渠道为"' + salesChannel + '"但缺少销售子渠道，已自动补全为 PAA');
+                }
+                if (!subChannel) subChannel = '-';
                 var pno = r['保单号'] || '';
                 if (!pno) return;
                 result[pno] = {
@@ -3674,7 +3734,11 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 branch: policy.branch || '',
                 subBranch: policy.subBranch || '',
                 salesChannel: policy.salesChannel || '',
-                subChannel: policy.subChannel || '-',
+                subChannel: (policy.subChannel && policy.subChannel !== '-') ? policy.subChannel : (
+                    // 防御：个险渠道子渠道丢失时根据salesChannel推断
+                    (policy.salesChannel && (policy.salesChannel.indexOf('个险') >= 0 || policy.salesChannel === '个险渠道')) ?
+                        ((policy.salesChannel.indexOf('PSA') >= 0) ? 'PSA' : 'PAA') : policy.subChannel || '-'
+                ),
                 bankName: policy.bankName || '',
                 bankAccount: policy.bankAccount || ''
             };
@@ -3766,6 +3830,19 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 需人工审批 → 根据渠道+金额动态生成审批链
                 refundRecord.status = 3; refundRecord.statusName = '审批未完成';
                 const approvalResult = getApprovalNodes(policy.salesChannel, totalAmount, policy.branch, policy.subBranch, policy.subChannel);
+                // debug: 输出审批节点摘要
+                console.log('[审批流] ★ 审批结果汇总:', {
+                    channel: approvalResult.channel, tierLabel: approvalResult.tierLabel,
+                    tierLevel: approvalResult.tierLevel, nodeCount: approvalResult.nodes.length
+                });
+                console.table(approvalResult.nodes.map(function(n, i) {
+                    return { '#': i, '节点名': n.name, '审批人数': (n.selectedUsers||[]).length, '审批人列表': (n.selectedUsers||[]).map(function(u){return u.userDisplayName||u.username;}).join(', ') || '(空)' };
+                }));
+                // 警告：如果所有节点都没有审批人
+                var totalUsers = approvalResult.nodes.reduce(function(s,n){return s+(n.selectedUsers||[]).length;},0);
+                if(approvalResult.nodes.length > 0 && totalUsers === 0){
+                    console.error('[审批流] ⚠️⚠️⚠️ 所有' + approvalResult.nodes.length + '个审批节点均无审批人! 请在Q9运维→审批流管理中为该渠道/分公司/机构的对应金额区间添加审批人');
+                }
                 refundRecord.approvalChannel = approvalResult.channel;
                 refundRecord.approvalTier = approvalResult.tierLabel;
                 refundRecord.approvalLevel = approvalResult.tierLevel;
@@ -3804,7 +3881,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     ────────────────<br>
                     <span style="color:#1a73e8;">🔗 已给客户发送远程进度查询短链接（72小时有效）</span><br>
                     客户可通过链接查询续期退费审批进展。<br>
-                    ${totalAmount > 10000 ? '<span style="color:#e65100;">⚠ 需客户补充投保人本人身份证正面、反面影像</span><br>' : ''}<span style=\"color:#f9a825;\">⚠ 已向' + (approvalResult.nodes[0] ? approvalResult.nodes[0].name : '审批节点') + '发送审批待办通知</span><br>`
+                    ${totalAmount > 10000 ? '<span style="color:#e65100;">⚠ 需客户补充投保人本人身份证正面、反面影像</span><br>' : ''}<span style="color:#f9a825;">⚠ 已向${approvalResult.nodes[0] ? approvalResult.nodes[0].name : '审批节点'}发送审批待办通知</span><br>`
             ); }
             
             // 保存受理记录（退回重新提交：更新原记录；全新提交：新增记录）
@@ -9457,7 +9534,7 @@ function switchAdminTab(tab) {
                 if(!s.branchName)return [];
                 var k=s.channel+'_'+s.branchName;
                 // 首次选择：用默认节点初始化（深拷贝，避免互相引用）
-                if(!cfg.branchTemplates[k])cfg.branchTemplates[k]={tiers:[{label:'分公司层',level:'分公司',nodes:JSON.parse(JSON.stringify(BRANCH_TEMPLATE_DEFAULT))}]};
+                if(!cfg.branchTemplates[k])cfg.branchTemplates[k]={tiers:[{minAmount:0,maxAmount:Infinity,label:'\u5206\u516c\u53f8\u5c42',level:'\u5206\u516c\u53f8',nodes:JSON.parse(JSON.stringify(BRANCH_TEMPLATE_DEFAULT))}]};
                 return cfg.branchTemplates[k].tiers[0].nodes;
             }else{
                 // inst模式：无中支时 instOrgName==='-'，有中支时是正常中支名称
@@ -9465,7 +9542,9 @@ function switchAdminTab(tab) {
                 if(s.tierIdx<0)return [];
                 var ik=s.channel+'_'+s.branchName+'_'+(s.instOrgName||'-');
                 if(!cfg.instTemplates[ik])cfg.instTemplates[ik]={tiers:[
-                    {label:'5000元以下',level:'分公司',nodes:JSON.parse(JSON.stringify(INST_TEMPLATE_DEFAULT))},{label:'5000~50万',level:'分公司',nodes:[]},{label:'50万+',level:'总公司',nodes:[]}
+                    {minAmount:0, maxAmount:5000, label:'5000元以下',level:'中支层',nodes:JSON.parse(JSON.stringify(INST_TEMPLATE_DEFAULT))},
+                    {minAmount:5000, maxAmount:500000, label:'5000\u201450\u4e07\u4ee5\u4e0b',level:'\u5206\u516c\u53f8',nodes:[]},
+                    {minAmount:500000, maxAmount:Infinity, label:'50\u4e07\u53ca\u4ee5\u4e0a',level:'\u603b\u516c\u53f8',nodes:[]}
                 ]};
                 return cfg.instTemplates[ik].tiers[s.tierIdx].nodes;
             }
