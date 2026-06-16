@@ -5693,7 +5693,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 showNotification('审批完成！' + (refund.isOriginalCard ? '已提交核心退费' : '已通知客户补材料'), 'success');
             }
 
-            setTimeout(function() { showMobileEntry(); }, 1500);
+            setTimeout(function() { showMobileApprovalList(); }, 1500);
         }
 
         // 拒绝
@@ -5730,7 +5730,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             }
 
             saveData(data);
-            setTimeout(function() { showMobileEntry(); }, 1500);
+            setTimeout(function() { showMobileApprovalList(); }, 1500);
         }
 
         // 驳回（第二节点及以后可用）
@@ -5762,7 +5762,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
             saveData(data);
             showNotification('已驳回，退回至第一审批节点', 'warning');
-            setTimeout(function() { showMobileEntry(); }, 1500);
+            setTimeout(function() { showMobileApprovalList(); }, 1500);
         }
 
         // 【审批人角色】审批通过
