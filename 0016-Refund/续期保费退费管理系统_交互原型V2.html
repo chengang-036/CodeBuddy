@@ -1722,7 +1722,7 @@
                         </div>
                     </div>
                     
-                    <div class="mobile-card" style="background: #fff8e1; border-left: 4px solid #ff9800;">
+                    <div class="mobile-card" id="mobileBankCardSection" style="background: #fff8e1; border-left: 4px solid #ff9800;">
                         <h3 style="margin-bottom: 12px;">💳 银行卡信息</h3>
                         <p style="font-size: 12px; color: var(--gray-600); margin-bottom: 12px;">请输入投保人其他银行卡号并上传银行卡影像</p>
                         <div class="form-group"><label class="form-label">新银行卡号</label><input type="text" class="form-control" id="mobileNewBankCard" placeholder="请输入新的银行卡号"></div>
@@ -5379,6 +5379,10 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var _acct = pd.bankAccount || refund.bankAccount || '';
             document.getElementById('mcAccountNo').textContent = _acct ? _acct.replace(/(\d{4})\d+(\d{4})/, '$1****$2') : '****';
             document.getElementById('mcBankName').textContent = pd.bankName || refund.bankName || '-';
+            
+            // 根据是否原卡原退决定是否显示银行卡补充区块
+            var _bankSection = document.getElementById('mobileBankCardSection');
+            if (_bankSection) _bankSection.style.display = refund.isOriginalCard ? 'none' : 'block';
             
             // 填充缴费记录
             const paymentHtml = (refund.payments || []).map(p => `
