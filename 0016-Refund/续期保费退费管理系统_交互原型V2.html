@@ -5363,21 +5363,22 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('mcRefundReason').textContent = refund.refundReason || '-';
             document.getElementById('mobileRefundReason').value = refund.refundReason || '';
             
-            // 填充保单详细信息
-            document.getElementById('mcMainRisk').textContent = refund.mainRisk || '安心定期寿险';
-            document.getElementById('mcMainRiskCode').textContent = refund.mainRiskCode || 'PQL001';
-            document.getElementById('mcStartDate').textContent = refund.startDate || '2020-01-01';
-            document.getElementById('mcEndDate').textContent = refund.endDate || '2030-12-31';
-            document.getElementById('mcNextPayDate').textContent = refund.nextPayDate || '2026-12-01';
-            document.getElementById('mcPayMethod').textContent = refund.payMethod || '银行转账';
-            document.getElementById('mcBranch').textContent = refund.branch || '太平洋人寿保险股份有限公司';
-            document.getElementById('mcOrg').textContent = refund.org || '上海分公司';
+            // 填充保单详细信息（从保单数据获取，不再硬编码）
+            var pd = getPolicyStore()[refund.policyNo] || {};
+            document.getElementById('mcMainRisk').textContent = pd.mainRisk || refund.mainRisk || '-';
+            document.getElementById('mcMainRiskCode').textContent = pd.riskCode || '-';
+            document.getElementById('mcStartDate').textContent = pd.startDate || '-';
+            document.getElementById('mcEndDate').textContent = pd.endDate || '-';
+            document.getElementById('mcNextPayDate').textContent = pd.nextPayDate || '-';
+            document.getElementById('mcPayMethod').textContent = pd.payMethod || '-';
+            document.getElementById('mcBranch').textContent = pd.branch || '-';
+            document.getElementById('mcOrg').textContent = pd.subBranch || '-';
             
-            // 填充缴费账户信息
-            document.getElementById('mcAccountName').textContent = refund.holderName || '-';
-            var _acct = refund.bankAccount || '';
+            // 填充缴费账户信息（从保单数据获取）
+            document.getElementById('mcAccountName').textContent = pd.accountName || refund.holderName || '-';
+            var _acct = pd.bankAccount || refund.bankAccount || '';
             document.getElementById('mcAccountNo').textContent = _acct ? _acct.replace(/(\d{4})\d+(\d{4})/, '$1****$2') : '****';
-            document.getElementById('mcBankName').textContent = refund.bankName || '中国工商银行';
+            document.getElementById('mcBankName').textContent = pd.bankName || refund.bankName || '-';
             
             // 填充缴费记录
             const paymentHtml = (refund.payments || []).map(p => `
@@ -5452,9 +5453,10 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('mobileQueryExpired').style.display = 'none';
             document.getElementById('mobileQueryNotFound').style.display = 'none';
 
-            // 填充保单信息
+            // 填充保单信息（从保单数据获取）
+            var _qpd = getPolicyStore()[refund.policyNo] || {};
             document.getElementById('mqPolicyNo').textContent = refund.policyNo || '-';
-            document.getElementById('mqMainRisk').textContent = refund.mainRisk || '-';
+            document.getElementById('mqMainRisk').textContent = _qpd.mainRisk || refund.mainRisk || '-';
             document.getElementById('mqHolderName').textContent = refund.holderName || '-';
             document.getElementById('mqRefundAmount').textContent = '¥' + (refund.amount || 0).toLocaleString('zh-CN', {minimumFractionDigits: 2});
             document.getElementById('mqRefundPeriods').textContent = refund.refundPeriods || '-';
