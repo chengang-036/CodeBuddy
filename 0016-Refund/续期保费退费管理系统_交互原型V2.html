@@ -4570,7 +4570,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             const refund = data.refunds.find(r => r.id === id);
             if (refund.approvalNodes) {
                 const currentNode = refund.approvalNodes.find(n => n.status === 'pending');
-                if (currentNode) { currentNode.status = 'completed'; currentNode.operator = currentOperatorName(); currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
+                if (currentNode) { currentNode.status = 'completed'; currentNode.operator = currentOperatorName(); currentNode.operatorID = (loginState && loginState.userID) || ''; currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
                 const nextNode = refund.approvalNodes.find(n => n.status === 'pending');
                 if (nextNode) {
                     refund.status = 3; refund.statusName = '审批未完成';
@@ -4605,7 +4605,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
             if (isFirstNode) {
                 // 第一审批节点拒绝
-                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
+                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.operatorID = (loginState && loginState.userID) || ''; currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
                 refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批拒绝', operator: currentOperatorName(), detail: opinion + '（第一审批节点拒绝，请与客户联系发起撤销操作）' });
                 showNotification('审批已拒绝，请与客户联系发起撤销操作', 'warning');
             } else {
@@ -4613,7 +4613,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 const completedNodes = refund.approvalNodes.filter(n => n.status === 'completed');
                 var lastComp = completedNodes[completedNodes.length - 1];
                 if (lastComp) { lastComp.status = 'pending'; lastComp.operator = '-'; lastComp.time = '-'; }
-                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
+                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.operatorID = (loginState && loginState.userID) || ''; currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
                 refund.status = 3; refund.statusName = '审批未完成';
                 refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批拒绝', operator: currentOperatorName(), detail: opinion + ' → 退回至: ' + (lastComp ? lastComp.name : '上一节点') });
                 showNotification('审批已拒绝，退回至: ' + (lastComp ? lastComp.name : '上一节点'), 'warning');
@@ -5466,16 +5466,25 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (!pendingNode) return false;
                 // ★ 修复：排除当前用户已经审批过任何节点的记录
                 // （已流转到下一节点，再显示会导致流程混乱）
-                // 注意：必须用 n.operator === currentOperatorName() 判断实际操作人，
-                // 不能用 isCurrentUserInNodeUsers(n)（它检查的是selectedUsers，即所有潜在审批人）
+                // ★ 双重判定：优先用 operatorID（userID）匹配，fallback 到 operator（displayName）匹配
+                //    原因：loginState 可能在审批后被其他操作覆盖导致 userName/username 变化，
+                //          但 operatorID 是审批时刻写入的快照，不会被后续操作影响
+                var myUserID = (loginState && loginState.userID) || '';
+                var myOpName = currentOperatorName();
                 var currentUserAlreadyOperated = r.approvalNodes.some(function(n) {
-                    var match = n.status === 'completed' && n.operator === opName;
-                    if (match) {
-                        console.log('[移动端审批列表] ⛔ 排除记录 ' + r.id + ': 节点"' + n.name + '"已由"' + n.operator + '"审批, 当前操作人="' + opName + '"');
-                    }
-                    return match;
+                    if (n.status !== 'completed') return false;
+                    // 优先用 userID 精确匹配
+                    if (myUserID && n.operatorID && n.operatorID === myUserID) return true;
+                    // fallback: 用 displayName 匹配（兼容旧数据无 operatorID 的情况）
+                    if (n.operator === myOpName && !n.operatorID) return true;
+                    // 如果有 operatorID 但不匹配，即使 displayName 碰巧相同也不算（防止不同人同名）
+                    return false;
                 });
-                if (currentUserAlreadyOperated) return false;
+                if (currentUserAlreadyOperated) {
+                    console.log('[移动端审批列表] ⛔ 排除记录 ' + r.id + ': 当前userID="' + myUserID +
+                        '" 已匹配到已完成节点的operatorID, 当前userName="' + myOpName + '"');
+                    return false;
+                }
                 var inNodeUsers = isCurrentUserInNodeUsers(pendingNode);
                 if (inNodeUsers) {
                     console.log('[移动端审批列表] ✅ 显示记录 ' + r.id + ', 待审节点="' + pendingNode.name + '"');
@@ -5636,8 +5645,10 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             if (currentNode) {
                 currentNode.status = 'completed';
                 currentNode.operator = currentOperatorName();
+                currentNode.operatorID = (loginState && loginState.userID) || '';  // ★ 用userID做身份标识，防止loginState被覆盖后无法识别
                 currentNode.time = new Date().format('yyyy-MM-dd hh:mm');
-                console.log('[移动端审批]   节点"' + currentNode.name + '"已标记为 completed, operator="' + currentNode.operator + '"');
+                console.log('[移动端审批]   节点"' + currentNode.name + '"已标记为 completed, operator="' +
+                    currentNode.operator + '", operatorID="' + currentNode.operatorID + '"');
             }
 
             var nextNode = refund.approvalNodes.find(function(n) { return n.status === 'pending'; });
@@ -5698,7 +5709,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 第一个审批环节 → 系统提示发起撤销
                 refund.status = 3;
                 refund.statusName = '审批未完成';
-                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
+                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.operatorID = (loginState && loginState.userID) || ''; currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
                 refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批拒绝', operator: currentOperatorName(), detail: opinion + '（第一审批节点拒绝，请与客户联系发起撤销操作）' });
                 showNotification('审批已拒绝，请与客户联系发起撤销操作', 'warning');
             } else {
@@ -5706,7 +5717,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 var completedNodes = refund.approvalNodes.filter(function(n) { return n.status === 'completed'; });
                 var lastCompleted = completedNodes[completedNodes.length - 1];
                 if (lastCompleted) { lastCompleted.status = 'pending'; lastCompleted.operator = '-'; lastCompleted.time = '-'; }
-                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
+                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.operatorID = (loginState && loginState.userID) || ''; currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
                 refund.status = 3;
                 refund.statusName = '审批未完成';
                 refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批拒绝', operator: currentOperatorName(), detail: opinion + ' → 退回至: ' + (lastCompleted ? lastCompleted.name : '上一节点') });
@@ -5777,6 +5788,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (currentNode) {
                     currentNode.status = 'completed';
                     currentNode.operator = currentOperatorName();
+                    currentNode.operatorID = (loginState && loginState.userID) || '';
                     currentNode.time = new Date().format('yyyy-MM-dd hh:mm');
                 }
                 const nextNode = refund.approvalNodes.find(n => n.status === 'pending');
@@ -5832,7 +5844,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
             if (isFirstNode) {
                 // 第一审批节点拒绝
-                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
+                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.operatorID = (loginState && loginState.userID) || ''; currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
                 refund.status = 3; refund.statusName = '审批未完成';
                 refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批拒绝', operator: currentOperatorName(), detail: opinion + '（第一审批节点拒绝，请与客户联系发起撤销操作）' });
                 showNotification('审批已拒绝，请与客户联系发起撤销操作', 'warning');
@@ -5841,7 +5853,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 const completedNodes = refund.approvalNodes.filter(n => n.status === 'completed');
                 var lastComp = completedNodes[completedNodes.length - 1];
                 if (lastComp) { lastComp.status = 'pending'; lastComp.operator = '-'; lastComp.time = '-'; }
-                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
+                if (currentNode) { currentNode.status = 'rejected'; currentNode.operator = currentOperatorName(); currentNode.operatorID = (loginState && loginState.userID) || ''; currentNode.time = new Date().format('yyyy-MM-dd hh:mm'); }
                 refund.status = 3; refund.statusName = '审批未完成';
                 refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批拒绝', operator: currentOperatorName(), detail: opinion + ' → 退回至: ' + (lastComp ? lastComp.name : '上一节点') });
                 showNotification('审批已拒绝，退回至: ' + (lastComp ? lastComp.name : '上一节点'), 'warning');
