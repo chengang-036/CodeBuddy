@@ -2665,7 +2665,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('headerRoleName').textContent = loginState.roleName;
             document.getElementById('headerUserLabel').style.display = 'inline';
             document.getElementById('headerUserInfo').style.display = 'inline';
-            document.getElementById('headerUserInfo').textContent = loginState.username + '（' + loginState.userName + '）';
+            document.getElementById('headerUserInfo').textContent = loginState.username + loginState.userName;
             document.getElementById('headerLogoutBtn').style.display = 'inline-block';
             // Admin: 有Q8权限 或 角色是J8（Admin）均可见
             if (loginState.perms && (loginState.perms.includes('Q8') || loginState.roleID === 'J8')) {
@@ -2763,7 +2763,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 更新角色名
                 document.getElementById('mobileRoleName').textContent = loginState.roleName;
                 // 当前用户信息（用户名 用户姓名）
-                document.getElementById('mobileUserInfo').textContent = (loginState.username || '') + ' ' + (loginState.userName || '');
+                document.getElementById('mobileUserInfo').textContent = (loginState.username || '') + (loginState.userName || '');
                 // 客户块：只有Q6或Q7权限可见
                 var showCust = loginState.perms.includes('Q6') || loginState.perms.includes('Q7');
                 document.getElementById('mobileCustomerBlock').style.display = showCust ? 'block' : 'none';
@@ -5215,7 +5215,35 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('mobileApproval').style.display = 'none';
             
             if (module === 'customerMaterial') {
-                // 材料补充：显示登录验证页
+                // 材料补充：若客户已登录（loginState 中有 idNo/phone），自动验证身份直接进入表单
+                if (loginState && loginState.idNo && loginState.phone) {
+                    var _data = getData();
+                    var _refund = (_data.refunds || []).find(function(r) {
+                        return r.holderId === loginState.idNo && r.phone === loginState.phone;
+                    });
+                    if (!_refund || _refund.status !== 5) {
+                        // 无退费申请或无需补充材料：显示对应提示页
+                        document.getElementById('mobileCustomerMaterial').style.display = 'block';
+                        document.getElementById('mobileTitle').textContent = '材料补充';
+                        document.getElementById('mobileMaterialLogin').style.display = 'none';
+                        document.getElementById('mobileMaterialForm').style.display = 'none';
+                        if (!_refund) {
+                            document.getElementById('mobileMaterialNotFound').style.display = 'block';
+                            document.querySelector('#mobileMaterialNotFound h3').textContent = '未找到退费申请';
+                            document.querySelector('#mobileMaterialNotFound p').textContent = '请您确认是否发起了续期退费申请';
+                            document.getElementById('mobileMaterialNotNeeded').style.display = 'none';
+                        } else {
+                            document.getElementById('mobileMaterialNotNeeded').style.display = 'block';
+                            document.getElementById('mobileMaterialNotFound').style.display = 'none';
+                        }
+                        document.getElementById('mobileMaterialExpired').style.display = 'none';
+                        return;
+                    }
+                    // 验证通过：直接展示材料补充表单
+                    showMaterialForm(_refund);
+                    return;
+                }
+                // 未登录：显示登录验证页
                 document.getElementById('mobileCustomerMaterial').style.display = 'block';
                 document.getElementById('mobileMaterialLogin').style.display = 'block';
                 document.getElementById('mobileMaterialForm').style.display = 'none';
@@ -5235,7 +5263,29 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 refreshMobileApprovals();
             }
             else if (module === 'customerQuery') {
-                // 进展查询：显示登录验证页
+                // 进展查询：若客户已登录，自动验证身份直接显示结果
+                if (loginState && loginState.idNo && loginState.phone) {
+                    var _qData = getData();
+                    var _qRefund = (_qData.refunds || []).find(function(r) {
+                        return r.holderId === loginState.idNo && r.phone === loginState.phone;
+                    });
+                    if (!_qRefund) {
+                        // 无退费申请：显示未找到页面
+                        document.getElementById('mobileCustomerQuery').style.display = 'block';
+                        document.getElementById('mobileTitle').textContent = '进度查询';
+                        document.getElementById('mobileQueryLogin').style.display = 'none';
+                        document.getElementById('mobileQueryResult').style.display = 'none';
+                        document.getElementById('mobileQueryNotFound').style.display = 'block';
+                        document.querySelector('#mobileQueryNotFound h3').textContent = '未找到退费申请';
+                        document.querySelector('#mobileQueryNotFound p').textContent = '请您确认是否发起了续期退费申请';
+                        document.getElementById('mobileQueryExpired').style.display = 'none';
+                        return;
+                    }
+                    // 找到退费记录：直接显示查询结果
+                    showQueryResult(_qRefund);
+                    return;
+                }
+                // 未登录：显示登录验证页
                 showMobileQueryLogin();
             }
         }
@@ -5291,9 +5341,19 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 return;
             }
             
-            // 验证通过，显示材料补充表单
+            // 验证通过，显示材料补充表单（调用共用函数）
+            showMaterialForm(refund);
+        }
+        
+        // 显示材料补充表单（共用函数：验证通过后填充并展示表单）
+        function showMaterialForm(refund) {
+            document.getElementById('mobileCustomerMaterial').style.display = 'block';
+            document.getElementById('mobileTitle').textContent = '材料补充';
             document.getElementById('mobileMaterialLogin').style.display = 'none';
             document.getElementById('mobileMaterialForm').style.display = 'block';
+            document.getElementById('mobileMaterialExpired').style.display = 'none';
+            document.getElementById('mobileMaterialNotFound').style.display = 'none';
+            document.getElementById('mobileMaterialNotNeeded').style.display = 'none';
             
             // 填充保单信息
             document.getElementById('mcPolicyNo').textContent = refund.policyNo || '-';
@@ -5303,7 +5363,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('mcRefundReason').textContent = refund.refundReason || '-';
             document.getElementById('mobileRefundReason').value = refund.refundReason || '';
             
-            // 填充保单详细信息（从数据中获取或使用占位符）
+            // 填充保单详细信息
             document.getElementById('mcMainRisk').textContent = refund.mainRisk || '安心定期寿险';
             document.getElementById('mcMainRiskCode').textContent = refund.mainRiskCode || 'PQL001';
             document.getElementById('mcStartDate').textContent = refund.startDate || '2020-01-01';
@@ -5315,8 +5375,9 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             
             // 填充缴费账户信息
             document.getElementById('mcAccountName').textContent = refund.holderName || '-';
-            document.getElementById('mcAccountNo').textContent = (refund.bankAccount || pd.bankAccount) ? (refund.bankAccount || pd.bankAccount).replace(/(\d{4})\d+(\d{4})/, '$1****$2') : '****';
-            document.getElementById('mcBankName').textContent = refund.bankName || pd.bankName || '中国工商银行';
+            var _acct = refund.bankAccount || '';
+            document.getElementById('mcAccountNo').textContent = _acct ? _acct.replace(/(\d{4})\d+(\d{4})/, '$1****$2') : '****';
+            document.getElementById('mcBankName').textContent = refund.bankName || '中国工商银行';
             
             // 填充缴费记录
             const paymentHtml = (refund.payments || []).map(p => `
@@ -5378,10 +5439,19 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 return;
             }
             
-            // 显示进度查询结果
+            // 验证通过，显示进度查询结果（调用共用函数）
+            showQueryResult(refund);
+        }
+
+        // 显示进度查询结果（共用函数）
+        function showQueryResult(refund) {
+            document.getElementById('mobileCustomerQuery').style.display = 'block';
+            document.getElementById('mobileTitle').textContent = '进度查询';
             document.getElementById('mobileQueryLogin').style.display = 'none';
             document.getElementById('mobileQueryResult').style.display = 'block';
-            
+            document.getElementById('mobileQueryExpired').style.display = 'none';
+            document.getElementById('mobileQueryNotFound').style.display = 'none';
+
             // 填充保单信息
             document.getElementById('mqPolicyNo').textContent = refund.policyNo || '-';
             document.getElementById('mqMainRisk').textContent = refund.mainRisk || '-';
@@ -5389,12 +5459,13 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('mqRefundAmount').textContent = '¥' + (refund.amount || 0).toLocaleString('zh-CN', {minimumFractionDigits: 2});
             document.getElementById('mqRefundPeriods').textContent = refund.refundPeriods || '-';
             document.getElementById('mqRefundReason').textContent = refund.refundReason || '-';
-            
+
             // 填充缴费账户信息
+            var _qAcct = refund.bankAccount || '';
             document.getElementById('mqAccountName').textContent = refund.holderName || '-';
-            document.getElementById('mqAccountNo').textContent = (refund.bankAccount || pd.bankAccount) ? (refund.bankAccount || pd.bankAccount).replace(/(\d{4})\d+(\d{4})/, '$1****$2') : '****';
-            document.getElementById('mqBankName').textContent = refund.bankName || pd.bankName || '-';
-            
+            document.getElementById('mqAccountNo').textContent = _qAcct ? _qAcct.replace(/(\d{4})\d+(\d{4})/, '$1****$2') : '****';
+            document.getElementById('mqBankName').textContent = refund.bankName || '-';
+
             // 填充缴费记录
             const paymentHtml = (refund.payments || []).map(p => `
                 <div style="padding: 10px 0; border-bottom: 1px solid var(--gray-200); font-size: 13px;">
@@ -5408,11 +5479,11 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 </div>
             `).join('') || '<p style="color: var(--gray-500); font-size: 13px;">暂无缴费记录</p>';
             document.getElementById('mqPaymentRecords').innerHTML = paymentHtml;
-            
+
             // 填充当前状态
             document.getElementById('mqStatusName').textContent = refund.statusName || '-';
-            document.getElementById('mqStatusTime').textContent = '更新时间：' + (refund.logs && refund.logs.length > 0 ? refund.logs[refund.logs.length - 1].time : '-');
-            
+            document.getElementById('mqStatusTime').textContent = '更新时间：' + ((refund.logs && refund.logs.length > 0) ? refund.logs[refund.logs.length - 1].time : '-');
+
             // 填充状态时间线
             const timelineHtml = (refund.logs || []).slice().reverse().map((log, index) => `
                 <div style="display: flex; gap: 12px; padding: 12px 0; ${index > 0 ? 'border-top: 1px solid var(--gray-200);' : ''}">
@@ -5428,7 +5499,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 </div>
             `).join('');
             document.getElementById('mobileTimeline').innerHTML = timelineHtml || '<p style="color: var(--gray-500);">暂无处理记录</p>';
-            
+
             showNotification('查询成功', 'success');
         }
 
