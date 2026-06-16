@@ -2784,7 +2784,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 更新角色名
                 document.getElementById('mobileRoleName').textContent = loginState.roleName;
                 // 当前用户信息（同PC版：用户名（用户姓名））
-                document.getElementById('mobileUserInfo').textContent = (loginState.username || '') + '（' + (loginState.userName || '') + '）';
+                document.getElementById('mobileUserInfo').textContent = (loginState.username || '') + ' ' + (loginState.userName || '');
                 // 客户块：只有Q6或Q7权限可见
                 var showCust = loginState.perms.includes('Q6') || loginState.perms.includes('Q7');
                 document.getElementById('mobileCustomerBlock').style.display = showCust ? 'block' : 'none';
@@ -3998,8 +3998,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                         <h3 style="margin-bottom:16px;">移动端自助服务</h3>
                         <p style="color:var(--gray-500);margin-bottom:24px;">您可通过以下方式查询退费进展或补充材料：</p>
                         <div style="display:flex;flex-direction:column;gap:12px;max-width:300px;margin:0 auto;">
-                            <button class="btn btn-outline" onclick="showNotification('请在太好钉APP中访问续期退费进展查询', 'info')">📋 查看退费进展</button>
-                            <button class="btn btn-outline" onclick="showNotification('请在太好钉APP中访问材料补充链接', 'info')">📤 补充材料</button>
+                            <button class="btn btn-outline" onclick="openMobileModule('customerQuery')">📋 查看退费进展</button>
+                            <button class="btn btn-outline" onclick="openMobileModule('customerMaterial')">📤 补充材料</button>
                         </div>
                     </div>`;
                 return;
