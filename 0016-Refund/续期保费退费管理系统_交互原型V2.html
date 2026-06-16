@@ -594,7 +594,7 @@
     </style>
 </head>
 <body>
-    <!-- &#39030;&#37096;&#23548;&#33322; -->
+    <!-- 顶部导航 -->
     <header class="header">
         <div class="header-content">
             <div class="logo">
@@ -613,10 +613,10 @@
                     </button>
                 </div>
                 <div id="headerRoleArea" style="display:flex;align-items:center;gap:8px;color:white;">
-                    <!-- &#26410;&#30331;&#24405; -->
+                    <!-- 未登录 -->
                     <span id="headerLoginPrompt" style="font-size:13px;opacity:0.8;">&#35831;&#30331;&#24405;&#21518;&#20351;&#29992;</span>
                     <button id="headerLoginBtn" class="btn btn-sm" style="background:white;color:var(--primary);" onclick="showPCLogin()">&#128273; &#30331;&#24405;</button>
-                    <!-- &#24050;&#30331;&#24405;&#65288;&#38544;&#34255;&#65289; -->
+                    <!-- 已登录（隐藏） -->
                     <span id="headerUserLabel" style="display:none;font-size:13px;opacity:0.8;">当前用户：</span>
                     <span id="headerUserInfo" style="display:none;font-size:13px;font-weight:500;"></span>
                     <span id="headerRoleLabel" style="display:none;font-size:13px;opacity:0.8;">&#24403;&#21069;&#35282;&#33394;&#65306;</span>
@@ -631,7 +631,7 @@
         </div>
     </header>
 
-    <!-- PC&#31471;&#30331;&#24405;&#24377;&#31383; -->
+    <!-- PC端登录弹窗 -->
     <div class="login-overlay" id="pcLoginOverlay">
         <div class="login-dialog">
             <button class="login-close" onclick="closePCLogin()">&#215;</button>
@@ -653,9 +653,9 @@
         </div>
     </div>
 
-    <!-- PC&#31471;&#35270;&#22270; -->
+    <!-- PC端视图 -->
     <main class="main-container pc-view" id="pcView">
-        <!-- &#20837;&#21475;&#21345;&#29255;&#21306; -->
+        <!-- 入口卡片区 -->
         <section id="entrySection">
             <h2 style="margin-bottom: 20px; font-size: 20px;">&#36873;&#25321;&#25805;&#20316;&#20837;&#21475;</h2>
             <div class="entry-grid" id="pcEntryGrid">
@@ -686,7 +686,7 @@
             </div>
         </section>
 
-        <!-- 95500&#22352;&#24109;&#21463;&#29702;&#27169;&#22359; -->
+        <!-- 95500坐席受理模块 -->
         <section class="view-section" id="receptionModule">
             <div class="card">
                 <div class="card-header">
@@ -694,7 +694,7 @@
                     <button class="btn btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;&#39318;&#39029;</button>
                 </div>
                 <div class="card-body">
-                    <!-- &#27493;&#39588;&#25351;&#31034;&#22120; -->
+                    <!-- 步骤指示器 -->
                     <div class="process-indicator">
                         <div class="process-step completed" id="step1Indicator">
                             <div class="process-step-icon">1</div>
@@ -707,7 +707,7 @@
                         </div>
                     </div>
 
-                    <!-- &#27493;&#39588;1&#65306;P17&#24555;&#22788; (&#20445;&#21333;查询) -->
+                    <!-- 步骤1：P17快处 (保单查询) -->
                     <div class="step-form" id="step1">
                         <div class="step-form-item">
                             <h3 style="margin-bottom: 16px;">P17&#20445;&#21333;&#24555;&#36895;查询</h3>
@@ -722,7 +722,7 @@
                                     &#35831;&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#36827;&#34892;查询
                                 </div>
                             </div>
-                            <!-- P17&#24555;&#22788;&#20449;&#24687;&#21345;&#29255;&#65288;&#36873;&#25321;&#20445;&#21333;&#21518;&#26174;&#31034;&#65289; -->
+                            <!-- P17快处信息卡片（选择保单后显示） -->
                             <div id="p17InfoCard" style="display:none; margin-top: 20px;">
                                 <div class="info-section">
                                     <div class="info-section-title">&#128203; P17&#24555;&#22788;&#20449;&#24687;</div>
@@ -738,12 +738,12 @@
                                 </div>
                             </div>
                         </div>
-                    </div><!-- &#32493;&#26399;&#36864;&#36153;&#21463;&#29702;&#39029;&#38754; -->
+                    </div><!-- 续期退费受理页面 -->
                     <div class="step-form" id="step2" style="display: none;">
                         <div class="step-form-item">
                             <h3 style="margin-bottom: 16px;">&#32493;&#26399;&#36864;&#36153;&#21463;&#29702;&#39029;&#38754;</h3>
                             
-                            <!-- P17&#27969;&#27700;&#21495; + 保单号 -->
+                            <!-- P17流水号 + 保单号 -->
                             <div class="info-section">
                                 <div class="info-section-title">&#128222; P17&#20851;&#32852;&#20449;&#24687;</div>
                                 <div class="info-grid">
@@ -753,7 +753,7 @@
                                 </div>
                             </div>
 
-                            <!-- &#20445;&#21333;&#20449;&#24687; -->
+                            <!-- 保单信息 -->
                             <div class="info-section">
                                 <div class="info-section-title">&#128203; &#20445;&#21333;&#20449;&#24687;</div>
                                 <div class="info-grid">
@@ -773,7 +773,7 @@
                                 </div>
                             </div>
 
-                            <!-- &#32564;&#36153;&#36134;&#25143;&#20449;&#24687; -->
+                            <!-- 缴费账户信息 -->
                             <div class="info-section">
                                 <div class="info-section-title">&#128179; &#32564;&#36153;&#36134;&#25143;&#20449;&#24687;</div>
                                 <div class="info-grid">
@@ -783,7 +783,7 @@
                                 </div>
                             </div>
 
-                            <!-- &#36864;&#36153;&#26399;&#27425;&#36873;&#25321; -->
+                            <!-- 退费期次选择 -->
                             <div class="info-section">
                                 <div class="info-section-title">&#128197; &#36864;&#36153;&#26399;&#27425;&#20449;&#24687;&#65288;&#36873;&#25321;&#36864;&#36153;&#26399;&#27425;&#65289;</div>
                                 <div class="table-wrapper">
@@ -799,13 +799,13 @@
                                 </div>
                             </div>
 
-                            <!-- &#36864;&#36153;&#21407;&#22240; -->
+                            <!-- 退费原因 -->
                             <div class="form-group" style="margin-top: 20px;">
                                 <label class="form-label">&#36864;&#36153;&#21407;&#22240; *</label>
                                 <textarea class="form-control" id="refundReason" placeholder="&#35831;&#36755;&#20837;&#23458;&#25143;&#25552;&#20379;&#30340;&#36864;&#36153;&#21407;&#22240;..." rows="3"></textarea>
                             </div>
 
-                            <!-- &#35268;&#21017;&#26657;&#39564;&#21306;&#22495; -->
+                            <!-- 规则校验区域 -->
                             <div class="info-section" id="validationSection" style="margin-top: 20px;">
                                 <div class="info-section-title">&#128269; &#35268;&#21017;&#26657;&#39564;</div>
                                 <div id="validationResults">
@@ -814,7 +814,7 @@
                                 <button class="btn btn-outline" onclick="performValidation()" style="margin-top: 12px;" id="validateBtn">&#128269; &#35268;&#21017;&#26657;&#39564;</button>
                             </div>
 
-                            <!-- &#36890;&#30693;&#26041;&#24335;&#36873;&#25321;&#65288;&#25552;&#20132;&#21069;&#24377;&#20986;&#65289; -->
+                            <!-- 通知方式选择（提交前弹出） -->
                             <div class="info-section" id="notifySection" style="margin-top: 20px; display: none;">
                                 <div class="info-section-title" id="notifySectionTitle">&#128232; &#36890;&#30693;&#26041;&#24335;</div>
                                 <div style="display:flex;gap:16px;margin-top:8px;">
@@ -823,7 +823,7 @@
                                 </div>
                             </div>
 
-                            <!-- &#25805;&#20316;&#25353;&#38062; -->
+                            <!-- 操作按钮 -->
                             <div style="display: flex; gap: 12px; margin-top: 20px;">
                                 <button class="btn btn-outline" onclick="prevStep(2)">&#8592; &#36820;&#22238;P17&#24555;&#22788;</button>
                                 <button class="btn btn-primary" id="submitCoreBtn" onclick="handleSubmitCore()" disabled>&#9940; &#35831;&#20808;&#36890;&#36807;&#35268;&#21017;&#26657;&#39564;</button>
@@ -831,7 +831,7 @@
                         </div>
                     </div></section>
 
-        <!-- &#20869;&#21220;&#24037;&#20316;&#21488;&#27169;&#22359; -->
+        <!-- 内勤工作台模块 -->
         <section class="view-section" id="workbenchModule">
             <div class="card">
                 <div class="card-header">
@@ -875,7 +875,7 @@
             </div>
         </section>
 
-        <!-- &#23457;&#25209;&#27969;&#31649;&#29702;&#27169;&#22359; -->
+        <!-- 审批流管理模块 -->
         <section class="view-section" id="approvalModule">
             <div class="card">
                 <div class="card-header">
@@ -890,7 +890,7 @@
             </div>
         </section>
 
-        <!-- &#20219;&#21153;&#31649;&#29702;&#19982;&#25253;&#34920;&#27169;&#22359; -->
+        <!-- 任务管理与报表模块 -->
         <section class="view-section" id="reportModule">
             <div class="card">
                 <div class="card-header">
@@ -956,7 +956,7 @@
             </div>
         </section>
 
-        <!-- &#35814;&#24773;&#24377;&#31383; -->
+        <!-- 详情弹窗 -->
         <section class="view-section" id="detailModule">
             <div class="card">
                 <div class="card-header">
@@ -967,7 +967,7 @@
             </div>
         </section>
 
-        <!-- Admin&#25968;&#25454;&#31649;&#29702;&#27169;&#22359; -->
+        <!-- Admin数据管理模块 -->
         <section class="view-section" id="adminModule">
             <div class="card">
                 <div class="card-header">
@@ -1007,7 +1007,7 @@
                         <button class="tab" onclick="switchAdminTab('approvalRecords')">&#32493;&#26399;&#36864;&#36153;&#23457;&#25209;&#35760;&#24405;</button>
                     </div>
                     
-                    <!-- &#32493;&#26399;&#36864;&#36153;&#35760;&#24405;&#32534;&#36753; -->
+                    <!-- 续期退费记录编辑 -->
                                         <div id="adminRefundsTab">
                         <div class="toolbar" style="margin-bottom:16px;">
                             <button class="btn btn-sm btn-outline" id="adminRefundJsonBtn" onclick="adminShowRefundJSON()" style="color:#1a73e8;border-color:#1a73e8;">&#128196; JSON预览</button>
@@ -1052,7 +1052,7 @@
                         <div id="adminRefundJsonPanel" style="display:none;background:#1e1e1e;border-radius:8px;padding:16px;max-height:600px;overflow:auto;margin-top:16px;"></div>
                     </div>
                     
-                    <!-- &#32564;&#36153;&#35760;&#24405;&#31649;&#29702; -->
+                    <!-- 缴费记录管理 -->
                     <div id="adminPaymentsTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
                             <strong>&#128161; &#35828;&#26126;&#65306;</strong>&#32564;&#36153;&#35760;&#24405;&#19982;&#20445;&#21333;&#20851;&#32852;&#31649;&#29702;&#12290;&#36873;&#25321;&#20445;&#21333;&#21518;&#21487;&#30452;&#25509;&#32534;&#36753;&#12289;&#26032;&#22686;&#12289;&#21024;&#38500;&#35813;&#20445;&#21333;&#30340;&#32564;&#36153;&#35760;&#24405;&#12290;
@@ -1072,7 +1072,7 @@
                         </div>
                     </div>
                     
-                    <!-- &#20445;&#21333;&#20449;&#24687;&#31649;&#29702; -->
+                    <!-- 保单信息管理 -->
                     <div id="adminPoliciesTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
                             <strong>&#128203; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#20445;&#21333;&#22522;&#30784;&#20449;&#24687;&#12290;保单号&#19981;&#21487;&#20462;&#25913;&#65292;&#20854;&#20182;&#23383;&#27573;&#22343;&#21487;&#32534;&#36753;&#65292;&#20462;&#25913;&#21518;&#21363;&#26102;&#20445;&#23384;&#12290;
@@ -1111,7 +1111,7 @@
                         </div>
                     </div>
                     
-                    <!-- &#33258;&#28982;&#20154;&#20449;&#24687;&#31649;&#29702; -->
+                    <!-- 自然人信息管理 -->
                     <div id="adminNaturalPersonTab" style="display:none;">
                         <div style="background:#fce4ec;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#c62828;">
                             <strong>&#128274; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#25237;&#20445;&#20154;&#33258;&#28982;&#20154;&#20449;&#24687;&#65288;&#21453;&#27927;&#38065;9&#23383;&#27573;&#65289;&#12290;&#26032;&#20445;&#21333;&#38656;&#25163;&#21160;&#28155;&#21152;&#33258;&#28982;&#20154;&#35760;&#24405;&#65292;&#25152;&#26377;&#23383;&#27573;&#22343;&#21487;&#32534;&#36753;&#12290;
@@ -1147,7 +1147,7 @@
                         </div>
                     </div>
                     
-                    <!-- &#22330;&#26223;&#31649;&#29702; -->
+                    <!-- 场景管理 -->
                     <div id="adminScenarioTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
                             <strong>&#128203; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#20445;&#21333;&#22330;&#26223;&#26631;&#24535;&#20301;&#65292;&#29992;&#20110;&#36864;&#36153;&#21463;&#29702;&#26102;&#21028;&#26029;&#20445;&#21333;&#24403;&#21069;&#25152;&#22788;&#22330;&#26223;&#12290;&#36873;&#25321;&#20445;&#21333;&#21518;&#21487;&#32534;&#36753;&#21508;&#26631;&#24535;&#20301;&#12290;
@@ -1168,7 +1168,7 @@
                         </div>
                     </div>
                     
-                    <!-- &#20998;&#20844;&#21496;&#31649;&#29702; -->
+                    <!-- 分公司管理 -->
                     <div id="adminBranchesTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
                             <strong>&#127970; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#25152;&#23646;&#20998;&#20844;&#21496;&#22522;&#30784;&#25968;&#25454;&#12290;&#29992;&#20110;&#20445;&#21333;&#20449;&#24687;&#21644;&#36864;&#36153;&#35760;&#24405;&#20013;&#30340;&#20998;&#20844;&#21496;&#36873;&#25321;&#12290;&#21487;&#28857;&#20987;"&#24674;&#22797;&#40664;&#35748;"&#37325;&#32622;&#20026;38&#23478;&#20998;&#20844;&#21496;&#12290;
@@ -1195,7 +1195,7 @@
                         </div>
                     </div>
                     
-                    <!-- &#25152;&#23646;&#26426;&#26500;&#31649;&#29702; -->
+                    <!-- 所属机构管理 -->
                     <div id="adminBranchInstsTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
                             <strong>&#127970; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#20998;&#20844;&#21496;&#19979;&#30340;&#25152;&#23646;&#26426;&#26500;&#65288;&#20013;&#25903;&#65289;&#12290;&#20998;&#20844;&#21496;&#19979;&#25289;&#26694;&#25903;&#25345;&#25628;&#32034;&#65292;&#26426;&#26500;&#21517;&#31216;&#21487;&#33258;&#30001;&#22635;&#20889;&#65288;&#22914;"-"&#34920;&#31034;&#26080;&#20013;&#25903;&#65292;"&#21335;&#20140;&#20013;&#25903;"&#34920;&#31034;&#21335;&#20140;&#20013;&#25903;&#26426;&#26500;&#65289;&#12290;
@@ -1223,7 +1223,7 @@
                         </div>
                     </div>
                     
-                    <!-- &#35282;&#33394;&#31649;&#29702; -->
+                    <!-- 角色管理 -->
                     <div id="adminRolesTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
                             <strong>&#128101; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#31995;&#32479;&#35282;&#33394;&#22522;&#30784;&#25968;&#25454;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
@@ -1249,7 +1249,7 @@
                         </div>
                     </div>
 
-                    <!-- &#26435;&#38480;&#31649;&#29702; -->
+                    <!-- 权限管理 -->
                     <div id="adminPermsTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
                             <strong>&#128273; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#31995;&#32479;&#26435;&#38480;&#22522;&#30784;&#25968;&#25454;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
@@ -1275,7 +1275,7 @@
                         </div>
                     </div>
 
-                    <!-- &#35282;&#33394;&#23545;&#24212;&#26435;&#38480;&#31649;&#29702; -->
+                    <!-- 角色对应权限管理 -->
                     <div id="adminRolePermsTab" style="display:none;">
                         <div style="background:#fff3e0;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#e65100;">
                             <strong>&#128279; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#35282;&#33394;&#19982;&#26435;&#38480;&#30340;&#23545;&#24212;&#20851;&#31995;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
@@ -1303,7 +1303,7 @@
                         </div>
                     </div>
 
-                    <!-- &#29992;&#25143;&#31649;&#29702; -->
+                    <!-- 用户管理 -->
                     <div id="adminUsersTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
                             <strong>&#128100; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#31995;&#32479;&#29992;&#25143;&#22522;&#30784;&#25968;&#25454;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
@@ -1331,7 +1331,7 @@
                         </div>
                     </div>
 
-                    <!-- &#29992;&#25143;&#35282;&#33394;&#31649;&#29702; -->
+                    <!-- 用户角色管理 -->
                     <div id="adminUserRolesTab" style="display:none;">
                         <div style="background:#fff3e0;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#e65100;">
                             <strong>&#128279; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#29992;&#25143;&#19982;&#35282;&#33394;&#30340;&#23545;&#24212;&#20851;&#31995;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
@@ -1360,7 +1360,7 @@
                         </div>
                     </div>
 
-                    <!-- &#30701;&#20449;&#21457;&#36865;&#35760;&#24405; Tab -->
+                    <!-- 短信发送记录 Tab -->
                     <div id="adminSmsRecordsTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
                             <strong>&#128241; &#35828;&#26126;&#65306;</strong>&#35760;&#24405;&#31995;&#32479;&#23545;&#22806;&#21457;&#36865;&#30340;&#30701;&#20449;&#27969;&#27700;&#12290;&#25903;&#25345; CSV &#23548;&#20986;&#65292;&#19981;&#21487;&#23548;&#20837;&#12290;
@@ -1389,7 +1389,7 @@
                         </div>
                     </div>
 
-                    <!-- &#24494;&#20449;&#21457;&#36865;&#35760;&#24405; Tab -->
+                    <!-- 微信发送记录 Tab -->
                     <div id="adminWechatRecordsTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
                             <strong>&#128172; &#35828;&#26126;&#65306;</strong>&#35760;&#24405;&#31995;&#32479;&#23545;&#22806;&#21457;&#36865;&#30340;&#24494;&#20449;&#36890;&#30693;&#27969;&#27700;&#12290;&#25903;&#25345; CSV &#23548;&#20986;&#65292;&#19981;&#21487;&#23548;&#20837;&#12290;
@@ -1418,7 +1418,7 @@
                         </div>
                     </div>
 
-                    <!-- &#23457;&#25209;&#38142;&#35760;&#24405; -->
+                    <!-- 审批链记录 -->
                     <div id="adminApprovalChainTab" style="display:none;">
                         <div style="background:#e8eaf6;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#283593;">
                             <strong>&#128274; &#35828;&#26126;&#65306;</strong>&#23457;&#25209;&#38142;&#35760;&#24405;&#20026;&#21482;&#35835;&#35270;&#22270;&#65292;&#25968;&#25454;&#28304;&#33258;&#8220;&#23457;&#25209;&#27969;&#31649;&#29702;&#8221;&#27169;&#22359;&#30340;&#23457;&#25209;&#33410;&#28857;&#37197;&#32622;&#12290;&#38656;&#20462;&#25913;&#33410;&#28857;&#20449;&#24687;&#35831;&#21069;&#24448;&#23457;&#25209;&#27969;&#31649;&#29702;&#25805;&#20316;&#12290;
@@ -1455,7 +1455,7 @@
                         <div id="adminApprovalChainJsonPanel" style="display:none;background:#1e1e1e;border-radius:8px;padding:16px;max-height:600px;overflow:auto;margin-top:16px;"></div>
                     </div>
 
-                    <!-- &#32493;&#26399;&#36864;&#36153;&#23457;&#25209;&#35760;&#24405; -->
+                    <!-- 续期退费审批记录 -->
                     <div id="adminApprovalRecordsTab" style="display:none;">
                         <div style="background:#fff3e0;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#e65100;">
                             <strong>&#128274; &#35828;&#26126;&#65306;</strong>&#23457;&#25209;&#35760;&#24405;&#20174;&#36864;&#36153;&#35760;&#24405;&#30340;&#23457;&#25209;&#33410;&#28857;&#21644;&#25805;&#20316;&#26085;&#24535;&#20013;&#23454;&#26102;&#37325;&#24314;&#65292;&#30830;&#20445;&#19982;&#23457;&#25209;&#29366;&#24577;&#21516;&#27493;&#12290;
@@ -1491,27 +1491,27 @@
         </section>
     </main>
 
-    <!-- &#31227;&#21160;&#31471;&#35270;&#22270; -->
+    <!-- 移动端视图 -->
     <div class="mobile-view mobile-container" id="mobileView">
         <div class="mobile-header">
             <button class="mobile-back" onclick="showMobileEntry()">&#8592;</button>
             <span id="mobileTitle">&#32493;&#26399;&#36864;&#36153;</span>
         </div>
         <div class="mobile-content">
-            <!-- &#31227;&#21160;&#31471;&#20837;&#21475;&#39029;&#38754; -->
+            <!-- 移动端入口页面 -->
             <div id="mobileEntry">
-                <!-- &#26631;&#39064;&#21306; -->
+                <!-- 标题区 -->
                 <div style="text-align: center; margin-bottom: 24px;">
                     <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 4px;">&#32493;&#26399;&#20445;&#36153;&#36864;&#36153;</h2>
                 </div>
 
-                <!-- ========== &#30331;&#24405;&#21306;&#65288;&#26410;&#30331;&#24405;&#26102;&#26174;&#31034;&#65289; ========== -->
+                <!-- ========== 登录区（未登录时显示） ========== -->
                 <div id="mobileLoginSection">
                     <div class="mobile-login-tabs">
                         <button class="mobile-login-tab active" onclick="switchMobileLoginTab('employee')">&#128084; &#21592;&#24037;&#30331;&#24405;</button>
                         <button class="mobile-login-tab" onclick="switchMobileLoginTab('customer')">&#128100; &#23458;&#25143;&#30331;&#24405;</button>
                     </div>
-                    <!-- &#21592;&#24037;&#30331;&#24405; -->
+                    <!-- 员工登录 -->
                     <div class="mobile-login-form active" id="mobileEmployeeLoginForm">
                         <div class="login-form-group">
                             <label>&#29992;&#25143;&#21517;</label>
@@ -1528,7 +1528,7 @@
                             <div id="mEmpUserListContent"></div>
                         </div>
                     </div>
-                    <!-- &#23458;&#25143;&#30331;&#24405; -->
+                    <!-- 客户登录 -->
                     <div class="mobile-login-form" id="mobileCustomerLoginForm">
                         <div class="login-form-group">
                             <label>&#25237;&#20445;&#20154;&#35777;&#20214;&#21495;</label>
@@ -1550,9 +1550,9 @@
                     </div>
                 </div>
 
-                <!-- ========== &#24050;&#30331;&#24405;&#20869;&#23481;&#21306;&#65288;&#30331;&#24405;&#21518;&#26174;&#31034;&#65289; ========== -->
+                <!-- ========== 已登录内容区（登录后显示） ========== -->
                 <div id="mobileLoggedInContent" style="display:none;">
-                    <!-- &#24403;&#21069;&#36523;&#20221;&#26465; -->
+                    <!-- 当前身份条 -->
                     <div id="mobileIdentityBar" style="background:#f0f4ff;padding:10px 14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:13px;">
                         <div style="display:flex;flex-direction:column;gap:2px;">
                             <span>&#24403;&#21069;&#29992;&#25143;&#65306;<strong id="mobileUserInfo"></strong></span>
@@ -1561,13 +1561,13 @@
                         <button class="mobile-btn" style="background:var(--danger);color:white;font-size:11px;padding:5px 40px;border-radius:4px;white-space:nowrap;width:auto;" onclick="doLogout()">&#36864;&#20986;</button>
                     </div>
 
-                    <!-- &#23458;&#25143;&#21151;&#33021;&#22359;&#65288;&#23458;&#25143;&#35282;&#33394;&#21487;&#35265;&#65289; &#8212;&#8212; &#19977;&#26694;&#24067;&#23616;&#65306;&#30701;&#20449; / &#24494;&#20449; / &#23457;&#25209; -->
+                    <!-- 客户功能块（客户角色可见） —— 三框布局：短信 / 微信 / 审批 -->
                     <div id="mobileCustomerBlock" style="margin-bottom: 32px; display:none;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-200);">
                             <span style="font-size: 16px;">&#128100;</span>
                             <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800);">&#24453;&#21150;&#25552;&#37266;</h3>
                         </div>
-                        <!-- &#128233; &#30701;&#20449;&#36890;&#30693; -->
+                        <!-- 📩 短信通知 -->
                         <div class="mobile-card" style="background: #f8f9fa; border-left: 4px solid #007bff; padding: 14px; margin-bottom: 12px;">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1585,7 +1585,7 @@
                                 <button id="smsBtnQuery" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerQuery')">&#128269; \u67e5\u8be2\u8fdb\u5ea6</button>
                             </div>
                         </div>
-                        <!-- &#128172; &#24494;&#20449;&#36890;&#30693; -->
+                        <!-- 💬 微信通知 -->
                         <div class="mobile-card" style="background: #f0fff4; border-left: 4px solid #07c160; padding: 14px; margin-bottom: 12px;">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1604,10 +1604,10 @@
                             </div>
                         </div>
                     </div>
-                    <!-- &#21592;&#24037;&#21151;&#33021;&#22359;&#65288;&#21592;&#24037;&#35282;&#33394;&#21487;&#35265;&#65289; -->
+                    <!-- 员工功能块（员工角色可见） -->
                     <div id="mobileEmployeeBlock" style="display:none;"></div>
 
-                    <!-- &#23457;&#25209;&#27969;&#31649;&#29702;&#22359;&#65288;&#21592;&#24037;&#35282;&#33394;&#19988;&#26377;&#23457;&#25209;&#26435;&#38480;&#21487;&#35265;&#65289; -->
+                    <!-- 审批流管理块（员工角色且有审批权限可见） -->
                     <div id="mobileApprovalBlock" style="border-top: 2px solid var(--gray-200); padding-top: 24px; display:none;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-200);">
                             <span style="font-size: 16px;">&#128084;</span>
@@ -1626,9 +1626,9 @@
                 </div>
             </div>
             
-            <!-- &#23458;&#25143;材料补充 - &#38142;&#25509;&#30331;&#24405;&#39564;&#35777; -->
+            <!-- 客户材料补充 - 链接登录验证 -->
             <div id="mobileCustomerMaterial" style="display: none;">
-                <!-- &#30331;&#24405;&#39564;&#35777;&#39029; -->
+                <!-- 登录验证页 -->
                 <div id="mobileMaterialLogin">
                     <div class="mobile-card" style="border-left: 4px solid #007bff;">
                         <h3 style="margin-bottom: 16px;">&#128272; 材料补充&#38142;&#25509;&#39564;&#35777;</h3>
@@ -1648,13 +1648,13 @@
                     </div>
                 </div>
                 
-                <!-- 材料补充&#34920;&#21333; -->
+                <!-- 材料补充表单 -->
                 <div id="mobileMaterialForm" style="display: none;">
                     <div class="mobile-card" style="background: #e8f5e9; border-left: 4px solid #28a745;">
                         <p style="font-size: 13px; color: #2e7d32;">&#9989; &#36523;&#20221;&#39564;&#35777;&#36890;&#36807;</p>
                     </div>
                     
-                    <!-- &#20445;&#21333;&#20449;&#24687; -->
+                    <!-- 保单信息 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128203; &#20445;&#21333;&#20449;&#24687;</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
@@ -1671,7 +1671,7 @@
                         </div>
                     </div>
                     
-                    <!-- &#32564;&#36153;&#20449;&#24687; -->
+                    <!-- 缴费信息 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128179; &#32564;&#36153;&#36134;&#25143;&#20449;&#24687;</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
@@ -1681,13 +1681,13 @@
                         </div>
                     </div>
                     
-                    <!-- &#32493;&#26399;&#20132;&#36153;&#35760;&#24405; -->
+                    <!-- 续期交费记录 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128209; &#32493;&#26399;&#20132;&#36153;&#35760;&#24405;</h3>
                         <div id="mcPaymentRecords"></div>
                     </div>
                     
-                    <!-- &#36864;&#36153;&#20449;&#24687; -->
+                    <!-- 退费信息 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128176; &#36864;&#36153;&#20449;&#24687;</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
@@ -1697,14 +1697,14 @@
                         </div>
                     </div>
                     
-                    <!-- &#36864;&#36153;&#21407;&#22240; -->
+                    <!-- 退费原因 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128221; &#36864;&#36153;&#21407;&#22240;</h3>
                         <p style="font-size: 13px; color: var(--gray-700); margin-bottom: 12px;" id="mcRefundReason">-</p>
                         <div class="form-group"><label class="form-label">&#20462;&#25913;&#36864;&#36153;&#21407;&#22240;&#65288;&#21487;&#36873;&#65289;</label><textarea class="form-control" id="mobileRefundReason" placeholder="&#35831;&#36755;&#20837;&#36864;&#36153;&#21407;&#22240;..." rows="2"></textarea></div>
                     </div>
                     
-                    <!-- 材料&#19978;&#20256;&#65288;&#21407;&#21345;&#21407;&#36864;&#22833;&#36133;&#22330;&#26223;&#65289; -->
+                    <!-- 材料上传（原卡原退失败场景） -->
                     <div class="mobile-card" style="background: #fff8e1; border-left: 4px solid #ff9800;">
                         <h3 style="margin-bottom: 12px;">&#129706; &#36523;&#20221;&#35777;&#19978;&#20256;</h3>
                         <p style="font-size: 12px; color: var(--gray-600); margin-bottom: 12px;">&#21407;&#21345;&#21407;&#36864;&#22833;&#36133;&#38656;&#26356;&#25442;&#38134;&#34892;&#21345;&#26102;&#65292;&#35831;&#19978;&#20256;&#36523;&#20221;&#35777;&#27491;&#21453;&#38754;</p>
@@ -1737,7 +1737,7 @@
                     <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 12px;">&#8592; &#36820;&#22238;</button>
                 </div>
                 
-                <!-- &#38142;&#25509;&#22833;&#25928;&#25552;&#31034; -->
+                <!-- 链接失效提示 -->
                 <div id="mobileMaterialExpired" style="display: none;">
                     <div class="mobile-card" style="background: #ffebee; border-left: 4px solid #f44336; text-align: center; padding: 40px 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">&#9200;</div>
@@ -1748,7 +1748,7 @@
                     </div>
                 </div>
                 
-                <!-- &#26080;&#36864;&#36153;&#35760;&#24405;&#25552;&#31034; -->
+                <!-- 无退费记录提示 -->
                 <div id="mobileMaterialNotFound" style="display: none;">
                     <div class="mobile-card" style="background: #fff3e0; border-left: 4px solid #ff9800; text-align: center; padding: 40px 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">&#10067;</div>
@@ -1759,7 +1759,7 @@
                     </div>
                 </div>
                 
-                <!-- &#19981;&#38656;&#35201;补充;材料&#25552;&#31034; -->
+                <!-- 不需要补充;材料提示 -->
                 <div id="mobileMaterialNotNeeded" style="display: none;">
                     <div class="mobile-card" style="background: #e3f2fd; border-left: 4px solid #2196f3; text-align: center; padding: 40px 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">&#9989;</div>
@@ -1771,9 +1771,9 @@
                 </div>
             </div>
             
-            <!-- &#36827;&#23637;查询 - &#38142;&#25509;&#30331;&#24405;&#39564;&#35777; -->
+            <!-- 进展查询 - 链接登录验证 -->
             <div id="mobileCustomerQuery" style="display: none;">
-                <!-- &#30331;&#24405;&#39564;&#35777;&#39029; -->
+                <!-- 登录验证页 -->
                 <div id="mobileQueryLogin">
                     <div class="mobile-card" style="border-left: 4px solid #28a745;">
                         <h3 style="margin-bottom: 16px;">&#128272; 进度查询&#38142;&#25509;&#39564;&#35777;</h3>
@@ -1784,9 +1784,9 @@
                     </div>
                 </div>
                 
-                <!-- 进度查询&#32467;&#26524; -->
+                <!-- 进度查询结果 -->
                 <div id="mobileQueryResult" style="display: none;">
-                    <!-- &#20445;&#21333;&#20449;&#24687; -->
+                    <!-- 保单信息 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128203; &#20445;&#21333;&#20449;&#24687;</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
@@ -1796,7 +1796,7 @@
                         </div>
                     </div>
                     
-                    <!-- &#36864;&#36153;&#20449;&#24687; -->
+                    <!-- 退费信息 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128176; &#36864;&#36153;&#20449;&#24687;</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
@@ -1806,14 +1806,14 @@
                         </div>
                     </div>
                     
-                    <!-- &#24403;&#21069;&#29366;&#24577; -->
+                    <!-- 当前状态 -->
                     <div class="mobile-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                         <h3 style="margin-bottom: 8px; color: white;">&#128205; &#24403;&#21069;&#29366;&#24577;</h3>
                         <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px;" id="mqStatusName">-</div>
                         <div style="font-size: 12px; opacity: 0.9;" id="mqStatusTime">-</div>
                     </div>
                     
-                    <!-- &#32564;&#36153;&#20449;&#24687; -->
+                    <!-- 缴费信息 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128179; &#32564;&#36153;&#36134;&#25143;&#20449;&#24687;</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
@@ -1823,13 +1823,13 @@
                         </div>
                     </div>
                     
-                    <!-- &#32493;&#26399;&#20132;&#36153;&#35760;&#24405; -->
+                    <!-- 续期交费记录 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128209; &#32493;&#26399;&#20132;&#36153;&#35760;&#24405;</h3>
                         <div id="mqPaymentRecords"></div>
                     </div>
                     
-                    <!-- &#29366;&#24577;&#26102;&#38388;&#32447; -->
+                    <!-- 状态时间线 -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#9201;&#65039; &#29366;&#24577;&#26102;&#38388;&#32447;</h3>
                         <div class="mobile-timeline" id="mobileTimeline"></div>
@@ -1838,7 +1838,7 @@
                     <button class="mobile-btn mobile-btn-outline" onclick="showMobileQueryLogin()">&#8592; &#37325;&#26032;查询</button>
                 </div>
                 
-                <!-- &#38142;&#25509;&#22833;&#25928;&#25552;&#31034; -->
+                <!-- 链接失效提示 -->
                 <div id="mobileQueryExpired" style="display: none;">
                     <div class="mobile-card" style="background: #ffebee; border-left: 4px solid #f44336; text-align: center; padding: 40px 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">&#9200;</div>
@@ -1848,7 +1848,7 @@
                     </div>
                 </div>
                 
-                <!-- &#26080;&#36864;&#36153;&#35760;&#24405;&#25552;&#31034; -->
+                <!-- 无退费记录提示 -->
                 <div id="mobileQueryNotFound" style="display: none;">
                     <div class="mobile-card" style="background: #fff3e0; border-left: 4px solid #ff9800; text-align: center; padding: 40px 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">&#10067;</div>
@@ -1859,7 +1859,7 @@
                 </div>
             </div>
             
-            <!-- &#23457;&#25209;&#25805;&#20316;&#65288;&#22826;&#22909;&#38025;&#65289; -->
+            <!-- 审批操作（太好钉） -->
             <div id="mobileApproval" style="display: none;">
                 <div id="mobileApprovalList">
                     <h3 style="margin-bottom: 16px;">&#24453;&#23457;&#25209;&#21015;&#34920;</h3>
@@ -1867,47 +1867,47 @@
                 </div>
                 <div id="mobileApprovalDetail" style="display: none;">
                     <button class="btn btn-sm btn-outline" onclick="showMobileApprovalList()" style="margin-bottom: 12px;">&#8592; &#36820;&#22238;&#21015;&#34920;</button>
-                    <!-- &#21463;&#29702;&#20449;&#24687;&#21345;&#29255; -->
+                    <!-- 受理信息卡片 -->
                     <div class="mobile-card" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border: 1px solid #ffc107;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--gray-500);">&#21463;&#29702;&#21495;</span><span style="font-weight:600;" id="mobileBizNo">-</span></div>
                         <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--gray-500);">&#21463;&#29702;&#28192;&#36947;</span><span id="mobileChannel">-</span></div>
                         <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--gray-500);">&#21463;&#29702;&#26102;&#38388;</span><span id="mobileAcceptTime">-</span></div>
                     </div>
-                    <!-- &#20445;&#21333;&#20449;&#24687; -->
+                    <!-- 保单信息 -->
                     <div class="mobile-card">
                         <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128203; &#20445;&#21333;&#20449;&#24687;</h4>
                         <div id="mobilePolicyInfo" class="info-grid" style="gap: 6px; font-size: 12px;"></div>
                     </div>
-                    <!-- &#36864;&#36153;&#20449;&#24687; -->
+                    <!-- 退费信息 -->
                     <div class="mobile-card">
                         <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128176; &#36864;&#36153;&#20449;&#24687;</h4>
                         <div id="mobileRefundInfo" class="info-grid" style="gap: 6px; font-size: 12px;"></div>
                     </div>
-                    <!-- &#32493;&#26399;&#20132;&#36153;&#35760;&#24405; -->
+                    <!-- 续期交费记录 -->
                     <div class="mobile-card">
                         <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128197; &#32493;&#26399;&#20132;&#36153;&#35760;&#24405;</h4>
                         <div id="mobilePaymentRecords" style="font-size: 12px;"></div>
                     </div>
-                    <!-- &#36864;&#36153;&#21407;&#22240; -->
+                    <!-- 退费原因 -->
                     <div class="mobile-card">
                         <h4 style="margin-bottom: 8px; font-size: 14px; color: var(--primary);">&#128221; &#36864;&#36153;&#21407;&#22240;</h4>
                         <div id="mobileApprovalRefundReason" style="font-size: 13px; color: var(--gray-700);"></div>
                     </div>
-                    <!-- &#23457;&#25209;&#27969;&#31243; -->
+                    <!-- 审批流程 -->
                     <div class="mobile-card">
                         <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128202; &#23457;&#25209;&#27969;&#31243;</h4>
                         <div id="mobileApprovalChannelInfo" style="font-size: 11px; color: var(--gray-500); margin-bottom: 8px;"></div>
                         <div id="mobileApprovalFlowNodes"></div>
                     </div>
-                    <!-- &#25805;&#20316;&#26085;&#24535; -->
+                    <!-- 操作日志 -->
                     <div class="mobile-card">
                         <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128220; &#25805;&#20316;&#26085;&#24535;</h4>
                         <div id="mobileOperationLog" style="font-size: 12px; max-height: 200px; overflow-y: auto;"></div>
                     </div>
-                    <!-- &#23457;&#25209;&#25805;&#20316;&#21306; -->
+                    <!-- 审批操作区 -->
                     <div class="mobile-card" id="mobileActionArea" style="background: #f8f9fa;">
                         <h4 style="margin-bottom: 12px; font-size: 14px;">&#128172; &#23457;&#25209;&#25805;&#20316;</h4>
-                        <!-- &#25187;&#22238;&#32493;&#20323;&#22797;&#36873;&#26694;&#65288;&#39318;&#33410;&#28857;&#21487;&#35265;&#65289; -->
+                        <!-- 扣回续佣复选框（首节点可见） -->
                         <div id="mobileCommissionRebate" style="display:none;margin-bottom:12px;">
                             <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#e65100;font-weight:600;cursor:pointer;">
                                 <input type="checkbox" id="mobileCommissionChecked">
@@ -1915,7 +1915,7 @@
                             </label>
                         </div>
                         <textarea class="form-control" id="mobileApproveOpinion" placeholder="&#35831;&#22635;&#20889;&#23457;&#25209;&#24847;&#35265;&#65288;&#24517;&#22635;&#65289;..." style="min-height: 80px;"></textarea>
-                        <!-- &#39539;&#22238;&#29702;&#30001;&#65288;&#39539;&#22238;&#26102;&#23637;&#31034;&#65289; -->
+                        <!-- 驳回理由（驳回时展示） -->
                         <div id="mobileRejectReasonInput" style="display:none;margin-top:8px;">
                             <label style="font-size:12px;color:#ea4335;">&#39539;&#22238;&#21407;&#22240;&#65288;&#19981;&#23569;&#20110;10&#20010;&#27721;&#23383;&#65289;*</label>
                             <textarea class="form-control" id="mobileRejectReason" placeholder="&#35831;&#22635;&#20889;&#39539;&#22238;&#21407;&#22240;&#65292;&#29992;&#20110;&#21521;&#23458;&#25143;&#27807;&#36890;&#21518;&#32493;&#25764;&#38144;&#32493;&#26399;&#36864;&#36153;&#27969;&#31243;..." style="min-height: 60px; border-color: #ea4335;"></textarea>
@@ -1930,12 +1930,12 @@
         </div>
     </div>
 
-    <!-- &#27169;&#24577;&#26694; -->
+    <!-- 模态框 -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal" id="modalContent"></div>
     </div>
 
-    <!-- &#36890;&#30693;&#28040;&#24687; -->
+    <!-- 通知消息 -->
     <div class="notification" id="notification">
         <span class="notification-icon">&#10003;</span>
         <span class="notification-message" id="notificationMessage">&#25805;&#20316;&#25104;&#21151;</span>
@@ -10013,7 +10013,7 @@ function switchAdminTab(tab) {
 
 </script>
 
-    <!-- &#25552;&#20132;&#32467;&#26524;&#24377;&#31383; -->
+    <!-- 提交结果弹窗 -->
     <div id="resultModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
         <div style="background:white;border-radius:16px;padding:32px;max-width:560px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
             <div id="resultIcon" style="font-size:48px;text-align:center;margin-bottom:12px;"></div>
