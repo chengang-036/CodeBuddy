@@ -1427,6 +1427,9 @@
                                 <button class="btn btn-sm btn-outline" onclick="adminExportCSV('approvalChain')" style="color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
                                 <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_approvalChain').click()" style="color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
                                 <input type="file" id="csvFileInput_approvalChain" accept=".csv" style="display:none;" onchange="adminImportCSV('approvalChain', this)">
+                                <button class="btn btn-sm btn-outline" onclick="adminExportJSON('approvalChain')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;JSON</button>
+                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('jsonFileInput_approvalChain').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;JSON</button>
+                                <input type="file" id="jsonFileInput_approvalChain" accept=".json" style="display:none;" onchange="adminImportJSON('approvalChain', this)">
                                 <button class="btn btn-sm" style="color:#ea4335;border-color:#ea4335;" onclick="clearApprovalConfig()">&#128465;&#65039; &#28165;&#31354;&#23457;&#25209;&#38142;&#25968;&#25454;</button>
                                 <button class="btn btn-sm btn-outline" id="adminApprovalChainJsonBtn" onclick="adminShowApprovalChainJSON()" style="color:#1a73e8;border-color:#1a73e8;">&#128196; JSON&#35270;&#22270;</button>
                         </div>
@@ -6529,6 +6532,9 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var data;
             if (tabName === 'refunds') {
                 data = getData().refunds || [];
+            } else if (tabName === 'approvalChain') {
+                // 导出审批链三层模型配置
+                data = getData().approvalChain || { hqTemplate: {}, branchTemplates: {}, instTemplates: {} };
             } else {
                 showToast('不支持的导出目标: ' + tabName, 'error');
                 return;
@@ -6545,7 +6551,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast('JSON导出成功，共 ' + data.length + ' 条记录', 'success');
+            var count = Array.isArray(data) ? data.length : Object.keys(data).length;
+            showToast('JSON导出成功，共 ' + count + ' 条记录', 'success');
         }
 
         function adminImportJSON(tabName, fileInput) {
@@ -6558,24 +6565,51 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     var text = e.target.result;
                     if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
                     var importedData = JSON.parse(text);
-                    if (!Array.isArray(importedData)) {
+                    
+                    // 验证数据格式
+                    if (tabName === 'refunds' && !Array.isArray(importedData)) {
                         showToast('JSON格式错误：期望数组', 'error');
                         return;
                     }
-                    if (importedData.length === 0) {
+                    if (tabName === 'approvalChain' && (typeof importedData !== 'object' || importedData === null)) {
+                        showToast('JSON格式错误：期望对象', 'error');
+                        return;
+                    }
+                    
+                    var dataCount = Array.isArray(importedData) ? importedData.length : Object.keys(importedData).length;
+                    if (dataCount === 0) {
                         showToast('JSON文件为空', 'warning');
                         return;
                     }
-                    if (confirm('即将导入 ' + importedData.length + ' 条记录到 ' + tabName + '，将覆盖现有数据。确认继续？')) {
+                    
+                    if (confirm('即将导入 ' + dataCount + ' 条记录到 ' + tabName + '，将覆盖现有数据。确认继续？')) {
                         var data = getData();
                         if (tabName === 'refunds') {
                             data.refunds = importedData;
+                        } else if (tabName === 'approvalChain') {
+                            // 合并导入的审批链配置（保留原有结构）
+                            data.approvalChain = Object.assign({
+                                hqTemplate: {},
+                                branchTemplates: {},
+                                instTemplates: {}
+                            }, importedData);
                         } else {
                             showToast('不支持的导入目标: ' + tabName, 'error');
                             return;
                         }
                         saveData(data);
-                        refreshAdminRefundsTable();
+                        
+                        // 刷新对应表格
+                        if (tabName === 'refunds') {
+                            refreshAdminRefundsTable();
+                        } else if (tabName === 'approvalChain') {
+                            refreshAdminApprovalChain();
+                            // 同时刷新审批流管理模块（如果存在）
+                            if (typeof initApprovalFlow === 'function') {
+                                initApprovalFlow();
+                            }
+                        }
+                        
                         showToast(tabName + ' JSON导入成功', 'success');
                     }
                 } catch (err) {
