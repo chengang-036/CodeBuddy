@@ -1579,12 +1579,10 @@
                                 </div>
                                 <span style="font-size: 10px; background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 10px;">&#26597;&#30475;&#30701;&#20449;&#35814;&#24773;</span>
                             </div>
-                            <p style="font-size: 12px; line-height: 1.5; margin: 0 0 10px 0; color: #666; background: #fff; padding: 10px; border-radius: 6px;">
-                                &#12304;&#22826;&#24179;&#27915;&#20445;&#38505;&#12305;&#23562;&#25964;&#30340;&#23458;&#25143;&#65292;&#35831;&#24744;&#20110;<span style="color: #007bff;">2026&#24180;06&#26376;08&#26085; 14:20</span>&#21069;&#28857;&#20987;&#38142;&#25509;&#21150;&#29702;<strong>&#32493;&#26399;&#36864;&#36153;&#26448;&#26009;&#34917;&#20805;</strong>&#19994;&#21153;&#65292;&#38142;&#25509;24&#23567;&#26102;&#26377;&#25928;
-                            </p>
+
                             <div style="display: flex; gap: 8px;">
-                                <button class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerMaterial')">&#128206; &#26448;&#26009;&#34917;&#20805;</button>
-                                <button class="mobile-btn mobile-btn-success" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerQuery')">&#128269; &#26597;&#35810;&#36827;&#24230;</button>
+                                <button id="smsBtnMaterial" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerMaterial')">&#128206; &#26448;&#26009;&#34917;&#20805;</button>
+                                <button id="smsBtnQuery" class="mobile-btn mobile-btn-success" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerQuery')">&#128269; &#26597;&#35810;&#36827;&#24230;</button>
                             </div>
                         </div>
                         <!-- &#128172; &#24494;&#20449;&#36890;&#30693; -->
@@ -1599,12 +1597,10 @@
                                 </div>
                                 <span style="font-size: 10px; background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px;">&#26597;&#30475;&#24494;&#20449;&#35814;&#24773;</span>
                             </div>
-                            <p style="font-size: 12px; line-height: 1.5; margin: 0 0 10px 0; color: #666; background: #fff; padding: 10px; border-radius: 6px;">
-                                &#23562;&#25964;&#30340;&#23458;&#25143;&#65292;&#35831;&#24744;&#20110;<span style="color: #007bff;">2026&#24180;06&#26376;30&#26085; 23:59</span>&#21069;&#28857;&#20987;&#38142;&#25509;<strong>&#26597;&#35810;&#32493;&#26399;&#36864;&#36153;&#19994;&#21153;&#21150;&#29702;&#36827;&#23637;</strong>&#65292;&#38142;&#25509;72&#23567;&#26102;&#26377;&#25928;
-                            </p>
+
                             <div style="display: flex; gap: 8px;">
-                                <button class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerMaterial')">&#128206; &#26448;&#26009;&#34917;&#20805;</button>
-                                <button class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerQuery')">&#128269; &#26597;&#35810;&#36827;&#24230;</button>
+                                <button id="wechatBtnMaterial" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerMaterial')">&#128206; &#26448;&#26009;&#34917;&#20805;</button>
+                                <button id="wechatBtnQuery" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerQuery')">&#128269; &#26597;&#35810;&#36827;&#24230;</button>
                             </div>
                         </div>
                     </div>
@@ -2771,6 +2767,28 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 客户块：只有Q6或Q7权限可见
                 var showCust = loginState.perms.includes('Q6') || loginState.perms.includes('Q7');
                 document.getElementById('mobileCustomerBlock').style.display = showCust ? 'block' : 'none';
+
+                // 动态更新客户通知卡片的按钮文字和数量
+                if (showCust && loginState.policyNo) {
+                    var _pno = loginState.policyNo;
+                    var _smsRecords = getSmsStore().filter(function(s) { return s['&#20445;&#21333;&#21495;'] === _pno; });
+                    var _wechatRecords = getWechatStore().filter(function(w) { return w['&#20445;&#21333;&#21495;'] === _pno; });
+
+                    // 按关键词区分：材料补充 / 查询进度
+                    var _smsMaterial = _smsRecords.filter(function(s) { var c = s['&#30701;&#20449;&#20869;&#23481;'] || ''; return c.indexOf('&#26448;&#26009;') >= 0 || c.indexOf('&#34917;&#20805') >= 0; }).length;
+                    var _smsQuery = _smsRecords.filter(function(s) { var c = s['&#30701;&#20449;&#20869;&#23481;'] || ''; return c.indexOf('&#26597;&#35810;') >= 0 || c.indexOf('&#36827;&#24230;') >= 0; }).length;
+                    var _wxMaterial = _wechatRecords.filter(function(w) { var c = w['&#24494;&#20449;&#20869;&#23481;'] || ''; return c.indexOf('&#26448;&#26009;') >= 0 || c.indexOf('&#34917;&#20805') >= 0; }).length;
+                    var _wxQuery = _wechatRecords.filter(function(w) { var c = w['&#24494;&#20449;&#20869;&#23481;'] || ''; return c.indexOf('&#26597;&#35810;') >= 0 || c.indexOf('&#36827;&#24230;') >= 0; }).length;
+
+                    var _smsMatBtn = document.getElementById('smsBtnMaterial');
+                    var _smsQryBtn = document.getElementById('smsBtnQuery');
+                    var _wxMatBtn = document.getElementById('wechatBtnMaterial');
+                    var _wxQryBtn = document.getElementById('wechatBtnQuery');
+                    if (_smsMatBtn) _smsMatBtn.textContent = '\ud83d\udcce &#26448;&#26009;&#34917;&#20805' + (_smsMaterial > 0 ? ' (' + _smsMaterial + ')' : '');
+                    if (_smsQryBtn) _smsQryBtn.textContent = '\ud83d\uddd0 ' + (_smsQuery > 0 ? '&#26597;&#35810;&#36827;&#24230; (' + _smsQuery + ')' : '&#26597;&#35810;&#36827;&#24230;');
+                    if (_wxMatBtn) _wxMatBtn.textContent = '\ud83d\udcce &#26448;&#26009;&#34917;&#20805' + (_wxMaterial > 0 ? ' (' + _wxMaterial + ')' : '');
+                    if (_wxQryBtn) _wxQryBtn.textContent = '\ud83d\uddd0 ' + (_wxQuery > 0 ? '&#26597;&#35810;&#36827;&#24230; (' + _wxQuery + ')' : '&#26597;&#35810;&#36827;&#24230;');
+                }
 
                 // 审批块：有Q3/Q4/Q5权限的员工可见，但客户角色(J1)绝对不显示
                 var showApproval = loginState.roleID !== 'J1' && (loginState.perms.includes('Q3') || loginState.perms.includes('Q4') || loginState.perms.includes('Q5'));
