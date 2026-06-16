@@ -2460,6 +2460,23 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         }
 
         // ---- 快捷登录用户列表 ----
+        function countPendingApprovals(username, displayName) {
+            var data = getData();
+            var count = 0;
+            for (var i = 0; i < data.refunds.length; i++) {
+                var r = data.refunds[i];
+                if (r.status !== 3 || !r.approvalNodes) continue;
+                var pendingNode = r.approvalNodes.find(function(n) { return n.status === 'pending'; });
+                if (!pendingNode) continue;
+                if (!pendingNode.selectedUsers || pendingNode.selectedUsers.length === 0) continue;
+                var inNode = pendingNode.selectedUsers.some(function(su) {
+                    return su.username === username || su.userDisplayName === displayName;
+                });
+                if (inNode) count++;
+            }
+            return count;
+        }
+
         function renderUserList(containerId) {
             var container = document.getElementById(containerId);
             if (!container) return;
@@ -2479,6 +2496,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 var uname = u['用户名'];
                 var realName = u['用户姓名'];
                 var pwd = u['口令'];
+                // 计算该用户的待审批记录数
+                var pendingCount = countPendingApprovals(uname, realName);
                 // 查找该用户的角色
                 var userRoles = [];
                 for (var j = 0; j < urStore.length; j++) {
@@ -2492,6 +2511,9 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 html += '<div class="user-list-item">';
                 html += '<span class="user-list-uid">' + uid + '</span>';
                 html += '<span class="user-list-name" onclick="revealUserRoles(event,\'' + uname + '\',\'' + pwd + '\',\'' + rolesJson + '\')">' + realName + '</span>';
+                if (pendingCount > 0) {
+                    html += '<span style="background:#f44336;color:white;font-size:11px;padding:2px 6px;border-radius:10px;margin-left:4px;font-weight:600;">' + pendingCount + '</span>';
+                }
                 html += '<span class="user-list-uname">' + uname + '</span>';
                 html += '<span class="user-roles-wrap" data-roles="' + rolesJson + '" data-un="' + uname + '" data-pw="' + pwd + '" style="display:none;"></span>';
                 html += '</div>';
@@ -2723,6 +2745,9 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 h += '<div style="font-size:13px;font-weight:600;color:#1976d2;margin-bottom:4px;">' + (p.name || '') + '</div>';
                 h += '<div style="font-size:11px;color:#666;line-height:1.5;">保单号: ' + (p.pno || '-') + '</div>';
                 h += '<div style="font-size:11px;color:#999;line-height:1.5;">身份证: ' + idMask + ' | 手机: ' + phoneMask + '</div>';
+                var _smsCount = getSmsStore().filter(function(s) { return s['保单号'] === p.pno; }).length;
+                var _wechatCount = getWechatStore().filter(function(w) { return w['保单号'] === p.pno; }).length;
+                h += '<div style="font-size:11px;color:#1976d2;line-height:1.5;">📱 短信: ' + _smsCount + ' | 💬 微信: ' + _wechatCount + '</div>';
                 h += '</div>';
             }
             h += '</div>';
