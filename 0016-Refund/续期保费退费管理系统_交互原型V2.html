@@ -2766,7 +2766,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (loggedInContent) loggedInContent.style.display = 'block';
                 // 更新角色名
                 document.getElementById('mobileRoleName').textContent = loginState.roleName;
-                // 当前用户信息（同PC版：用户名（用户姓名））
+                // 当前用户信息（用户名 用户姓名）
                 document.getElementById('mobileUserInfo').textContent = (loginState.username || '') + ' ' + (loginState.userName || '');
                 // 客户块：只有Q6或Q7权限可见
                 var showCust = loginState.perms.includes('Q6') || loginState.perms.includes('Q7');
