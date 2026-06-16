@@ -2788,8 +2788,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 客户块：只有Q6或Q7权限可见
                 var showCust = loginState.perms.includes('Q6') || loginState.perms.includes('Q7');
                 document.getElementById('mobileCustomerBlock').style.display = showCust ? 'block' : 'none';
-                // 审批块：有Q3权限（审批）或Q4/Q5的员工可见
-                var showApproval = loginState.perms.includes('Q3') || loginState.perms.includes('Q4') || loginState.perms.includes('Q5');
+                // 审批块：有Q3/Q4/Q5权限的员工可见，但客户角色(J1)绝对不显示
+                var showApproval = loginState.roleID !== 'J1' && (loginState.perms.includes('Q3') || loginState.perms.includes('Q4') || loginState.perms.includes('Q5'));
                 document.getElementById('mobileApprovalBlock').style.display = showApproval ? 'block' : 'none';
             }
         }
