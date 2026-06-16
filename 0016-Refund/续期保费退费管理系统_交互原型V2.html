@@ -1608,7 +1608,7 @@
                             </div>
                         </div>
                         <!-- &#9989; &#23457;&#25209; -->
-                        <div class="mobile-card" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border-left: 4px solid #ff9800; padding: 14px; margin-bottom: 12px;">
+                        <div id="mobileCustomerApprovalCard" class="mobile-card" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border-left: 4px solid #ff9800; padding: 14px; margin-bottom: 12px;">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 20px;">&#9989;</span>
@@ -2788,6 +2788,9 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 客户块：只有Q6或Q7权限可见
                 var showCust = loginState.perms.includes('Q6') || loginState.perms.includes('Q7');
                 document.getElementById('mobileCustomerBlock').style.display = showCust ? 'block' : 'none';
+                // 客户块内的审批卡片：客户角色(J1)绝对不显示（员工角色也不需要，已有独立审批入口）
+                var _custApprovalCard = document.getElementById('mobileCustomerApprovalCard');
+                if (_custApprovalCard) _custApprovalCard.style.display = 'none';
                 // 审批块：有Q3/Q4/Q5权限的员工可见，但客户角色(J1)绝对不显示
                 var showApproval = loginState.roleID !== 'J1' && (loginState.perms.includes('Q3') || loginState.perms.includes('Q4') || loginState.perms.includes('Q5'));
                 document.getElementById('mobileApprovalBlock').style.display = showApproval ? 'block' : 'none';
