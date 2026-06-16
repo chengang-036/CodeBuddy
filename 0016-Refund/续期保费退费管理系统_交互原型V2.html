@@ -1008,16 +1008,19 @@
                     </div>
                     
                     <!-- &#32493;&#26399;&#36864;&#36153;&#35760;&#24405;&#32534;&#36753; -->
-                    <div id="adminRefundsTab">
+                                        <div id="adminRefundsTab">
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-outline" id="adminRefundJsonBtn" onclick="adminShowRefundJSON()" style="color:#1a73e8;border-color:#1a73e8;">&#128196; JSON&#35270;&#22270;</button>
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearRefunds()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#32493;&#26399;&#36864;&#36153;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('refunds')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_refunds').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                            <button class="btn btn-sm btn-outline" id="adminRefundJsonBtn" onclick="adminShowRefundJSON()" style="color:#1a73e8;border-color:#1a73e8;">&#128196; JSON预览</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportJSON('refunds')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; 导出JSON</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('jsonFileInput_refunds').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; 导入JSON</button>
+                            <input type="file" id="jsonFileInput_refunds" accept=".json" style="display:none;" onchange="adminImportJSON('refunds', this)">
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearRefunds()" style="margin-left:8px;">&#128465; 清空续期退费</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('refunds')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; 导出CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_refunds').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; 导入CSV</button>
                             <input type="file" id="csvFileInput_refunds" accept=".csv" style="display:none;" onchange="adminImportCSV('refunds', this)">
-                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">&#25903;&#25345;CSV&#25991;&#20214;&#23548;&#20837;&#23548;&#20986;</span>
+                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">支持CSV/JSON导入导出</span>
                         </div>
-                        <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
+                    <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
@@ -3854,6 +3857,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (totalAmount >= 500000) execBlockReasons.push('金额≥50万元');
                 if (hasRenewalCommission) execBlockReasons.push('已发放续期佣金需扣回');
                 if (isAdvanceRefund) execBlockReasons.push('垫缴退费业务');
+                // ★ 修复：保存触发人工审批的真实原因到 refund 记录，供审批完成日志使用（而非只写"非原卡原退"）
+                refundRecord.approvalBlockReasons = execBlockReasons.length > 0 ? execBlockReasons : ['需人工审批'];
                 refundRecord.logs.push({ time: acceptTime, action: '提交审批', operator: '系统', detail: '需人工审批 — ' + execBlockReasons.join('；') + ' | 渠道: ' + approvalResult.channel + ' | ' + approvalResult.tierLabel + '(' + approvalResult.tierLevel + ')' + (isResubmit ? '（退回重新提交）' : '') });
                 refundRecord.logs.push({ time: acceptTime, action: notifyMethod === 'sms' ? '发送短信通知' : '发送微信通知', operator: '系统', detail: '给客户发送远程进度查询短链接（链接72小时有效）' + (totalAmount > 10000 ? '；超过1万元需补充材料' : '') });
                 
@@ -4583,10 +4588,16 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批完成', operator: currentOperatorName(), detail: opinion });
                     if (refund.isOriginalCard) {
                         refund.status = 8; refund.statusName = '进入退费流程';
-                        refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '提交核心退费', operator: '系统', detail: '原卡原退，审批完成，直接发起退费。如提交核心正常→"审批完成，已提交退费处理"；如提交核心失败→触发失败件处理通知。' });
+                        // ★ 修复：用触发人工审批的真实原因
+                        var _realReasons2 = (refund.approvalBlockReasons && refund.approvalBlockReasons.length > 0)
+                            ? refund.approvalBlockReasons.join('；') : '需人工审批';
+                        refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '提交核心退费', operator: '系统', detail: '「' + _realReasons2 + '」审批完成，原卡原退，直接发起退费处理。如提交核心正常→"审批完成，已提交退费处理"；如提交核心失败→触发失败件处理通知。' });
                     } else {
                         refund.status = 5; refund.statusName = '待客户补材料';
-                        refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '发送材料补充链接', operator: '系统', detail: '非原卡原退，审批完成，请客户远程补充材料（链接24小时有效）' });
+                        // ★ 修复：用触发人工审批的真实原因替代笼统的"非原卡原退"
+                        var _realReasons = (refund.approvalBlockReasons && refund.approvalBlockReasons.length > 0)
+                            ? refund.approvalBlockReasons.join('；') : '需人工审批';
+                        refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '发送材料补充链接', operator: '系统', detail: '「' + _realReasons + '」审批完成，请客户远程补充材料（链接24小时有效）' });
                         refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '通知客户', operator: '系统', detail: '短信/微信通知客户上传身份证、银行卡影像' });
                     }
                 }
@@ -4675,6 +4686,8 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
         function openRefundDetail(id) {
             const data = getData();
             const refund = data.refunds.find(r => r.id === id);
+            // ★ 修复：从保单库（localStorage）获取完整保单信息，替代硬编码的假数据
+            const pd = getPolicyStore()[refund.policyNo] || {};
             document.getElementById('detailContent').innerHTML = `
                 <div class="detail-header">
                     <div>
@@ -4696,25 +4709,25 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
                 <div class="info-section"><div class="info-section-title">保单信息</div><div class="info-grid">
                     <div class="info-item"><span class="info-label">保单号</span><span class="info-value">${refund.policyNo}</span></div>
-                    <div class="info-item"><span class="info-label">保单状态</span><span class="info-value">有效</span></div>
-                    <div class="info-item"><span class="info-label">主险名称</span><span class="info-value">太保寿险长相伴终身寿险</span></div>
-                    <div class="info-item"><span class="info-label">主险代码</span><span class="info-value">CPL2023A001</span></div>
+                    <div class="info-item"><span class="info-label">保单状态</span><span class="info-value">${pd.status || '有效'}</span></div>
+                    <div class="info-item"><span class="info-label">主险名称</span><span class="info-value">${pd.mainRisk || '-'}</span></div>
+                    <div class="info-item"><span class="info-label">主险代码</span><span class="info-value">${pd.riskCode || '-'}</span></div>
                     <div class="info-item"><span class="info-label">投保人姓名</span><span class="info-value">${refund.holderName}</span></div>
-                    <div class="info-item"><span class="info-label">投保人证件号</span><span class="info-value">${refund.holderId.substring(0,6)}********${refund.holderId.substring(14)}</span></div>
-                    <div class="info-item"><span class="info-label">收费地址</span><span class="info-value">上海市浦东新区陆家嘴环路1000号</span></div>
-                    <div class="info-item"><span class="info-label">收费联系电话</span><span class="info-value">${refund.phone.substring(0,3)}****${refund.phone.substring(7)}</span></div>
-                    <div class="info-item"><span class="info-label">责任起期</span><span class="info-value">2020-01-01</span></div>
-                    <div class="info-item"><span class="info-label">责任止期</span><span class="info-value">终身</span></div>
-                    <div class="info-item"><span class="info-label">下次缴费日期</span><span class="info-value">2026-03-01</span></div>
-                    <div class="info-item"><span class="info-label">交费方式</span><span class="info-value">年交</span></div>
-                    <div class="info-item"><span class="info-label">保单所属分公司</span><span class="info-value">上海分公司</span></div>
-                    <div class="info-item"><span class="info-label">保单所属机构</span><span class="info-value">浦东中支</span></div>
+                    <div class="info-item"><span class="info-label">投保人证件号</span><span class="info-value">${refund.holderId ? refund.holderId.substring(0,6)+'********'+refund.holderId.substring(14) : '-'}</span></div>
+                    <div class="info-item"><span class="info-label">收费地址</span><span class="info-value">${pd.chargeAddress || refund.chargeAddress || '-'}</span></div>
+                    <div class="info-item"><span class="info-label">收费联系电话</span><span class="info-value">${refund.phone ? refund.phone.substring(0,3)+'****'+refund.phone.substring(7) : '-'}</span></div>
+                    <div class="info-item"><span class="info-label">责任起期</span><span class="info-value">${pd.startDate || '-'}</span></div>
+                    <div class="info-item"><span class="info-label">责任止期</span><span class="info-value">${pd.endDate || '-'}</span></div>
+                    <div class="info-item"><span class="info-label">下次缴费日期</span><span class="info-value">${pd.nextPayDate || '-'}</span></div>
+                    <div class="info-item"><span class="info-label">交费方式</span><span class="info-value">${pd.payMethod || '-'}</span></div>
+                    <div class="info-item"><span class="info-label">保单所属分公司</span><span class="info-value">${refund.branch || pd.branch || '-'}</span></div>
+                    <div class="info-item"><span class="info-label">保单所属机构</span><span class="info-value">${refund.subBranch || pd.subBranch || '-'}</span></div>
                 </div></div>
 
                 <div class="info-section"><div class="info-section-title">缴费信息</div><div class="info-grid">
-                    <div class="info-item"><span class="info-label">缴费账户姓名</span><span class="info-value">${refund.holderName}</span></div>
-                    <div class="info-item"><span class="info-label">卡号</span><span class="info-value">6222****8888</span></div>
-                    <div class="info-item"><span class="info-label">银行名称</span><span class="info-value">中国工商银行上海分行</span></div>
+                    <div class="info-item"><span class="info-label">缴费账户姓名</span><span class="info-value">${refund.holderName || '-'}</span></div>
+                    <div class="info-item"><span class="info-label">卡号</span><span class="info-value">${(refund.bankAccount || pd.bankAccount) ? (refund.bankAccount || pd.bankAccount).replace(/(\d{4})\d+(\d{4})/, '$1****$2') : '-'}</span></div>
+                    <div class="info-item"><span class="info-label">银行名称</span><span class="info-value">${refund.bankName || pd.bankName || '-'}</span></div>
                 </div></div>
 
                 <div class="info-section"><div class="info-section-title">续期交费记录</div>
@@ -4760,7 +4773,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                         <div class="approval-node" style="border-left-color: ${node.status === 'completed' ? 'var(--success)' : node.status === 'rejected' ? 'var(--danger)' : 'var(--gray-300)'}">
                             <div style="flex:1;">
                                 <div style="font-weight:500;font-size:14px;">${node.name}</div>
-                                <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">${node.status === 'completed' ? '✅ 已完成' : node.status === 'rejected' ? '❌ 已拒绝' : '⏳ 待处理'}　${node.operator !== '-' ? '操作人：' + node.operator + '　' + node.time : ''}</div>
+                                <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">${node.status === 'completed' ? ('✅ 已完成　操作人：' + node.operator + (node.time !== '-' ? '　' + node.time : '')) : node.status === 'rejected' ? '❌ 已拒绝' : (() => { var names = node.selectedUsers && node.selectedUsers.length > 0 ? node.selectedUsers.map(function(su){ return su.userDisplayName; }).join('、') : ''; return '⏳ 待处理' + (names ? '　审批人：' + names : ''); })()}</div>
                             </div>
                         </div>`).join('')}
                     </div>
@@ -5575,7 +5588,19 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             document.getElementById('mobileApprovalFlowNodes').innerHTML = refund.approvalNodes ? refund.approvalNodes.map(function(node, i) {
                 var bg = node.status === 'completed' ? 'var(--success)' : node.status === 'pending' ? 'var(--warning)' : node.status === 'rejected' ? 'var(--danger)' : 'var(--gray-300)';
                 var icon = node.status === 'completed' ? '✓' : node.status === 'pending' ? '⏳' : node.status === 'rejected' ? '✗' : '○';
-                var sub = node.operator !== '-' ? node.operator + (node.time !== '-' ? ' | ' + node.time : '') : '待处理';
+                var sub = '';
+                if (node.status === 'completed') {
+                    // 已完成：显示操作人和时间
+                    sub = node.operator !== '-' ? node.operator + (node.time !== '-' ? ' | ' + node.time : '') : '-';
+                } else if (node.status === 'pending' || node.status === 'rejected') {
+                    // 待处理/已拒绝：显示审批人名单
+                    var approverNames = node.selectedUsers && node.selectedUsers.length > 0
+                        ? node.selectedUsers.map(function(su){ return su.userDisplayName; }).join('、')
+                        : '';
+                    sub = approverNames ? ('审批人：' + approverNames) : '待处理';
+                } else {
+                    sub = '待处理';
+                }
                 return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray-200);"><div style="width:30px;height:30px;border-radius:50%;background:' + bg + ';color:white;display:flex;align-items:center;justify-content:center;font-size:13px;">' + icon + '</div><div style="flex:1;"><div style="font-weight:500;font-size:13px;">' + node.name + '</div>' + (node.selectedUsers && node.selectedUsers.length > 0 ? '<div style="font-size:10px;color:#1565c0;margin-top:1px;">👤 ' + node.selectedUsers.map(function(su){return su.userDisplayName;}).join('、') + '</div>' : '') + '<div style="font-size:11px;color:var(--gray-500);">' + sub + '</div>' + (i === 0 && node.showCommissionRebate ? '<div style="font-size:10px;color:#e65100;margin-top:2px;">📌 需确认扣回续佣信息</div>' : '') + '</div></div>';
             }).join('') : '<p style="color:var(--gray-500);">免审批场景</p>';
 
@@ -5661,11 +5686,22 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (refund.isOriginalCard) {
                     refund.status = 8;
                     refund.statusName = '进入退费流程';
-                    refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '提交核心退费', operator: '系统', detail: '原卡原退，审批完成，直接发起退费处理。如提交核心正常，系统提示"审批完成，已提交退费处理"；如提交核心失败，触发失败件处理通知。' });
+                    // ★ 修复：用触发人工审批的真实原因
+                    var _mRealReasons = (refund.approvalBlockReasons && refund.approvalBlockReasons.length > 0)
+                        ? refund.approvalBlockReasons.join('；') : '需人工审批';
+                    refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '提交核心退费', operator: '系统', detail: '「' + _mRealReasons + '」审批完成，原卡原退，直接发起退费处理。如提交核心正常→"审批完成，已提交退费处理"；如提交核心失败→触发失败件处理通知。' });
                 } else {
-                    refund.status = 5;
-                    refund.statusName = '待客户补材料';
-                    refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '发送材料补充链接', operator: '系统', detail: '非原卡原退，审批完成，请客户远程补充材料（链接24小时有效）。短信/微信通知客户上传身份证、银行卡影像。' });
+                    refund.status = 5; refund.statusName = '待客户补材料';
+                    // ★ 修复：用触发人工审批的真实原因 + 调用 recordNotification 发送补充材料链接
+                    var _mRealReasons2 = (refund.approvalBlockReasons && refund.approvalBlockReasons.length > 0)
+                        ? refund.approvalBlockReasons.join('；') : '需人工审批';
+                    var _expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                    var _notifyDate = _expiry.getFullYear() + '年' + String(_expiry.getMonth()+1).padStart(2,'0') + '月' + String(_expiry.getDate()).padStart(2,'0') + '日 ' + String(_expiry.getHours()).padStart(2,'0') + ':' + String(_expiry.getMinutes()).padStart(2,'0');
+                    var _smsContent = '【太平洋保险】尊敬的客户，请您于' + _notifyDate + '前点击链接https://cpic.cn/rf/QL' + refund.id + '补充续期退费材料（身份证、银行卡影像）';
+                    var _wechatContent = '尊敬的客户，请您于' + _notifyDate + '前点击链接https://cpic.cn/rf/QL' + refund.id + '补充续期退费材料（身份证、银行卡影像）';
+                    refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '发送材料补充链接', operator: '系统', detail: '「' + _mRealReasons2 + '」审批完成，请客户远程补充材料（链接24小时有效）' });
+                    recordNotification(refund.notifyMethod || 'sms', refund.policyNo, refund.phone, _smsContent, _wechatContent);
+                    refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '通知客户', operator: '系统', detail: '短信/微信通知客户上传身份证、银行卡影像' });
                 }
                 saveData(data);
                 showNotification('审批完成！' + (refund.isOriginalCard ? '已提交核心退费' : '已通知客户补材料'), 'success');
@@ -5796,13 +5832,20 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             refund.status = 4; refund.statusName = '审批完成';
             refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '审批完成', operator: currentOperatorName(), detail: opinion });
 
-            if (refund.isOriginalCard) {
-                refund.status = 8; refund.statusName = '进入退费流程';
-                refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '提交核心退费', operator: '系统', detail: '原卡原退，审批完成，直接发起退费。如提交核心正常→"审批完成，已提交退费处理"；如提交核心失败→触发失败件处理通知。' });
-            } else {
-                refund.status = 5; refund.statusName = '待客户补材料';
-                refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '发送材料补充链接', operator: '系统', detail: '非原卡原退，审批完成，请客户远程补充材料（链接24小时有效）。短信/微信通知客户上传身份证、银行卡影像。' });
-            }
+                if (refund.isOriginalCard) {
+                    refund.status = 8; refund.statusName = '进入退费流程';
+                    refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '提交核心退费', operator: '系统', detail: '原卡原退，审批完成，直接发起退费。如提交核心正常→"审批完成，已提交退费处理"；如提交核心失败→触发失败件处理通知。' });
+                } else {
+                    refund.status = 5; refund.statusName = '待客户补材料';
+                    // ★ 修复：真正调用 recordNotification 发送补充材料链接，而非只写日志
+                    var _expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                    var _notifyDate = _expiry.getFullYear() + '年' + String(_expiry.getMonth()+1).padStart(2,'0') + '月' + String(_expiry.getDate()).padStart(2,'0') + '日 ' + String(_expiry.getHours()).padStart(2,'0') + ':' + String(_expiry.getMinutes()).padStart(2,'0');
+                    var _smsContent = '【太平洋保险】尊敬的客户，请您于' + _notifyDate + '前点击链接https://cpic.cn/rf/QL' + refund.id + '补充续期退费材料（身份证、银行卡影像）';
+                    var _wechatContent = '尊敬的客户，请您于' + _notifyDate + '前点击链接https://cpic.cn/rf/QL' + refund.id + '补充续期退费材料（身份证、银行卡影像）';
+                    refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '发送材料补充链接', operator: '系统', detail: '非原卡原退，审批完成，请客户远程补充材料（链接24小时有效）' });
+                    recordNotification(refund.notifyMethod || 'sms', refund.policyNo, refund.phone, _smsContent, _wechatContent);
+                    refund.logs.push({ time: new Date().format('yyyy-MM-dd hh:mm:ss'), action: '通知客户', operator: '系统', detail: '短信/微信通知客户上传身份证、银行卡影像' });
+                }
 
             saveData(data); closeModal(); showNotification('审批已通过', 'success');
             refreshReport(); refreshWorkbench();
@@ -6480,6 +6523,70 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // 重置input以便可以重新选择同一文件
             fileInput.value = '';
         }
+
+        // ==================== JSON导出/导入 ====================
+        function adminExportJSON(tabName) {
+            var data;
+            if (tabName === 'refunds') {
+                data = getData().refunds || [];
+            } else {
+                showToast('不支持的导出目标: ' + tabName, 'error');
+                return;
+            }
+            var jsonStr = JSON.stringify(data, null, 2);
+            var blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            var now = new Date();
+            var ts = now.getFullYear() + '' + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '_' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0');
+            a.download = tabName + '_' + ts + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('JSON导出成功，共 ' + data.length + ' 条记录', 'success');
+        }
+
+        function adminImportJSON(tabName, fileInput) {
+            var file = fileInput.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var text = e.target.result;
+                    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+                    var importedData = JSON.parse(text);
+                    if (!Array.isArray(importedData)) {
+                        showToast('JSON格式错误：期望数组', 'error');
+                        return;
+                    }
+                    if (importedData.length === 0) {
+                        showToast('JSON文件为空', 'warning');
+                        return;
+                    }
+                    if (confirm('即将导入 ' + importedData.length + ' 条记录到 ' + tabName + '，将覆盖现有数据。确认继续？')) {
+                        var data = getData();
+                        if (tabName === 'refunds') {
+                            data.refunds = importedData;
+                        } else {
+                            showToast('不支持的导入目标: ' + tabName, 'error');
+                            return;
+                        }
+                        saveData(data);
+                        refreshAdminRefundsTable();
+                        showToast(tabName + ' JSON导入成功', 'success');
+                    }
+                } catch (err) {
+                    showToast('JSON解析失败: ' + err.message, 'error');
+                    console.error('JSON import error:', err);
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+            fileInput.value = '';
+        }
+
 function switchAdminTab(tab) {
             document.querySelectorAll('#adminModule .tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
