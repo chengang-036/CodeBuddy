@@ -5173,6 +5173,11 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             else if (module === 'mobileApproval') {
                 document.getElementById('mobileApproval').style.display = 'block';
                 document.getElementById('mobileTitle').textContent = '审批操作';
+                // ★ 关键修复：强制重置到列表视图，防止残留旧的详情页DOM
+                //    （用户可能在详情页审批后返回，此时 mobileApprovalDetail=block / mobileApprovalList=none，
+                //     若不重置，用户再次进入时会看到审批前的旧详情页快照）
+                document.getElementById('mobileApprovalList').style.display = 'block';
+                document.getElementById('mobileApprovalDetail').style.display = 'none';
                 refreshMobileApprovals();
             }
             else if (module === 'customerQuery') {
