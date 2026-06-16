@@ -668,7 +668,7 @@
                 <div class="entry-card" onclick="openModule('workbench')">
                     <div class="entry-card-icon icon-green">&#9881;&#65039;</div>
                     <h3>&#20869;&#21220;&#24037;&#20316;&#21488;</h3>
-                    <p>&#26448;&#26009;&#30830;&#35748;&#12289;&#22833;&#36133;&#20214;&#22788;&#29702;&#31561;&#20869;&#21220;&#25805;&#20316;</p>
+                    <p>材料&#30830;&#35748;&#12289;&#22833;&#36133;&#20214;&#22788;&#29702;&#31561;&#20869;&#21220;&#25805;&#20316;</p>
                     <span class="badge" style="background: rgba(52,168,83,0.1); color: var(--success);">PC&#31471;</span>
                 </div>
                 <div class="entry-card" onclick="openModule('approval')">
@@ -680,7 +680,7 @@
                 <div class="entry-card" onclick="openModule('report')">
                     <div class="entry-card-icon icon-purple">&#128202;</div>
                     <h3>&#20219;&#21153;&#31649;&#29702;&#19982;&#25253;&#34920;</h3>
-                    <p>&#36827;&#24230;&#26597;&#35810;&#12289;&#32479;&#35745;&#25253;&#34920;&#12289;&#25968;&#25454;&#23548;&#20986;</p>
+                    <p>进度查询&#12289;&#32479;&#35745;&#25253;&#34920;&#12289;&#25968;&#25454;&#23548;&#20986;</p>
                     <span class="badge" style="background: rgba(102,126,234,0.1); color: #764ba2;">PC&#31471;</span>
                 </div>
             </div>
@@ -707,19 +707,19 @@
                         </div>
                     </div>
 
-                    <!-- &#27493;&#39588;1&#65306;P17&#24555;&#22788; (&#20445;&#21333;&#26597;&#35810;) -->
+                    <!-- &#27493;&#39588;1&#65306;P17&#24555;&#22788; (&#20445;&#21333;查询) -->
                     <div class="step-form" id="step1">
                         <div class="step-form-item">
-                            <h3 style="margin-bottom: 16px;">P17&#20445;&#21333;&#24555;&#36895;&#26597;&#35810;</h3>
+                            <h3 style="margin-bottom: 16px;">P17&#20445;&#21333;&#24555;&#36895;查询</h3>
                             <div class="toolbar">
                                 <div class="toolbar-search">
-                                    <input type="text" class="form-control" id="policySearch" placeholder="&#36755;&#20837;&#20445;&#21333;&#21495;&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#25628;&#32034;...">
+                                    <input type="text" class="form-control" id="policySearch" placeholder="&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#25628;&#32034;...">
                                 </div>
-                                <button class="btn btn-primary" onclick="searchPolicy()">&#128269; &#26597;&#35810;</button>
+                                <button class="btn btn-primary" onclick="searchPolicy()">&#128269; 查询</button>
                             </div>
                             <div class="data-list" id="searchResults">
                                 <div style="padding: 40px; text-align: center; color: var(--gray-500);">
-                                    &#35831;&#36755;&#20837;&#20445;&#21333;&#21495;&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#36827;&#34892;&#26597;&#35810;
+                                    &#35831;&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#36827;&#34892;查询
                                 </div>
                             </div>
                             <!-- P17&#24555;&#22788;&#20449;&#24687;&#21345;&#29255;&#65288;&#36873;&#25321;&#20445;&#21333;&#21518;&#26174;&#31034;&#65289; -->
@@ -727,7 +727,7 @@
                                 <div class="info-section">
                                     <div class="info-section-title">&#128203; P17&#24555;&#22788;&#20449;&#24687;</div>
                                     <div class="info-grid">
-                                        <div class="info-item"><span class="info-label">&#20445;&#21333;&#21495;</span><span class="info-value highlight" id="p17PolicyNo">-</span></div>
+                                        <div class="info-item"><span class="info-label">保单号</span><span class="info-value highlight" id="p17PolicyNo">-</span></div>
 
                                         <div class="info-item"><span class="info-label">&#32047;&#35745;&#20132;&#36153;&#24635;&#39069;</span><span class="info-value highlight" id="p17TotalPremium">-</span></div>
                                         <div class="info-item"><span class="info-label">&#38144;&#21806;&#28192;&#36947;</span><span class="info-value" id="p17SalesChannel">-</span></div>
@@ -743,13 +743,13 @@
                         <div class="step-form-item">
                             <h3 style="margin-bottom: 16px;">&#32493;&#26399;&#36864;&#36153;&#21463;&#29702;&#39029;&#38754;</h3>
                             
-                            <!-- P17&#27969;&#27700;&#21495; + &#20445;&#21333;&#21495; -->
+                            <!-- P17&#27969;&#27700;&#21495; + 保单号 -->
                             <div class="info-section">
                                 <div class="info-section-title">&#128222; P17&#20851;&#32852;&#20449;&#24687;</div>
                                 <div class="info-grid">
                                     <div class="info-item"><span class="info-label">P17&#24405;&#38899;&#27969;&#27700;&#21495;</span><span class="info-value" id="p17RecordFlowNo">-</span></div>
                                     <div class="info-item"><span class="info-label">P17&#19994;&#21153;&#27969;&#27700;&#21495;</span><span class="info-value" id="p17BizFlowNo">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#20445;&#21333;&#21495;</span><span class="info-value"><input type="text" class="form-control" id="step2PolicyNo" value="" disabled style="background:#f5f5f5;color:#888;width:200px;cursor:not-allowed;"></span></div>
+                                    <div class="info-item"><span class="info-label">保单号</span><span class="info-value"><input type="text" class="form-control" id="step2PolicyNo" value="" disabled style="background:#f5f5f5;color:#888;width:200px;cursor:not-allowed;"></span></div>
                                 </div>
                             </div>
 
@@ -840,19 +840,19 @@
                 </div>
                 <div class="card-body" id="workbenchContent">
                     <div class="tabs" id="workbenchTabs">
-                        <button class="tab active" onclick="switchWorkbenchTab('material')">&#24453;&#30830;&#35748;&#26448;&#26009;</button>
+                        <button class="tab active" onclick="switchWorkbenchTab('material')">&#24453;&#30830;&#35748;材料</button>
                         <button class="tab" onclick="switchWorkbenchTab('failure')">&#22833;&#36133;&#20214;&#22788;&#29702;</button>
                     </div>
                     <div id="materialTab">
                         <div class="toolbar">
                             <select class="form-control" style="width: 200px;">
-                                <option value="">&#20840;&#37096;&#29366;&#24577;</option><option value="5">&#24453;&#23458;&#25143;&#34917;&#26448;&#26009;</option><option value="6">&#23458;&#25143;&#24050;&#23436;&#25104;&#34917;&#20805;</option>
+                                <option value="">&#20840;&#37096;&#29366;&#24577;</option><option value="5">&#24453;&#23458;&#25143;&#34917;材料</option><option value="6">&#23458;&#25143;&#24050;&#23436;&#25104;补充;</option>
                             </select>
                             <button class="btn btn-primary" onclick="refreshWorkbench()">&#128260; &#21047;&#26032;</button>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>&#20445;&#21333;&#21495;</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#36864;&#36153;&#37329;&#39069;</th><th>&#29366;&#24577;</th><th>&#23458;&#25143;&#34917;&#20805;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
+                                <thead><tr><th>保单号</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#36864;&#36153;&#37329;&#39069;</th><th>&#29366;&#24577;</th><th>&#23458;&#25143;补充;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
                                 <tbody id="materialList"></tbody>
                             </table>
                         </div>
@@ -866,7 +866,7 @@
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>&#20445;&#21333;&#21495;</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#22833;&#36133;&#37329;&#39069;</th><th>&#22833;&#36133;&#31867;&#22411;</th><th>&#22833;&#36133;&#21407;&#22240;</th><th>&#22833;&#36133;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
+                                <thead><tr><th>保单号</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#22833;&#36133;&#37329;&#39069;</th><th>&#22833;&#36133;&#31867;&#22411;</th><th>&#22833;&#36133;&#21407;&#22240;</th><th>&#22833;&#36133;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
                                 <tbody id="failureList"></tbody>
                             </table>
                         </div>
@@ -899,24 +899,24 @@
                 </div>
                 <div class="card-body">
                     <div class="tabs">
-                        <button class="tab active" onclick="switchReportTab('query')">&#36827;&#24230;&#26597;&#35810;</button>
+                        <button class="tab active" onclick="switchReportTab('query')">进度查询</button>
                         <button class="tab" onclick="switchReportTab('statistics')">&#32479;&#35745;&#25253;&#34920;</button>
                     </div>
                     <div id="queryTab">
                         <div class="toolbar">
-                            <div class="toolbar-search"><input type="text" class="form-control" placeholder="&#36755;&#20837;&#20445;&#21333;&#21495;&#12289;&#35777;&#20214;&#21495;&#25110;&#27969;&#27700;&#21495;..."></div>
+                            <div class="toolbar-search"><input type="text" class="form-control" placeholder="&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#27969;&#27700;&#21495;..."></div>
                             <select class="form-control" style="width: 150px;">
                                 <option value="">&#20840;&#37096;&#29366;&#24577;</option>
                                 <option value="1">&#21463;&#29702;&#20013;</option><option value="2">&#24050;&#21463;&#29702;&#24453;&#23457;&#25209;</option><option value="3">&#23457;&#25209;&#26410;&#23436;&#25104;</option>
-                                <option value="4">&#23457;&#25209;&#23436;&#25104;</option><option value="5">&#24453;&#23458;&#25143;&#34917;&#26448;&#26009;</option><option value="6">&#23458;&#25143;&#24050;&#23436;&#25104;&#34917;&#20805;</option>
-                                <option value="7">&#26448;&#26009;&#30830;&#35748;&#23436;&#25104;</option><option value="8">&#36827;&#20837;&#36864;&#36153;&#27969;&#31243;</option><option value="9">&#36864;&#36153;&#23436;&#25104;</option>
+                                <option value="4">&#23457;&#25209;&#23436;&#25104;</option><option value="5">&#24453;&#23458;&#25143;&#34917;材料</option><option value="6">&#23458;&#25143;&#24050;&#23436;&#25104;补充;</option>
+                                <option value="7">材料&#30830;&#35748;&#23436;&#25104;</option><option value="8">&#36827;&#20837;&#36864;&#36153;&#27969;&#31243;</option><option value="9">&#36864;&#36153;&#23436;&#25104;</option>
                                 <option value="10">&#36864;&#36153;&#22833;&#36133;</option><option value="11">&#36864;&#36153;&#25764;&#38144;</option>
                             </select>
-                            <button class="btn btn-primary">&#128269; &#26597;&#35810;</button>
+                            <button class="btn btn-primary">&#128269; 查询</button>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>&#27969;&#27700;&#21495;</th><th>&#20445;&#21333;&#21495;</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#36864;&#36153;&#37329;&#39069;</th><th>&#29366;&#24577;</th><th>&#21463;&#29702;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
+                                <thead><tr><th>&#27969;&#27700;&#21495;</th><th>保单号</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#36864;&#36153;&#37329;&#39069;</th><th>&#29366;&#24577;</th><th>&#21463;&#29702;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
                                 <tbody id="taskList"></tbody>
                             </table>
                         </div>
@@ -945,7 +945,7 @@
                             <div class="info-grid" style="gap: 12px;">
                                 <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#21463;&#29702;&#20013;</span><span class="status-tag status-1">12</span></div>
                                 <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#23457;&#25209;&#20013;</span><span class="status-tag status-3">8</span></div>
-                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#24453;&#34917;&#26448;&#26009;</span><span class="status-tag status-5">5</span></div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#24453;&#34917;材料</span><span class="status-tag status-5">5</span></div>
                                 <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#36864;&#36153;&#20013;</span><span class="status-tag status-8">15</span></div>
                                 <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#24050;&#23436;&#25104;</span><span class="status-tag status-9">89</span></div>
                                 <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#22833;&#36133;/&#25764;&#38144;</span><span class="status-tag status-10">6</span></div>
@@ -986,7 +986,7 @@
                 </div>
                 <div class="card-body">
                     <div style="background:#fff3e0;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;color:#e65100;">
-                        <strong>&#9888;&#65039; &#25552;&#31034;&#65306;</strong>&#20851;&#32852;&#23383;&#27573;&#65288;&#27969;&#27700;&#21495;&#12289;&#36864;&#36153;ID&#12289;&#20445;&#21333;&#21495;&#65289;&#19981;&#21487;&#20462;&#25913;&#65292;&#20854;&#20182;&#23383;&#27573;&#21487;&#30452;&#25509;&#32534;&#36753;&#21518;&#20445;&#23384;&#12290;
+                        <strong>&#9888;&#65039; &#25552;&#31034;&#65306;</strong>&#20851;&#32852;&#23383;&#27573;&#65288;&#27969;&#27700;&#21495;&#12289;&#36864;&#36153;ID&#12289;保单号&#65289;&#19981;&#21487;&#20462;&#25913;&#65292;&#20854;&#20182;&#23383;&#27573;&#21487;&#30452;&#25509;&#32534;&#36753;&#21518;&#20445;&#23384;&#12290;
                     </div>
                     <div class="tabs">
                         <button class="tab active" onclick="switchAdminTab('refunds')">&#32493;&#26399;&#36864;&#36153;&#35760;&#24405;</button>
@@ -1025,7 +1025,7 @@
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
                                         <th style="min-width:140px;">&#27969;&#27700;&#21495;(id)</th>
-                                        <th style="min-width:100px;">&#20445;&#21333;&#21495;</th>
+                                        <th style="min-width:100px;">保单号</th>
                                         <th style="min-width:70px;">&#25237;&#20445;&#20154;</th>
                                         <th style="min-width:120px;">&#35777;&#20214;&#21495;</th>
                                         <th style="min-width:100px;">&#25163;&#26426;&#21495;</th>
@@ -1075,7 +1075,7 @@
                     <!-- &#20445;&#21333;&#20449;&#24687;&#31649;&#29702; -->
                     <div id="adminPoliciesTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
-                            <strong>&#128203; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#20445;&#21333;&#22522;&#30784;&#20449;&#24687;&#12290;&#20445;&#21333;&#21495;&#19981;&#21487;&#20462;&#25913;&#65292;&#20854;&#20182;&#23383;&#27573;&#22343;&#21487;&#32534;&#36753;&#65292;&#20462;&#25913;&#21518;&#21363;&#26102;&#20445;&#23384;&#12290;
+                            <strong>&#128203; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#20445;&#21333;&#22522;&#30784;&#20449;&#24687;&#12290;保单号&#19981;&#21487;&#20462;&#25913;&#65292;&#20854;&#20182;&#23383;&#27573;&#22343;&#21487;&#32534;&#36753;&#65292;&#20462;&#25913;&#21518;&#21363;&#26102;&#20445;&#23384;&#12290;
                         </div>
                         <div style="margin-bottom:12px;"><button class="btn btn-sm btn-outline btn-danger" onclick="adminClearPolicies()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#20445;&#21333;&#20449;&#24687;</button>
                             <button class="btn btn-sm btn-outline" onclick="adminExportCSV('policies')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
@@ -1086,7 +1086,7 @@
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:110px;">&#20445;&#21333;&#21495;</th>
+                                        <th style="min-width:110px;">保单号</th>
                                         <th style="min-width:80px;">&#20445;&#21333;&#29366;&#24577;</th>
                                         <th style="min-width:120px;">&#20027;&#38505;&#21517;&#31216;</th>
                                         <th style="min-width:80px;">&#20027;&#38505;&#20195;&#30721;</th>
@@ -1128,7 +1128,7 @@
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:110px;">&#20851;&#32852;&#20445;&#21333;&#21495;</th>
+                                        <th style="min-width:110px;">&#20851;&#32852;保单号</th>
                                         <th style="min-width:70px;">&#22995;&#21517;</th>
                                         <th style="min-width:55px;">&#24615;&#21035;</th>
                                         <th style="min-width:70px;">&#22269;&#31821;</th>
@@ -1375,9 +1375,9 @@
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
                                         <th style="min-width:90px;">&#21457;&#36865;ID</th>
-                                        <th style="min-width:100px;">&#20445;&#21333;&#21495;</th>
+                                        <th style="min-width:100px;">保单号</th>
                                         <th style="min-width:120px;">&#25163;&#26426;&#21495;</th>
-                                        <th style="min-width:280px;">&#30701;&#20449;&#20869;&#23481;</th>
+                                        <th style="min-width:280px;">短信内容</th>
                                         <th style="min-width:150px;">&#21457;&#36865;&#26102;&#38388;</th>
                                         <th style="min-width:70px;">&#21457;&#36865;&#29366;&#24577;</th>
                                         <th style="min-width:100px;">&#21463;&#29702;&#20154;</th>
@@ -1404,9 +1404,9 @@
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
                                         <th style="min-width:90px;">&#21457;&#36865;ID</th>
-                                        <th style="min-width:100px;">&#20445;&#21333;&#21495;</th>
+                                        <th style="min-width:100px;">保单号</th>
                                         <th style="min-width:120px;">&#25163;&#26426;&#21495;</th>
-                                        <th style="min-width:280px;">&#24494;&#20449;&#20869;&#23481;</th>
+                                        <th style="min-width:280px;">微信内容</th>
                                         <th style="min-width:150px;">&#21457;&#36865;&#26102;&#38388;</th>
                                         <th style="min-width:70px;">&#21457;&#36865;&#29366;&#24577;</th>
                                         <th style="min-width:100px;">&#21463;&#29702;&#20154;</th>
@@ -1473,7 +1473,7 @@
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
                                         <th style="min-width:80px;">&#35760;&#24405;ID</th>
-                                        <th style="min-width:100px;">&#20445;&#21333;&#21495;</th>
+                                        <th style="min-width:100px;">保单号</th>
                                         <th style="min-width:160px;">&#36864;&#36153;&#21463;&#29702;&#21495;</th>
                                         <th style="min-width:110px;">&#23457;&#25209;&#21160;&#20316;</th>
                                         <th style="min-width:100px;">&#23457;&#25209;&#20154;</th>
@@ -1581,8 +1581,8 @@
                             </div>
 
                             <div style="display: flex; gap: 8px;">
-                                <button id="smsBtnMaterial" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerMaterial')">&#128206; &#26448;&#26009;&#34917;&#20805;</button>
-                                <button id="smsBtnQuery" class="mobile-btn mobile-btn-success" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerQuery')">&#128269; &#26597;&#35810;&#36827;&#24230;</button>
+                                <button id="smsBtnMaterial" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerMaterial')">&#128206; 材料补充</button>
+                                <button id="smsBtnQuery" class="mobile-btn mobile-btn-success" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerQuery')">&#128269; \u67e5\u8be2\u8fdb\u5ea6</button>
                             </div>
                         </div>
                         <!-- &#128172; &#24494;&#20449;&#36890;&#30693; -->
@@ -1599,8 +1599,8 @@
                             </div>
 
                             <div style="display: flex; gap: 8px;">
-                                <button id="wechatBtnMaterial" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerMaterial')">&#128206; &#26448;&#26009;&#34917;&#20805;</button>
-                                <button id="wechatBtnQuery" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerQuery')">&#128269; &#26597;&#35810;&#36827;&#24230;</button>
+                                <button id="wechatBtnMaterial" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerMaterial')">&#128206; 材料补充</button>
+                                <button id="wechatBtnQuery" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerQuery')">&#128269; \u67e5\u8be2\u8fdb\u5ea6</button>
                             </div>
                         </div>
                     </div>
@@ -1626,29 +1626,29 @@
                 </div>
             </div>
             
-            <!-- &#23458;&#25143;&#26448;&#26009;&#34917;&#20805; - &#38142;&#25509;&#30331;&#24405;&#39564;&#35777; -->
+            <!-- &#23458;&#25143;材料补充 - &#38142;&#25509;&#30331;&#24405;&#39564;&#35777; -->
             <div id="mobileCustomerMaterial" style="display: none;">
                 <!-- &#30331;&#24405;&#39564;&#35777;&#39029; -->
                 <div id="mobileMaterialLogin">
                     <div class="mobile-card" style="border-left: 4px solid #007bff;">
-                        <h3 style="margin-bottom: 16px;">&#128272; &#26448;&#26009;&#34917;&#20805;&#38142;&#25509;&#39564;&#35777;</h3>
+                        <h3 style="margin-bottom: 16px;">&#128272; 材料补充&#38142;&#25509;&#39564;&#35777;</h3>
                         <p style="font-size: 13px; color: var(--gray-600); margin-bottom: 16px;">&#35831;&#36755;&#20837;&#24744;&#22312;&#32493;&#26399;&#36864;&#36153;&#30003;&#35831;&#26102;&#30331;&#35760;&#30340;&#35777;&#20214;&#21495;&#21644;&#25163;&#26426;&#21495;</p>
                         <div class="form-group"><label class="form-label">&#25237;&#20445;&#20154;&#35777;&#20214;&#21495; *</label><input type="text" class="form-control" id="mobileIdNo" placeholder="&#35831;&#36755;&#20837;&#35777;&#20214;&#21495;"></div>
                         <div class="form-group"><label class="form-label">&#25163;&#26426;&#21495;&#30721; *</label><input type="tel" class="form-control" id="mobilePhone" placeholder="&#35831;&#36755;&#20837;&#25163;&#26426;&#21495;"></div>
                         <button class="mobile-btn mobile-btn-primary" onclick="verifyCustomerLink()">&#39564;&#35777;&#36523;&#20221;</button>
                     </div>
                     <div class="mobile-card" style="background: #fff8e1; border-left: 4px solid #ff9800; margin-top: 12px;">
-                        <h4 style="font-size: 13px; color: #e65100; margin-bottom: 10px;">&#128206; &#32493;&#26399;&#36864;&#36153;&#25152;&#38656;&#26448;&#26009;</h4>
+                        <h4 style="font-size: 13px; color: #e65100; margin-bottom: 10px;">&#128206; &#32493;&#26399;&#36864;&#36153;&#25152;&#38656;材料</h4>
                         <ul style="font-size: 12px; color: var(--gray-700); padding-left: 18px; margin: 0; line-height: 1.8;">
                             <li>&#25237;&#20445;&#20154;&#26412;&#20154;&#36523;&#20221;&#35777;<strong>&#27491;&#38754;</strong>&#24433;&#20687;</li>
                             <li>&#25237;&#20445;&#20154;&#26412;&#20154;&#36523;&#20221;&#35777;<strong>&#21453;&#38754;</strong>&#24433;&#20687;</li>
                             <li>&#25237;&#20445;&#20154;&#26412;&#20154;&#38134;&#34892;&#21345;&#27491;&#38754;&#29031;&#29255;&#65288;&#38750;&#21407;&#21345;&#21407;&#36864;&#26102;&#65289;</li>
                         </ul>
-                        <p style="font-size: 11px; color: var(--gray-500); margin-top: 8px;">&#128161; &#34917;&#20805;&#26448;&#26009;&#38142;&#25509;24&#23567;&#26102;&#26377;&#25928;&#65292;&#36229;&#26399;&#35831;&#32852;&#31995;95500&#25110;&#26426;&#26500;&#20869;&#21220;&#34917;&#21457;</p>
+                        <p style="font-size: 11px; color: var(--gray-500); margin-top: 8px;">&#128161; 补充;材料&#38142;&#25509;24&#23567;&#26102;&#26377;&#25928;&#65292;&#36229;&#26399;&#35831;&#32852;&#31995;95500&#25110;&#26426;&#26500;&#20869;&#21220;&#34917;&#21457;</p>
                     </div>
                 </div>
                 
-                <!-- &#26448;&#26009;&#34917;&#20805;&#34920;&#21333; -->
+                <!-- 材料补充&#34920;&#21333; -->
                 <div id="mobileMaterialForm" style="display: none;">
                     <div class="mobile-card" style="background: #e8f5e9; border-left: 4px solid #28a745;">
                         <p style="font-size: 13px; color: #2e7d32;">&#9989; &#36523;&#20221;&#39564;&#35777;&#36890;&#36807;</p>
@@ -1658,7 +1658,7 @@
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128203; &#20445;&#21333;&#20449;&#24687;</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
-                            <div class="info-item"><span class="info-label">&#20445;&#21333;&#21495;</span><span class="info-value" id="mcPolicyNo">-</span></div>
+                            <div class="info-item"><span class="info-label">保单号</span><span class="info-value" id="mcPolicyNo">-</span></div>
                             <div class="info-item"><span class="info-label">&#20445;&#21333;&#29366;&#24577;</span><span class="info-value" id="mcPolicyStatus">&#26377;&#25928;</span></div>
                             <div class="info-item"><span class="info-label">&#20027;&#38505;&#21517;&#31216;</span><span class="info-value" id="mcMainRisk">-</span></div>
                             <div class="info-item"><span class="info-label">&#20027;&#38505;&#20195;&#30721;</span><span class="info-value" id="mcMainRiskCode">-</span></div>
@@ -1704,7 +1704,7 @@
                         <div class="form-group"><label class="form-label">&#20462;&#25913;&#36864;&#36153;&#21407;&#22240;&#65288;&#21487;&#36873;&#65289;</label><textarea class="form-control" id="mobileRefundReason" placeholder="&#35831;&#36755;&#20837;&#36864;&#36153;&#21407;&#22240;..." rows="2"></textarea></div>
                     </div>
                     
-                    <!-- &#26448;&#26009;&#19978;&#20256;&#65288;&#21407;&#21345;&#21407;&#36864;&#22833;&#36133;&#22330;&#26223;&#65289; -->
+                    <!-- 材料&#19978;&#20256;&#65288;&#21407;&#21345;&#21407;&#36864;&#22833;&#36133;&#22330;&#26223;&#65289; -->
                     <div class="mobile-card" style="background: #fff8e1; border-left: 4px solid #ff9800;">
                         <h3 style="margin-bottom: 12px;">&#129706; &#36523;&#20221;&#35777;&#19978;&#20256;</h3>
                         <p style="font-size: 12px; color: var(--gray-600); margin-bottom: 12px;">&#21407;&#21345;&#21407;&#36864;&#22833;&#36133;&#38656;&#26356;&#25442;&#38134;&#34892;&#21345;&#26102;&#65292;&#35831;&#19978;&#20256;&#36523;&#20221;&#35777;&#27491;&#21453;&#38754;</p>
@@ -1733,7 +1733,7 @@
                         </div>
                     </div>
                     
-                    <button class="mobile-btn mobile-btn-success" onclick="submitMobileMaterial()">&#25552;&#20132;&#26448;&#26009;</button>
+                    <button class="mobile-btn mobile-btn-success" onclick="submitMobileMaterial()">&#25552;&#20132;材料</button>
                     <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 12px;">&#8592; &#36820;&#22238;</button>
                 </div>
                 
@@ -1743,7 +1743,7 @@
                         <div style="font-size: 48px; margin-bottom: 16px;">&#9200;</div>
                         <h3 style="color: #c62828; margin-bottom: 12px;">&#38142;&#25509;&#24050;&#36229;&#26399;</h3>
                         <p style="font-size: 14px; color: #666; margin-bottom: 12px;">&#35831;&#24744;&#32852;&#31995;95500&#25110;&#26426;&#26500;&#20869;&#21220;&#34917;&#21457;&#38142;&#25509;</p>
-                        <p style="font-size: 11px; color: var(--gray-500);">&#26448;&#26009;&#34917;&#20805;&#38142;&#25509;24&#23567;&#26102;&#26377;&#25928;&#65292;&#36827;&#23637;&#26597;&#35810;&#38142;&#25509;72&#23567;&#26102;&#26377;&#25928;</p>
+                        <p style="font-size: 11px; color: var(--gray-500);">材料补充&#38142;&#25509;24&#23567;&#26102;&#26377;&#25928;&#65292;&#36827;&#23637;查询&#38142;&#25509;72&#23567;&#26102;&#26377;&#25928;</p>
                         <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 16px;">&#8592; &#36820;&#22238;</button>
                     </div>
                 </div>
@@ -1759,38 +1759,38 @@
                     </div>
                 </div>
                 
-                <!-- &#19981;&#38656;&#35201;&#34917;&#20805;&#26448;&#26009;&#25552;&#31034; -->
+                <!-- &#19981;&#38656;&#35201;补充;材料&#25552;&#31034; -->
                 <div id="mobileMaterialNotNeeded" style="display: none;">
                     <div class="mobile-card" style="background: #e3f2fd; border-left: 4px solid #2196f3; text-align: center; padding: 40px 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">&#9989;</div>
-                        <h3 style="color: #1565c0; margin-bottom: 12px;">&#26242;&#19981;&#38656;&#35201;&#34917;&#20805;&#26448;&#26009;</h3>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">&#24403;&#21069;&#36824;&#19981;&#38656;&#35201;&#24744;&#19978;&#20256;&#26448;&#26009;</p>
-                        <p style="font-size: 11px; color: var(--gray-500);">&#21518;&#32493;&#22914;&#38656;&#34917;&#20805;&#26448;&#26009;&#65292;&#23558;&#36890;&#36807;&#30701;&#20449;&#25110;&#24494;&#20449;&#36890;&#30693;&#24744;</p>
+                        <h3 style="color: #1565c0; margin-bottom: 12px;">&#26242;&#19981;&#38656;&#35201;补充;材料</h3>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">&#24403;&#21069;&#36824;&#19981;&#38656;&#35201;&#24744;&#19978;&#20256;材料</p>
+                        <p style="font-size: 11px; color: var(--gray-500);">&#21518;&#32493;&#22914;&#38656;补充;材料&#65292;&#23558;&#36890;&#36807;&#30701;&#20449;&#25110;&#24494;&#20449;&#36890;&#30693;&#24744;</p>
                         <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 16px;">&#8592; &#36820;&#22238;</button>
                     </div>
                 </div>
             </div>
             
-            <!-- &#36827;&#23637;&#26597;&#35810; - &#38142;&#25509;&#30331;&#24405;&#39564;&#35777; -->
+            <!-- &#36827;&#23637;查询 - &#38142;&#25509;&#30331;&#24405;&#39564;&#35777; -->
             <div id="mobileCustomerQuery" style="display: none;">
                 <!-- &#30331;&#24405;&#39564;&#35777;&#39029; -->
                 <div id="mobileQueryLogin">
                     <div class="mobile-card" style="border-left: 4px solid #28a745;">
-                        <h3 style="margin-bottom: 16px;">&#128272; &#36827;&#24230;&#26597;&#35810;&#38142;&#25509;&#39564;&#35777;</h3>
+                        <h3 style="margin-bottom: 16px;">&#128272; 进度查询&#38142;&#25509;&#39564;&#35777;</h3>
                         <p style="font-size: 13px; color: var(--gray-600); margin-bottom: 16px;">&#35831;&#36755;&#20837;&#24744;&#22312;&#32493;&#26399;&#36864;&#36153;&#30003;&#35831;&#26102;&#30331;&#35760;&#30340;&#35777;&#20214;&#21495;&#21644;&#25163;&#26426;&#21495;</p>
                         <div class="form-group"><label class="form-label">&#25237;&#20445;&#20154;&#35777;&#20214;&#21495; *</label><input type="text" class="form-control" id="mobileQueryIdNo" placeholder="&#35831;&#36755;&#20837;&#35777;&#20214;&#21495;"></div>
                         <div class="form-group"><label class="form-label">&#25163;&#26426;&#21495;&#30721; *</label><input type="tel" class="form-control" id="mobileQueryPhone" placeholder="&#35831;&#36755;&#20837;&#25163;&#26426;&#21495;"></div>
-                        <button class="mobile-btn mobile-btn-success" onclick="verifyQueryLink()">&#26597;&#35810;&#36827;&#24230;</button>
+                        <button class="mobile-btn mobile-btn-success" onclick="verifyQueryLink()">\u67e5\u8be2\u8fdb\u5ea6</button>
                     </div>
                 </div>
                 
-                <!-- &#36827;&#24230;&#26597;&#35810;&#32467;&#26524; -->
+                <!-- 进度查询&#32467;&#26524; -->
                 <div id="mobileQueryResult" style="display: none;">
                     <!-- &#20445;&#21333;&#20449;&#24687; -->
                     <div class="mobile-card">
                         <h3 style="margin-bottom: 12px;">&#128203; &#20445;&#21333;&#20449;&#24687;</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
-                            <div class="info-item"><span class="info-label">&#20445;&#21333;&#21495;</span><span class="info-value" id="mqPolicyNo">-</span></div>
+                            <div class="info-item"><span class="info-label">保单号</span><span class="info-value" id="mqPolicyNo">-</span></div>
                             <div class="info-item"><span class="info-label">&#20027;&#38505;&#21517;&#31216;</span><span class="info-value" id="mqMainRisk">-</span></div>
                             <div class="info-item"><span class="info-label">&#25237;&#20445;&#20154;</span><span class="info-value" id="mqHolderName">-</span></div>
                         </div>
@@ -1835,7 +1835,7 @@
                         <div class="mobile-timeline" id="mobileTimeline"></div>
                     </div>
                     
-                    <button class="mobile-btn mobile-btn-outline" onclick="showMobileQueryLogin()">&#8592; &#37325;&#26032;&#26597;&#35810;</button>
+                    <button class="mobile-btn mobile-btn-outline" onclick="showMobileQueryLogin()">&#8592; &#37325;&#26032;查询</button>
                 </div>
                 
                 <!-- &#38142;&#25509;&#22833;&#25928;&#25552;&#31034; -->
@@ -2771,23 +2771,23 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 // 动态更新客户通知卡片的按钮文字和数量
                 if (showCust && loginState.policyNo) {
                     var _pno = loginState.policyNo;
-                    var _smsRecords = getSmsStore().filter(function(s) { return s['&#20445;&#21333;&#21495;'] === _pno; });
-                    var _wechatRecords = getWechatStore().filter(function(w) { return w['&#20445;&#21333;&#21495;'] === _pno; });
+                    var _smsRecords = getSmsStore().filter(function(s) { return s['保单号'] === _pno; });
+                    var _wechatRecords = getWechatStore().filter(function(w) { return w['保单号'] === _pno; });
 
                     // 按关键词区分：材料补充 / 查询进度
-                    var _smsMaterial = _smsRecords.filter(function(s) { var c = s['&#30701;&#20449;&#20869;&#23481;'] || ''; return c.indexOf('&#26448;&#26009;') >= 0 || c.indexOf('&#34917;&#20805') >= 0; }).length;
-                    var _smsQuery = _smsRecords.filter(function(s) { var c = s['&#30701;&#20449;&#20869;&#23481;'] || ''; return c.indexOf('&#26597;&#35810;') >= 0 || c.indexOf('&#36827;&#24230;') >= 0; }).length;
-                    var _wxMaterial = _wechatRecords.filter(function(w) { var c = w['&#24494;&#20449;&#20869;&#23481;'] || ''; return c.indexOf('&#26448;&#26009;') >= 0 || c.indexOf('&#34917;&#20805') >= 0; }).length;
-                    var _wxQuery = _wechatRecords.filter(function(w) { var c = w['&#24494;&#20449;&#20869;&#23481;'] || ''; return c.indexOf('&#26597;&#35810;') >= 0 || c.indexOf('&#36827;&#24230;') >= 0; }).length;
+                    var _smsMaterial = _smsRecords.filter(function(s) { var c = s['短信内容'] || ''; return c.indexOf('材料') >= 0 || c.indexOf('补充') >= 0; }).length;
+                    var _smsQuery = _smsRecords.filter(function(s) { var c = s['短信内容'] || ''; return c.indexOf('查询') >= 0 || c.indexOf('进度') >= 0; }).length;
+                    var _wxMaterial = _wechatRecords.filter(function(w) { var c = w['微信内容'] || ''; return c.indexOf('材料') >= 0 || c.indexOf('补充') >= 0; }).length;
+                    var _wxQuery = _wechatRecords.filter(function(w) { var c = w['微信内容'] || ''; return c.indexOf('查询') >= 0 || c.indexOf('进度') >= 0; }).length;
 
                     var _smsMatBtn = document.getElementById('smsBtnMaterial');
                     var _smsQryBtn = document.getElementById('smsBtnQuery');
                     var _wxMatBtn = document.getElementById('wechatBtnMaterial');
                     var _wxQryBtn = document.getElementById('wechatBtnQuery');
-                    if (_smsMatBtn) _smsMatBtn.textContent = '\ud83d\udcce &#26448;&#26009;&#34917;&#20805' + (_smsMaterial > 0 ? ' (' + _smsMaterial + ')' : '');
-                    if (_smsQryBtn) _smsQryBtn.textContent = '\ud83d\uddd0 ' + (_smsQuery > 0 ? '&#26597;&#35810;&#36827;&#24230; (' + _smsQuery + ')' : '&#26597;&#35810;&#36827;&#24230;');
-                    if (_wxMatBtn) _wxMatBtn.textContent = '\ud83d\udcce &#26448;&#26009;&#34917;&#20805' + (_wxMaterial > 0 ? ' (' + _wxMaterial + ')' : '');
-                    if (_wxQryBtn) _wxQryBtn.textContent = '\ud83d\uddd0 ' + (_wxQuery > 0 ? '&#26597;&#35810;&#36827;&#24230; (' + _wxQuery + ')' : '&#26597;&#35810;&#36827;&#24230;');
+                    if (_smsMatBtn) _smsMatBtn.textContent = '\ud83d\udcce 材料补充' + (_smsMaterial > 0 ? ' (' + _smsMaterial + ')' : '');
+                    if (_smsQryBtn) _smsQryBtn.textContent = '\ud83d\uddd0 ' + (_smsQuery > 0 ? '\u67e5\u8be2\u8fdb\u5ea6 (' + _smsQuery + ')' : '\u67e5\u8be2\u8fdb\u5ea6');
+                    if (_wxMatBtn) _wxMatBtn.textContent = '\ud83d\udcce 材料补充' + (_wxMaterial > 0 ? ' (' + _wxMaterial + ')' : '');
+                    if (_wxQryBtn) _wxQryBtn.textContent = '\ud83d\uddd0 ' + (_wxQuery > 0 ? '\u67e5\u8be2\u8fdb\u5ea6 (' + _wxQuery + ')' : '\u67e5\u8be2\u8fdb\u5ea6');
                 }
 
                 // 审批块：有Q3/Q4/Q5权限的员工可见，但客户角色(J1)绝对不显示
@@ -3167,7 +3167,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (policySearch) policySearch.value = '';
                 // 清空搜索结果列表
                 const searchResults = document.getElementById('searchResults');
-                if (searchResults) searchResults.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--gray-500);">&#35831;&#36755;&#20837;&#20445;&#21333;&#21495;&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#36827;&#34892;&#26597;&#35810;</div>';
+                if (searchResults) searchResults.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--gray-500);">&#35831;&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#36827;&#34892;查询</div>';
                 // 隐藏P17快处信息卡片（清理缓存）
                 const p17InfoCard = document.getElementById('p17InfoCard');
                 if (p17InfoCard) p17InfoCard.style.display = 'none';
