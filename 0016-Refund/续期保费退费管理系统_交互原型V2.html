@@ -1544,7 +1544,7 @@
                     </div>
 
                     <!-- 客户快捷登录列表 -->
-                    <div id="mCustListSection" style="margin-top:20px;border-top:1px solid #e0e0e0;padding-top:16px;">
+                    <div id="mCustListSection" style="margin-top:20px;border-top:1px solid #e0e0e0;padding-top:16px;display:none;">
                         <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:10px;">客户快捷登录：点击姓名自动填入信息并登录</div>
                         <div id="mCustListContent" style="max-height:300px;overflow-y:auto;"></div>
                     </div>
@@ -2611,10 +2611,14 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 document.querySelectorAll('.mobile-login-tab')[0].classList.add('active');
                 document.getElementById('mobileEmployeeLoginForm').classList.add('active');
                 renderUserList('mEmpUserListContent');
+                // 隐藏客户快捷登录列表
+                document.getElementById('mCustListSection').style.display = 'none';
             } else {
                 document.querySelectorAll('.mobile-login-tab')[1].classList.add('active');
                 document.getElementById('mobileCustomerLoginForm').classList.add('active');
                 renderMobileCustomerList();
+                // 显示客户快捷登录列表
+                document.getElementById('mCustListSection').style.display = 'block';
             }
         }
         function doMobileEmployeeLogin() {
@@ -2767,8 +2771,13 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             if (!loginState) {
                 if (loginSection) loginSection.style.display = 'block';
                 if (loggedInContent) loggedInContent.style.display = 'none';
-                renderUserList('mEmpUserListContent');
-                renderMobileCustomerList();
+                // 重置到员工登录标签（隐藏客户列表）
+                if (typeof switchMobileLoginTab === 'function') {
+                    switchMobileLoginTab('employee');
+                } else {
+                    renderUserList('mEmpUserListContent');
+                    renderMobileCustomerList();
+                }
             } else {
                 if (loginSection) loginSection.style.display = 'none';
                 if (loggedInContent) loggedInContent.style.display = 'block';
