@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>&#32493;&#26399;&#20445;&#36153;&#36864;&#36153;&#31649;&#29702;&#31995;&#32479; - &#20132;&#20114;&#21407;&#22411;V2</title>
+    <title>续期保费退费管理系统 - 交互原型V2</title>
     <style>
         :root {
             --primary: #1a73e8;
@@ -373,7 +373,7 @@
         .approval-node-info { flex: 1; }
         .approval-node-title { font-weight: 500; font-size: 14px; }
         .approval-node-desc { font-size: 12px; color: var(--gray-500); }
-        /* &#23457;&#25209;&#27969;&#37197;&#32622;&#38754;&#26495; */
+        /* 审批流配置面板 */
         .cfg-channel-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
         .cfg-channel-tab { padding: 8px 16px; border: 1px solid var(--gray-300); border-radius: 20px; cursor: pointer; font-size: 13px; background: white; transition: all 0.2s; }
         .cfg-channel-tab:hover { border-color: var(--primary); }
@@ -423,7 +423,7 @@
         .radio-item.selected { background: rgba(26,115,232,0.1); border-color: var(--primary); }
         .radio-item input { width: 18px; height: 18px; accent-color: var(--primary); }
         
-        /* &#31227;&#21160;&#31471;&#35270;&#22270; */
+        /* 移动端视图 */
         .mobile-view { display: none; }
         .mobile-view.active { display: flex; flex-direction: column; min-height: 100vh; }
         .mobile-container {
@@ -468,11 +468,11 @@
         .mobile-timeline-title { font-weight: 500; margin-bottom: 4px; }
         .mobile-timeline-time { font-size: 12px; color: var(--gray-500); }
         
-        /* &#35270;&#22270;&#20999;&#25442; */
+        /* 视图切换 */
         .view-section { display: none; }
         .view-section.active { display: block; }
         
-        /* &#21709;&#24212;&#24335; */
+        /* 响应式 */
         @media (max-width: 768px) {
             .pc-only { display: none !important; }
             .entry-grid { grid-template-columns: 1fr; }
@@ -484,7 +484,7 @@
         @media (min-width: 769px) {
             .mobile-only { display: none !important; }
         }
-        /* ========== &#30331;&#24405;&#30028;&#38754;&#26679;&#24335; ========== */
+        /* ========== 登录界面样式 ========== */
         .login-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); display: none; z-index: 2000;
@@ -524,7 +524,7 @@
         }
         .login-close:hover { color: var(--gray-700); }
         .login-dialog { position: relative; }
-        /* &#31227;&#21160;&#31471;&#30331;&#24405; */
+        /* 移动端登录 */
         .mobile-login-section {
             text-align: center; padding: 20px 16px;
         }
@@ -543,7 +543,7 @@
             color: var(--primary); border-bottom-color: var(--primary);
         }
         .mobile-login-form { display: none; padding: 0 16px; }
-        /* &#24555;&#25463;&#30331;&#24405;&#29992;&#25143;&#21015;&#34920; */
+        /* 快捷登录用户列表 */
         .user-list-section {
             margin-top: 16px; border-top: 1px solid var(--gray-200); padding-top: 12px;
             max-height: 240px; overflow-y: auto;
@@ -599,33 +599,33 @@
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">CP</div>
-                <h1>&#32493;&#26399;&#20445;&#36153;&#36864;&#36153;&#31649;&#29702;&#31995;&#32479;</h1>
+                <h1>续期保费退费管理系统</h1>
             </div>
             <div class="header-actions">
                 <div class="terminal-tabs">
                     <button class="terminal-tab active" onclick="switchTerminal('pc')">
-                        <span class="pc-only">&#128187; PC&#31471;</span>
-                        <span class="mobile-only">PC&#31471;</span>
+                        <span class="pc-only">💻 PC端</span>
+                        <span class="mobile-only">PC端</span>
                     </button>
                     <button class="terminal-tab" onclick="switchTerminal('mobile')">
-                        <span class="pc-only">&#128241; &#31227;&#21160;&#31471;</span>
-                        <span class="mobile-only">&#31227;&#21160;&#31471;</span>
+                        <span class="pc-only">📱 移动端</span>
+                        <span class="mobile-only">移动端</span>
                     </button>
                 </div>
                 <div id="headerRoleArea" style="display:flex;align-items:center;gap:8px;color:white;">
                     <!-- 未登录 -->
-                    <span id="headerLoginPrompt" style="font-size:13px;opacity:0.8;">&#35831;&#30331;&#24405;&#21518;&#20351;&#29992;</span>
-                    <button id="headerLoginBtn" class="btn btn-sm" style="background:white;color:var(--primary);" onclick="showPCLogin()">&#128273; &#30331;&#24405;</button>
+                    <span id="headerLoginPrompt" style="font-size:13px;opacity:0.8;">请登录后使用</span>
+                    <button id="headerLoginBtn" class="btn btn-sm" style="background:white;color:var(--primary);" onclick="showPCLogin()">🔑 登录</button>
                     <!-- 已登录（隐藏） -->
                     <span id="headerUserLabel" style="display:none;font-size:13px;opacity:0.8;">当前用户：</span>
                     <span id="headerUserInfo" style="display:none;font-size:13px;font-weight:500;"></span>
-                    <span id="headerRoleLabel" style="display:none;font-size:13px;opacity:0.8;">&#24403;&#21069;&#35282;&#33394;&#65306;</span>
+                    <span id="headerRoleLabel" style="display:none;font-size:13px;opacity:0.8;">当前角色：</span>
                     <span id="headerRoleName" class="role-badge staff" style="display:none;"></span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
-                    <button id="headerResetBtn" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;" onclick="resetDemo()">&#128260; &#37325;&#32622;&#28436;&#31034;</button>
-                    <button id="headerAdminBtn" class="btn btn-sm" style="background:#7c4dff;color:white;display:none;" onclick="openAdminPanel()">&#9881;&#65039; Admin</button>
-                    <button id="headerLogoutBtn" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;display:none;" onclick="doLogout()">&#128682; &#36864;&#20986;</button>
+                    <button id="headerResetBtn" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;" onclick="resetDemo()">🔄 重置演示</button>
+                    <button id="headerAdminBtn" class="btn btn-sm" style="background:#7c4dff;color:white;display:none;" onclick="openAdminPanel()">⚙️ Admin</button>
+                    <button id="headerLogoutBtn" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;display:none;" onclick="doLogout()">🚪 退出</button>
                 </div>
             </div>
         </div>
@@ -634,20 +634,20 @@
     <!-- PC端登录弹窗 -->
     <div class="login-overlay" id="pcLoginOverlay">
         <div class="login-dialog">
-            <button class="login-close" onclick="closePCLogin()">&#215;</button>
-            <h2>&#128272; &#29992;&#25143;&#30331;&#24405;</h2>
+            <button class="login-close" onclick="closePCLogin()">×</button>
+            <h2>🔐 用户登录</h2>
             <div class="login-form-group">
-                <label>&#29992;&#25143;&#21517;</label>
-                <input type="text" id="pcLoginUsername" placeholder="&#35831;&#36755;&#20837;&#29992;&#25143;&#21517;" autocomplete="username">
+                <label>用户名</label>
+                <input type="text" id="pcLoginUsername" placeholder="请输入用户名" autocomplete="username">
             </div>
             <div class="login-form-group">
-                <label>&#21475;&#20196;</label>
-                <input type="password" id="pcLoginPassword" placeholder="&#35831;&#36755;&#20837;&#21475;&#20196;" autocomplete="current-password">
+                <label>口令</label>
+                <input type="password" id="pcLoginPassword" placeholder="请输入口令" autocomplete="current-password">
             </div>
-            <div class="login-error" id="pcLoginError">&#29992;&#25143;&#21517;&#25110;&#21475;&#20196;&#38169;&#35823;</div>
-            <button class="login-btn" onclick="doPCLogin()" style="margin-top:8px;">&#30331; &#24405;</button>
+            <div class="login-error" id="pcLoginError">用户名或口令错误</div>
+            <button class="login-btn" onclick="doPCLogin()" style="margin-top:8px;">登 录</button>
             <div class="user-list-section" id="pcUserListSection">
-                <p class="user-list-title">&#128161; &#24555;&#25463;&#30331;&#24405;&#65306;&#28857;&#20987;&#22995;&#21517;&#26597;&#30475;&#35282;&#33394;&#65292;&#28857;&#20987;&#35282;&#33394;&#33258;&#21160;&#30331;&#24405;</p>
+                <p class="user-list-title">💡 快捷登录：点击姓名查看角色，点击角色自动登录</p>
                 <div id="pcUserListContent"></div>
             </div>
         </div>
@@ -657,31 +657,31 @@
     <main class="main-container pc-view" id="pcView">
         <!-- 入口卡片区 -->
         <section id="entrySection">
-            <h2 style="margin-bottom: 20px; font-size: 20px;">&#36873;&#25321;&#25805;&#20316;&#20837;&#21475;</h2>
+            <h2 style="margin-bottom: 20px; font-size: 20px;">选择操作入口</h2>
             <div class="entry-grid" id="pcEntryGrid">
                 <div class="entry-card" onclick="openModule('reception')">
-                    <div class="entry-card-icon icon-blue">&#128222;</div>
-                    <h3>95500&#22352;&#24109;&#21463;&#29702;</h3>
-                    <p>&#30005;&#35805;&#23458;&#26381;&#28192;&#36947;&#21463;&#29702;&#23458;&#25143;&#32493;&#26399;&#36864;&#36153;&#30003;&#35831;</p>
-                    <span class="badge" style="background: rgba(26,115,232,0.1); color: var(--primary);">PC&#31471;</span>
+                    <div class="entry-card-icon icon-blue">📞</div>
+                    <h3>95500坐席受理</h3>
+                    <p>电话客服渠道受理客户续期退费申请</p>
+                    <span class="badge" style="background: rgba(26,115,232,0.1); color: var(--primary);">PC端</span>
                 </div>
                 <div class="entry-card" onclick="openModule('workbench')">
-                    <div class="entry-card-icon icon-green">&#9881;&#65039;</div>
-                    <h3>&#20869;&#21220;&#24037;&#20316;&#21488;</h3>
-                    <p>材料&#30830;&#35748;&#12289;&#22833;&#36133;&#20214;&#22788;&#29702;&#31561;&#20869;&#21220;&#25805;&#20316;</p>
-                    <span class="badge" style="background: rgba(52,168,83,0.1); color: var(--success);">PC&#31471;</span>
+                    <div class="entry-card-icon icon-green">⚙️</div>
+                    <h3>内勤工作台</h3>
+                    <p>材料确认、失败件处理等内勤操作</p>
+                    <span class="badge" style="background: rgba(52,168,83,0.1); color: var(--success);">PC端</span>
                 </div>
                 <div class="entry-card" onclick="openModule('approval')">
-                    <div class="entry-card-icon icon-orange">&#9881;&#65039;</div>
-                    <h3>&#23457;&#25209;&#27969;&#31649;&#29702;</h3>
-                    <p>&#23457;&#25209;&#33410;&#28857;&#12289;&#27969;&#31243;&#23450;&#20041;&#19982;&#37197;&#32622;</p>
-                    <span class="badge" style="background: rgba(245,124,0,0.1); color: #e65100;">PC&#31471;</span>
+                    <div class="entry-card-icon icon-orange">⚙️</div>
+                    <h3>审批流管理</h3>
+                    <p>审批节点、流程定义与配置</p>
+                    <span class="badge" style="background: rgba(245,124,0,0.1); color: #e65100;">PC端</span>
                 </div>
                 <div class="entry-card" onclick="openModule('report')">
-                    <div class="entry-card-icon icon-purple">&#128202;</div>
-                    <h3>&#20219;&#21153;&#31649;&#29702;&#19982;&#25253;&#34920;</h3>
-                    <p>进度查询&#12289;&#32479;&#35745;&#25253;&#34920;&#12289;&#25968;&#25454;&#23548;&#20986;</p>
-                    <span class="badge" style="background: rgba(102,126,234,0.1); color: #764ba2;">PC&#31471;</span>
+                    <div class="entry-card-icon icon-purple">📊</div>
+                    <h3>任务管理与报表</h3>
+                    <p>进度查询、统计报表、数据导出</p>
+                    <span class="badge" style="background: rgba(102,126,234,0.1); color: #764ba2;">PC端</span>
                 </div>
             </div>
         </section>
@@ -690,143 +690,143 @@
         <section class="view-section" id="receptionModule">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><span>&#128222;</span><span>95500&#22352;&#24109;&#21463;&#29702;</span></div>
-                    <button class="btn btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;&#39318;&#39029;</button>
+                    <div class="card-title"><span>📞</span><span>95500坐席受理</span></div>
+                    <button class="btn btn-outline" onclick="goBack()">← 返回首页</button>
                 </div>
                 <div class="card-body">
                     <!-- 步骤指示器 -->
                     <div class="process-indicator">
                         <div class="process-step completed" id="step1Indicator">
                             <div class="process-step-icon">1</div>
-                            <div class="process-step-label">P17&#24555;&#22788;</div>
+                            <div class="process-step-label">P17快处</div>
                         </div>
-                        <div class="process-arrow">&#8594;</div>
+                        <div class="process-arrow">→</div>
                         <div class="process-step" id="step2Indicator">
                             <div class="process-step-icon">2</div>
-                            <div class="process-step-label">&#32493;&#26399;&#36864;&#36153;&#21463;&#29702;&#39029;&#38754;</div>
+                            <div class="process-step-label">续期退费受理页面</div>
                         </div>
                     </div>
 
                     <!-- 步骤1：P17快处 (保单查询) -->
                     <div class="step-form" id="step1">
                         <div class="step-form-item">
-                            <h3 style="margin-bottom: 16px;">P17&#20445;&#21333;&#24555;&#36895;查询</h3>
+                            <h3 style="margin-bottom: 16px;">P17保单快速查询</h3>
                             <div class="toolbar">
                                 <div class="toolbar-search">
-                                    <input type="text" class="form-control" id="policySearch" placeholder="&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#25628;&#32034;...">
+                                    <input type="text" class="form-control" id="policySearch" placeholder="输入保单号、证件号或手机号搜索...">
                                 </div>
-                                <button class="btn btn-primary" onclick="searchPolicy()">&#128269; 查询</button>
+                                <button class="btn btn-primary" onclick="searchPolicy()">🔍 查询</button>
                             </div>
                             <div class="data-list" id="searchResults">
                                 <div style="padding: 40px; text-align: center; color: var(--gray-500);">
-                                    &#35831;&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#36827;&#34892;查询
+                                    请输入保单号、证件号或手机号进行查询
                                 </div>
                             </div>
                             <!-- P17快处信息卡片（选择保单后显示） -->
                             <div id="p17InfoCard" style="display:none; margin-top: 20px;">
                                 <div class="info-section">
-                                    <div class="info-section-title">&#128203; P17&#24555;&#22788;&#20449;&#24687;</div>
+                                    <div class="info-section-title">📋 P17快处信息</div>
                                     <div class="info-grid">
                                         <div class="info-item"><span class="info-label">保单号</span><span class="info-value highlight" id="p17PolicyNo">-</span></div>
 
-                                        <div class="info-item"><span class="info-label">&#32047;&#35745;&#20132;&#36153;&#24635;&#39069;</span><span class="info-value highlight" id="p17TotalPremium">-</span></div>
-                                        <div class="info-item"><span class="info-label">&#38144;&#21806;&#28192;&#36947;</span><span class="info-value" id="p17SalesChannel">-</span></div>
+                                        <div class="info-item"><span class="info-label">累计交费总额</span><span class="info-value highlight" id="p17TotalPremium">-</span></div>
+                                        <div class="info-item"><span class="info-label">销售渠道</span><span class="info-value" id="p17SalesChannel">-</span></div>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 12px; margin-top: 20px;">
-                                    <button class="btn btn-primary" onclick="goToStep2()">&#19979;&#19968;&#27493;&#65306;&#32493;&#26399;&#36864;&#36153;&#30003;&#35831; &#8594;</button>
+                                    <button class="btn btn-primary" onclick="goToStep2()">下一步：续期退费申请 →</button>
                                 </div>
                             </div>
                         </div>
                     </div><!-- 续期退费受理页面 -->
                     <div class="step-form" id="step2" style="display: none;">
                         <div class="step-form-item">
-                            <h3 style="margin-bottom: 16px;">&#32493;&#26399;&#36864;&#36153;&#21463;&#29702;&#39029;&#38754;</h3>
+                            <h3 style="margin-bottom: 16px;">续期退费受理页面</h3>
                             
                             <!-- P17流水号 + 保单号 -->
                             <div class="info-section">
-                                <div class="info-section-title">&#128222; P17&#20851;&#32852;&#20449;&#24687;</div>
+                                <div class="info-section-title">📞 P17关联信息</div>
                                 <div class="info-grid">
-                                    <div class="info-item"><span class="info-label">P17&#24405;&#38899;&#27969;&#27700;&#21495;</span><span class="info-value" id="p17RecordFlowNo">-</span></div>
-                                    <div class="info-item"><span class="info-label">P17&#19994;&#21153;&#27969;&#27700;&#21495;</span><span class="info-value" id="p17BizFlowNo">-</span></div>
+                                    <div class="info-item"><span class="info-label">P17录音流水号</span><span class="info-value" id="p17RecordFlowNo">-</span></div>
+                                    <div class="info-item"><span class="info-label">P17业务流水号</span><span class="info-value" id="p17BizFlowNo">-</span></div>
                                     <div class="info-item"><span class="info-label">保单号</span><span class="info-value"><input type="text" class="form-control" id="step2PolicyNo" value="" disabled style="background:#f5f5f5;color:#888;width:200px;cursor:not-allowed;"></span></div>
                                 </div>
                             </div>
 
                             <!-- 保单信息 -->
                             <div class="info-section">
-                                <div class="info-section-title">&#128203; &#20445;&#21333;&#20449;&#24687;</div>
+                                <div class="info-section-title">📋 保单信息</div>
                                 <div class="info-grid">
-                                    <div class="info-item"><span class="info-label">&#20445;&#21333;&#29366;&#24577;</span><span class="info-value" id="policyStatus2">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#20027;&#38505;&#21517;&#31216;</span><span class="info-value" id="mainRisk">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#20027;&#38505;&#20195;&#30721;</span><span class="info-value" id="riskCode">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#25237;&#20445;&#20154;&#22995;&#21517;</span><span class="info-value" id="holderName">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#25237;&#20445;&#20154;&#35777;&#20214;&#21495;</span><span class="info-value" id="holderId">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#25910;&#36153;&#22320;&#22336;</span><span class="info-value" id="chargeAddress">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#25910;&#36153;&#32852;&#31995;&#30005;&#35805;</span><span class="info-value" id="phone">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#36131;&#20219;&#36215;&#26399;</span><span class="info-value" id="startDate">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#36131;&#20219;&#27490;&#26399;</span><span class="info-value" id="endDate">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#19979;&#27425;&#32564;&#36153;&#26085;&#26399;</span><span class="info-value" id="nextPayDate">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#20132;&#36153;&#26041;&#24335;</span><span class="info-value" id="payMethod">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#20445;&#21333;&#25152;&#23646;&#20998;&#20844;&#21496;</span><span class="info-value" id="branch">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#20445;&#21333;&#25152;&#23646;&#26426;&#26500;</span><span class="info-value" id="subBranch">-</span></div>
+                                    <div class="info-item"><span class="info-label">保单状态</span><span class="info-value" id="policyStatus2">-</span></div>
+                                    <div class="info-item"><span class="info-label">主险名称</span><span class="info-value" id="mainRisk">-</span></div>
+                                    <div class="info-item"><span class="info-label">主险代码</span><span class="info-value" id="riskCode">-</span></div>
+                                    <div class="info-item"><span class="info-label">投保人姓名</span><span class="info-value" id="holderName">-</span></div>
+                                    <div class="info-item"><span class="info-label">投保人证件号</span><span class="info-value" id="holderId">-</span></div>
+                                    <div class="info-item"><span class="info-label">收费地址</span><span class="info-value" id="chargeAddress">-</span></div>
+                                    <div class="info-item"><span class="info-label">收费联系电话</span><span class="info-value" id="phone">-</span></div>
+                                    <div class="info-item"><span class="info-label">责任起期</span><span class="info-value" id="startDate">-</span></div>
+                                    <div class="info-item"><span class="info-label">责任止期</span><span class="info-value" id="endDate">-</span></div>
+                                    <div class="info-item"><span class="info-label">下次缴费日期</span><span class="info-value" id="nextPayDate">-</span></div>
+                                    <div class="info-item"><span class="info-label">交费方式</span><span class="info-value" id="payMethod">-</span></div>
+                                    <div class="info-item"><span class="info-label">保单所属分公司</span><span class="info-value" id="branch">-</span></div>
+                                    <div class="info-item"><span class="info-label">保单所属机构</span><span class="info-value" id="subBranch">-</span></div>
                                 </div>
                             </div>
 
                             <!-- 缴费账户信息 -->
                             <div class="info-section">
-                                <div class="info-section-title">&#128179; &#32564;&#36153;&#36134;&#25143;&#20449;&#24687;</div>
+                                <div class="info-section-title">💳 缴费账户信息</div>
                                 <div class="info-grid">
-                                    <div class="info-item"><span class="info-label">&#36134;&#25143;&#22995;&#21517;</span><span class="info-value" id="accountName">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#38134;&#34892;&#36134;&#21495;</span><span class="info-value" id="bankAccount">-</span></div>
-                                    <div class="info-item"><span class="info-label">&#38134;&#34892;&#21517;&#31216;</span><span class="info-value" id="bankName">-</span></div>
+                                    <div class="info-item"><span class="info-label">账户姓名</span><span class="info-value" id="accountName">-</span></div>
+                                    <div class="info-item"><span class="info-label">银行账号</span><span class="info-value" id="bankAccount">-</span></div>
+                                    <div class="info-item"><span class="info-label">银行名称</span><span class="info-value" id="bankName">-</span></div>
                                 </div>
                             </div>
 
                             <!-- 退费期次选择 -->
                             <div class="info-section">
-                                <div class="info-section-title">&#128197; &#36864;&#36153;&#26399;&#27425;&#20449;&#24687;&#65288;&#36873;&#25321;&#36864;&#36153;&#26399;&#27425;&#65289;</div>
+                                <div class="info-section-title">📅 退费期次信息（选择退费期次）</div>
                                 <div class="table-wrapper">
                                     <table>
                                         <thead>
-                                            <tr><th><input type="checkbox" id="selectAllPeriods" onchange="toggleAllPeriods()"></th><th>&#26399;&#27425;</th><th>&#37329;&#39069;(&#20803;)</th><th>&#24212;&#32564;&#26085;&#26399;</th><th>&#23454;&#32564;&#26085;&#26399;</th><th>&#20445;&#36153;&#26469;&#28304;</th></tr>
+                                            <tr><th><input type="checkbox" id="selectAllPeriods" onchange="toggleAllPeriods()"></th><th>期次</th><th>金额(元)</th><th>应缴日期</th><th>实缴日期</th><th>保费来源</th></tr>
                                         </thead>
                                         <tbody id="paymentRecords"></tbody>
                                     </table>
                                 </div>
                                 <div style="margin-top: 8px; font-size: 13px; color: var(--gray-500);">
-                                    &#36864;&#36153;&#37329;&#39069;&#21512;&#35745;&#65306;<strong style="color: var(--primary);" id="step2TotalAmount">&#165;0.00</strong>
+                                    退费金额合计：<strong style="color: var(--primary);" id="step2TotalAmount">¥0.00</strong>
                                 </div>
                             </div>
 
                             <!-- 退费原因 -->
                             <div class="form-group" style="margin-top: 20px;">
-                                <label class="form-label">&#36864;&#36153;&#21407;&#22240; *</label>
-                                <textarea class="form-control" id="refundReason" placeholder="&#35831;&#36755;&#20837;&#23458;&#25143;&#25552;&#20379;&#30340;&#36864;&#36153;&#21407;&#22240;..." rows="3"></textarea>
+                                <label class="form-label">退费原因 *</label>
+                                <textarea class="form-control" id="refundReason" placeholder="请输入客户提供的退费原因..." rows="3"></textarea>
                             </div>
 
                             <!-- 规则校验区域 -->
                             <div class="info-section" id="validationSection" style="margin-top: 20px;">
-                                <div class="info-section-title">&#128269; &#35268;&#21017;&#26657;&#39564;</div>
+                                <div class="info-section-title">🔍 规则校验</div>
                                 <div id="validationResults">
-                                    <p style="color: var(--gray-500); font-size: 13px;">&#28857;&#20987;"&#35268;&#21017;&#26657;&#39564;"&#25353;&#38062;&#36827;&#34892;&#31995;&#32479;&#26657;&#39564;</p>
+                                    <p style="color: var(--gray-500); font-size: 13px;">点击"规则校验"按钮进行系统校验</p>
                                 </div>
-                                <button class="btn btn-outline" onclick="performValidation()" style="margin-top: 12px;" id="validateBtn">&#128269; &#35268;&#21017;&#26657;&#39564;</button>
+                                <button class="btn btn-outline" onclick="performValidation()" style="margin-top: 12px;" id="validateBtn">🔍 规则校验</button>
                             </div>
 
                             <!-- 通知方式选择（提交前弹出） -->
                             <div class="info-section" id="notifySection" style="margin-top: 20px; display: none;">
-                                <div class="info-section-title" id="notifySectionTitle">&#128232; &#36890;&#30693;&#26041;&#24335;</div>
+                                <div class="info-section-title" id="notifySectionTitle">📨 通知方式</div>
                                 <div style="display:flex;gap:16px;margin-top:8px;">
-                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="radio" name="notifyMethod" value="sms" checked> &#128233; &#30701;&#20449;&#36890;&#30693;</label>
-                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;" id="wechatNotifyOption"><input type="radio" name="notifyMethod" value="wechat" id="wechatRadio"> &#128172; &#24494;&#20449;&#36890;&#30693;</label>
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="radio" name="notifyMethod" value="sms" checked> 📩 短信通知</label>
+                                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;" id="wechatNotifyOption"><input type="radio" name="notifyMethod" value="wechat" id="wechatRadio"> 💬 微信通知</label>
                                 </div>
                             </div>
 
                             <!-- 操作按钮 -->
                             <div style="display: flex; gap: 12px; margin-top: 20px;">
-                                <button class="btn btn-outline" onclick="prevStep(2)">&#8592; &#36820;&#22238;P17&#24555;&#22788;</button>
-                                <button class="btn btn-primary" id="submitCoreBtn" onclick="handleSubmitCore()" disabled>&#9940; &#35831;&#20808;&#36890;&#36807;&#35268;&#21017;&#26657;&#39564;</button>
+                                <button class="btn btn-outline" onclick="prevStep(2)">← 返回P17快处</button>
+                                <button class="btn btn-primary" id="submitCoreBtn" onclick="handleSubmitCore()" disabled>⛔ 请先通过规则校验</button>
                             </div>
                         </div>
                     </div></section>
@@ -835,24 +835,24 @@
         <section class="view-section" id="workbenchModule">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><span>&#9881;&#65039;</span><span id="workbenchTitle">&#20869;&#21220;&#24037;&#20316;&#21488;</span></div>
-                    <button class="btn btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;&#39318;&#39029;</button>
+                    <div class="card-title"><span>⚙️</span><span id="workbenchTitle">内勤工作台</span></div>
+                    <button class="btn btn-outline" onclick="goBack()">← 返回首页</button>
                 </div>
                 <div class="card-body" id="workbenchContent">
                     <div class="tabs" id="workbenchTabs">
-                        <button class="tab active" onclick="switchWorkbenchTab('material')">&#24453;&#30830;&#35748;材料</button>
-                        <button class="tab" onclick="switchWorkbenchTab('failure')">&#22833;&#36133;&#20214;&#22788;&#29702;</button>
+                        <button class="tab active" onclick="switchWorkbenchTab('material')">待确认材料</button>
+                        <button class="tab" onclick="switchWorkbenchTab('failure')">失败件处理</button>
                     </div>
                     <div id="materialTab">
                         <div class="toolbar">
                             <select class="form-control" style="width: 200px;">
-                                <option value="">&#20840;&#37096;&#29366;&#24577;</option><option value="5">&#24453;&#23458;&#25143;&#34917;材料</option><option value="6">&#23458;&#25143;&#24050;&#23436;&#25104;补充;</option>
+                                <option value="">全部状态</option><option value="5">待客户补材料</option><option value="6">客户已完成补充;</option>
                             </select>
-                            <button class="btn btn-primary" onclick="refreshWorkbench()">&#128260; &#21047;&#26032;</button>
+                            <button class="btn btn-primary" onclick="refreshWorkbench()">🔄 刷新</button>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>保单号</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#36864;&#36153;&#37329;&#39069;</th><th>&#29366;&#24577;</th><th>&#23458;&#25143;补充;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
+                                <thead><tr><th>保单号</th><th>投保人</th><th>证件号</th><th>手机号</th><th>退费金额</th><th>状态</th><th>客户补充;时间</th><th>操作</th></tr></thead>
                                 <tbody id="materialList"></tbody>
                             </table>
                         </div>
@@ -860,13 +860,13 @@
                     <div id="failureTab" style="display: none;">
                         <div class="toolbar">
                             <select class="form-control" style="width: 200px;">
-                                <option value="">&#20840;&#37096;&#31867;&#22411;</option><option value="account">&#36134;&#21495;&#38169;&#35823;</option><option value="other">&#20854;&#20182;&#21407;&#22240;</option>
+                                <option value="">全部类型</option><option value="account">账号错误</option><option value="other">其他原因</option>
                             </select>
-                            <button class="btn btn-primary" onclick="refreshWorkbench()">&#128260; &#21047;&#26032;</button>
+                            <button class="btn btn-primary" onclick="refreshWorkbench()">🔄 刷新</button>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>保单号</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#22833;&#36133;&#37329;&#39069;</th><th>&#22833;&#36133;&#31867;&#22411;</th><th>&#22833;&#36133;&#21407;&#22240;</th><th>&#22833;&#36133;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
+                                <thead><tr><th>保单号</th><th>投保人</th><th>证件号</th><th>手机号</th><th>失败金额</th><th>失败类型</th><th>失败原因</th><th>失败时间</th><th>操作</th></tr></thead>
                                 <tbody id="failureList"></tbody>
                             </table>
                         </div>
@@ -879,12 +879,12 @@
         <section class="view-section" id="approvalModule">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><span>&#128203;</span><span>&#23457;&#25209;&#27969;&#31649;&#29702;</span></div>
-                    <button class="btn btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;&#39318;&#39029;</button>
+                    <div class="card-title"><span>📋</span><span>审批流管理</span></div>
+                    <button class="btn btn-outline" onclick="goBack()">← 返回首页</button>
                 </div>
                 <div class="card-body">
                     <div id="approvalConfigContainer">
-                        <p style="text-align:center;color:var(--gray-500);padding:40px;">&#21152;&#36733;&#23457;&#25209;&#27969;&#37197;&#32622;&#20013;...</p>
+                        <p style="text-align:center;color:var(--gray-500);padding:40px;">加载审批流配置中...</p>
                     </div>
                 </div>
             </div>
@@ -894,29 +894,29 @@
         <section class="view-section" id="reportModule">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><span>&#128202;</span><span>&#20219;&#21153;&#31649;&#29702;&#19982;&#25253;&#34920;</span></div>
-                    <button class="btn btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;&#39318;&#39029;</button>
+                    <div class="card-title"><span>📊</span><span>任务管理与报表</span></div>
+                    <button class="btn btn-outline" onclick="goBack()">← 返回首页</button>
                 </div>
                 <div class="card-body">
                     <div class="tabs">
                         <button class="tab active" onclick="switchReportTab('query')">进度查询</button>
-                        <button class="tab" onclick="switchReportTab('statistics')">&#32479;&#35745;&#25253;&#34920;</button>
+                        <button class="tab" onclick="switchReportTab('statistics')">统计报表</button>
                     </div>
                     <div id="queryTab">
                         <div class="toolbar">
-                            <div class="toolbar-search"><input type="text" class="form-control" placeholder="&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#27969;&#27700;&#21495;..."></div>
+                            <div class="toolbar-search"><input type="text" class="form-control" placeholder="输入保单号、证件号或流水号..."></div>
                             <select class="form-control" style="width: 150px;">
-                                <option value="">&#20840;&#37096;&#29366;&#24577;</option>
-                                <option value="1">&#21463;&#29702;&#20013;</option><option value="2">&#24050;&#21463;&#29702;&#24453;&#23457;&#25209;</option><option value="3">&#23457;&#25209;&#26410;&#23436;&#25104;</option>
-                                <option value="4">&#23457;&#25209;&#23436;&#25104;</option><option value="5">&#24453;&#23458;&#25143;&#34917;材料</option><option value="6">&#23458;&#25143;&#24050;&#23436;&#25104;补充;</option>
-                                <option value="7">材料&#30830;&#35748;&#23436;&#25104;</option><option value="8">&#36827;&#20837;&#36864;&#36153;&#27969;&#31243;</option><option value="9">&#36864;&#36153;&#23436;&#25104;</option>
-                                <option value="10">&#36864;&#36153;&#22833;&#36133;</option><option value="11">&#36864;&#36153;&#25764;&#38144;</option>
+                                <option value="">全部状态</option>
+                                <option value="1">受理中</option><option value="2">已受理待审批</option><option value="3">审批未完成</option>
+                                <option value="4">审批完成</option><option value="5">待客户补材料</option><option value="6">客户已完成补充;</option>
+                                <option value="7">材料确认完成</option><option value="8">进入退费流程</option><option value="9">退费完成</option>
+                                <option value="10">退费失败</option><option value="11">退费撤销</option>
                             </select>
-                            <button class="btn btn-primary">&#128269; 查询</button>
+                            <button class="btn btn-primary">🔍 查询</button>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>&#27969;&#27700;&#21495;</th><th>保单号</th><th>&#25237;&#20445;&#20154;</th><th>&#35777;&#20214;&#21495;</th><th>&#25163;&#26426;&#21495;</th><th>&#36864;&#36153;&#37329;&#39069;</th><th>&#29366;&#24577;</th><th>&#21463;&#29702;&#26102;&#38388;</th><th>&#25805;&#20316;</th></tr></thead>
+                                <thead><tr><th>流水号</th><th>保单号</th><th>投保人</th><th>证件号</th><th>手机号</th><th>退费金额</th><th>状态</th><th>受理时间</th><th>操作</th></tr></thead>
                                 <tbody id="taskList"></tbody>
                             </table>
                         </div>
@@ -924,31 +924,31 @@
                     <div id="statisticsTab" style="display: none;">
                         <div class="info-grid" style="margin-bottom: 24px;">
                             <div class="info-item" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white;">
-                                <span class="info-label" style="color: rgba(255,255,255,0.8);">&#20170;&#26085;&#21463;&#29702;</span>
+                                <span class="info-label" style="color: rgba(255,255,255,0.8);">今日受理</span>
                                 <span class="info-value" style="font-size: 28px; color: white;">23</span>
                             </div>
                             <div class="info-item" style="padding: 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; color: white;">
-                                <span class="info-label" style="color: rgba(255,255,255,0.8);">&#20170;&#26085;&#23436;&#25104;</span>
+                                <span class="info-label" style="color: rgba(255,255,255,0.8);">今日完成</span>
                                 <span class="info-value" style="font-size: 28px; color: white;">18</span>
                             </div>
                             <div class="info-item" style="padding: 20px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; color: white;">
-                                <span class="info-label" style="color: rgba(255,255,255,0.8);">&#24453;&#22788;&#29702;</span>
+                                <span class="info-label" style="color: rgba(255,255,255,0.8);">待处理</span>
                                 <span class="info-value" style="font-size: 28px; color: white;">45</span>
                             </div>
                             <div class="info-item" style="padding: 20px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; color: white;">
-                                <span class="info-label" style="color: rgba(255,255,255,0.8);">&#26412;&#26376;&#37329;&#39069;(&#19975;)</span>
+                                <span class="info-label" style="color: rgba(255,255,255,0.8);">本月金额(万)</span>
                                 <span class="info-value" style="font-size: 28px; color: white;">156.8</span>
                             </div>
                         </div>
                         <div class="info-section">
-                            <div class="info-section-title">&#128200; &#29366;&#24577;&#20998;&#24067;</div>
+                            <div class="info-section-title">📈 状态分布</div>
                             <div class="info-grid" style="gap: 12px;">
-                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#21463;&#29702;&#20013;</span><span class="status-tag status-1">12</span></div>
-                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#23457;&#25209;&#20013;</span><span class="status-tag status-3">8</span></div>
-                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#24453;&#34917;材料</span><span class="status-tag status-5">5</span></div>
-                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#36864;&#36153;&#20013;</span><span class="status-tag status-8">15</span></div>
-                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#24050;&#23436;&#25104;</span><span class="status-tag status-9">89</span></div>
-                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>&#22833;&#36133;/&#25764;&#38144;</span><span class="status-tag status-10">6</span></div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>受理中</span><span class="status-tag status-1">12</span></div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>审批中</span><span class="status-tag status-3">8</span></div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>待补材料</span><span class="status-tag status-5">5</span></div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>退费中</span><span class="status-tag status-8">15</span></div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>已完成</span><span class="status-tag status-9">89</span></div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-100); border-radius: 8px;"><span>失败/撤销</span><span class="status-tag status-10">6</span></div>
                             </div>
                         </div>
                     </div>
@@ -960,8 +960,8 @@
         <section class="view-section" id="detailModule">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><span>&#128203;</span><span>&#36864;&#36153;&#35814;&#24773;</span></div>
-                    <button class="btn btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;</button>
+                    <div class="card-title"><span>📋</span><span>退费详情</span></div>
+                    <button class="btn btn-outline" onclick="goBack()">← 返回</button>
                 </div>
                 <div class="card-body"><div id="detailContent"></div></div>
             </div>
@@ -971,52 +971,52 @@
         <section class="view-section" id="adminModule">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><span>&#9881;&#65039;</span><span>Admin &#25968;&#25454;&#31649;&#29702;</span></div>
+                    <div class="card-title"><span>⚙️</span><span>Admin 数据管理</span></div>
                     <div style="display:flex;gap:12px;">
-                        <button class="btn btn-sm btn-outline" style="color:#6a1b9a;border-color:#6a1b9a;" onclick="adminViewEmbeddedData()">&#128218; &#26597;&#30475;&#20869;&#32622;&#25968;&#25496;</button>
-                        <button class="btn btn-sm btn-outline" style="color:#e65100;border-color:#e65100;" onclick="adminViewMemoryData()">&#128451; &#26597;&#30475;&#20869;&#23384;&#25968;&#25496;</button>
-                        <button class="btn btn-sm btn-outline" style="color:#1565c0;border-color:#1565c0;" onclick="adminViewLocalData()">&#128065; &#26597;&#30475;&#26412;&#22320;&#25968;&#25496;</button>
-                        <button class="btn btn-sm btn-outline" onclick="adminRefreshData()">&#128260; &#21047;&#26032;&#25968;&#25454;</button>
-                        <button class="btn btn-sm btn-danger" onclick="adminClearAllData()">&#128465;&#65039; &#28165;&#31354;&#25968;&#25454;</button>
-                        <button class="btn btn-sm btn-warning" onclick="adminResetToDefault()">&#128229; &#20174;csv_export&#33719;&#21462;&#25968;&#25454;</button>
-                        <button class="btn btn-sm btn-secondary" onclick="adminResetToDefaultFromDefaultData()" style="background:#6c757d;color:white;border-color:#6c757d;">&#128229; &#24674;&#22797;&#40664;&#35748;</button>
-                        <button class="btn btn-sm btn-success" onclick="adminBackupAllData()" style="background:#28a745;color:white;border-color:#28a745;">&#128450; &#22791;&#20221;&#25968;&#25496;</button>
-                        <button class="btn btn-sm btn-outline" onclick="goBack()">&#8592; &#36820;&#22238;</button>
+                        <button class="btn btn-sm btn-outline" style="color:#6a1b9a;border-color:#6a1b9a;" onclick="adminViewEmbeddedData()">📚 查看内置数掘</button>
+                        <button class="btn btn-sm btn-outline" style="color:#e65100;border-color:#e65100;" onclick="adminViewMemoryData()">🗃 查看内存数掘</button>
+                        <button class="btn btn-sm btn-outline" style="color:#1565c0;border-color:#1565c0;" onclick="adminViewLocalData()">👁 查看本地数掘</button>
+                        <button class="btn btn-sm btn-outline" onclick="adminRefreshData()">🔄 刷新数据</button>
+                        <button class="btn btn-sm btn-danger" onclick="adminClearAllData()">🗑️ 清空数据</button>
+                        <button class="btn btn-sm btn-warning" onclick="adminResetToDefault()">📥 从csv_export获取数据</button>
+                        <button class="btn btn-sm btn-secondary" onclick="adminResetToDefaultFromDefaultData()" style="background:#6c757d;color:white;border-color:#6c757d;">📥 恢复默认</button>
+                        <button class="btn btn-sm btn-success" onclick="adminBackupAllData()" style="background:#28a745;color:white;border-color:#28a745;">🗂 备份数掘</button>
+                        <button class="btn btn-sm btn-outline" onclick="goBack()">← 返回</button>
                     </div>
                 </div>
                 <div class="card-body">
                     <div style="background:#fff3e0;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;color:#e65100;">
-                        <strong>&#9888;&#65039; &#25552;&#31034;&#65306;</strong>&#20851;&#32852;&#23383;&#27573;&#65288;&#27969;&#27700;&#21495;&#12289;&#36864;&#36153;ID&#12289;保单号&#65289;&#19981;&#21487;&#20462;&#25913;&#65292;&#20854;&#20182;&#23383;&#27573;&#21487;&#30452;&#25509;&#32534;&#36753;&#21518;&#20445;&#23384;&#12290;
+                        <strong>⚠️ 提示：</strong>关联字段（流水号、退费ID、保单号）不可修改，其他字段可直接编辑后保存。
                     </div>
                     <div class="tabs">
-                        <button class="tab active" onclick="switchAdminTab('refunds')">&#32493;&#26399;&#36864;&#36153;&#35760;&#24405;</button>
-                        <button class="tab" onclick="switchAdminTab('payments')">&#32564;&#36153;&#35760;&#24405;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('policies')">&#20445;&#21333;&#20449;&#24687;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('naturalPerson')">&#33258;&#28982;&#20154;&#20449;&#24687;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('scenario')">&#22330;&#26223;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('branches')">&#20998;&#20844;&#21496;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('branchInsts')">&#25152;&#23646;&#26426;&#26500;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('roles')">&#35282;&#33394;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('perms')">&#26435;&#38480;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('rolePerms')">&#35282;&#33394;&#23545;&#24212;&#26435;&#38480;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('users')">&#29992;&#25143;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('userRoles')">&#29992;&#25143;&#35282;&#33394;&#31649;&#29702;</button>
-                        <button class="tab" onclick="switchAdminTab('smsRecords')">&#30701;&#20449;&#21457;&#36865;&#35760;&#24405;</button>
-                        <button class="tab" onclick="switchAdminTab('wechatRecords')">&#24494;&#20449;&#21457;&#36865;&#35760;&#24405;</button>
-                        <button class="tab" onclick="switchAdminTab('approvalChain')">&#23457;&#25209;&#38142;&#35760;&#24405;</button>
-                        <button class="tab" onclick="switchAdminTab('approvalRecords')">&#32493;&#26399;&#36864;&#36153;&#23457;&#25209;&#35760;&#24405;</button>
+                        <button class="tab active" onclick="switchAdminTab('refunds')">续期退费记录</button>
+                        <button class="tab" onclick="switchAdminTab('payments')">缴费记录管理</button>
+                        <button class="tab" onclick="switchAdminTab('policies')">保单信息管理</button>
+                        <button class="tab" onclick="switchAdminTab('naturalPerson')">自然人信息管理</button>
+                        <button class="tab" onclick="switchAdminTab('scenario')">场景管理</button>
+                        <button class="tab" onclick="switchAdminTab('branches')">分公司管理</button>
+                        <button class="tab" onclick="switchAdminTab('branchInsts')">所属机构管理</button>
+                        <button class="tab" onclick="switchAdminTab('roles')">角色管理</button>
+                        <button class="tab" onclick="switchAdminTab('perms')">权限管理</button>
+                        <button class="tab" onclick="switchAdminTab('rolePerms')">角色对应权限管理</button>
+                        <button class="tab" onclick="switchAdminTab('users')">用户管理</button>
+                        <button class="tab" onclick="switchAdminTab('userRoles')">用户角色管理</button>
+                        <button class="tab" onclick="switchAdminTab('smsRecords')">短信发送记录</button>
+                        <button class="tab" onclick="switchAdminTab('wechatRecords')">微信发送记录</button>
+                        <button class="tab" onclick="switchAdminTab('approvalChain')">审批链记录</button>
+                        <button class="tab" onclick="switchAdminTab('approvalRecords')">续期退费审批记录</button>
                     </div>
                     
                     <!-- 续期退费记录编辑 -->
                                         <div id="adminRefundsTab">
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-outline" id="adminRefundJsonBtn" onclick="adminShowRefundJSON()" style="color:#1a73e8;border-color:#1a73e8;">&#128196; JSON预览</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportJSON('refunds')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; 导出JSON</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('jsonFileInput_refunds').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; 导入JSON</button>
+                            <button class="btn btn-sm btn-outline" id="adminRefundJsonBtn" onclick="adminShowRefundJSON()" style="color:#1a73e8;border-color:#1a73e8;">📄 JSON预览</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportJSON('refunds')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出JSON</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('jsonFileInput_refunds').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入JSON</button>
                             <input type="file" id="jsonFileInput_refunds" accept=".json" style="display:none;" onchange="adminImportJSON('refunds', this)">
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearRefunds()" style="margin-left:8px;">&#128465; 清空续期退费</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('refunds')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; 导出CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_refunds').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; 导入CSV</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearRefunds()" style="margin-left:8px;">🗑 清空续期退费</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('refunds')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_refunds').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                             <input type="file" id="csvFileInput_refunds" accept=".csv" style="display:none;" onchange="adminImportCSV('refunds', this)">
                             <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">支持CSV/JSON导入导出</span>
                         </div>
@@ -1024,26 +1024,26 @@
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:140px;">&#27969;&#27700;&#21495;(id)</th>
+                                        <th style="min-width:140px;">流水号(id)</th>
                                         <th style="min-width:100px;">保单号</th>
-                                        <th style="min-width:70px;">&#25237;&#20445;&#20154;</th>
-                                        <th style="min-width:120px;">&#35777;&#20214;&#21495;</th>
-                                        <th style="min-width:100px;">&#25163;&#26426;&#21495;</th>
-                                        <th style="min-width:80px;">&#36864;&#36153;&#37329;&#39069;</th>
-                                        <th style="min-width:90px;">&#29366;&#24577;</th>
-                                        <th style="min-width:200px;">&#29366;&#24577;&#21517;&#31216;</th>
-                                        <th style="min-width:100px;">&#36864;&#36153;&#26399;&#27425;</th>
-                                        <th style="min-width:150px;">&#36864;&#36153;&#21407;&#22240;</th>
-                                        <th style="min-width:80px;">&#21463;&#29702;&#28192;&#36947;</th>
-                                        <th style="min-width:80px;">&#21463;&#29702;&#20154;</th>
-                                        <th style="min-width:120px;">&#21463;&#29702;&#26102;&#38388;</th>
-                                        <th style="min-width:100px;">&#25152;&#23646;&#20998;&#20844;&#21496;</th>
-                                        <th style="min-width:130px;">&#25152;&#23646;&#26426;&#26500;</th>
-                                        <th style="min-width:90px;">&#38144;&#21806;&#28192;&#36947;</th>
-                                        <th style="min-width:80px;">&#38144;&#21806;&#23376;&#28192;&#36947;</th>
-                                        <th style="min-width:60px;">&#20813;&#23457;&#25209;</th>
-                                        <th style="min-width:80px;">&#21407;&#21345;&#21407;&#36864;</th>
-                                        <th style="min-width:80px;">&#25805;&#20316;</th>
+                                        <th style="min-width:70px;">投保人</th>
+                                        <th style="min-width:120px;">证件号</th>
+                                        <th style="min-width:100px;">手机号</th>
+                                        <th style="min-width:80px;">退费金额</th>
+                                        <th style="min-width:90px;">状态</th>
+                                        <th style="min-width:200px;">状态名称</th>
+                                        <th style="min-width:100px;">退费期次</th>
+                                        <th style="min-width:150px;">退费原因</th>
+                                        <th style="min-width:80px;">受理渠道</th>
+                                        <th style="min-width:80px;">受理人</th>
+                                        <th style="min-width:120px;">受理时间</th>
+                                        <th style="min-width:100px;">所属分公司</th>
+                                        <th style="min-width:130px;">所属机构</th>
+                                        <th style="min-width:90px;">销售渠道</th>
+                                        <th style="min-width:80px;">销售子渠道</th>
+                                        <th style="min-width:60px;">免审批</th>
+                                        <th style="min-width:80px;">原卡原退</th>
+                                        <th style="min-width:80px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminRefundsBody"></tbody>
@@ -1055,55 +1055,55 @@
                     <!-- 缴费记录管理 -->
                     <div id="adminPaymentsTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
-                            <strong>&#128161; &#35828;&#26126;&#65306;</strong>&#32564;&#36153;&#35760;&#24405;&#19982;&#20445;&#21333;&#20851;&#32852;&#31649;&#29702;&#12290;&#36873;&#25321;&#20445;&#21333;&#21518;&#21487;&#30452;&#25509;&#32534;&#36753;&#12289;&#26032;&#22686;&#12289;&#21024;&#38500;&#35813;&#20445;&#21333;&#30340;&#32564;&#36153;&#35760;&#24405;&#12290;
+                            <strong>💡 说明：</strong>缴费记录与保单关联管理。选择保单后可直接编辑、新增、删除该保单的缴费记录。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
                             <select class="form-control" id="adminPaymentPolicySelect" style="width:280px;" onchange="adminLoadPayments()">
-                                <option value="">-- &#36873;&#25321;&#20445;&#21333; --</option>
+                                <option value="">-- 选择保单 --</option>
                             </select>
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearPayments()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#32564;&#36153;&#35760;&#24405;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('payments')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_payments').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearPayments()" style="margin-left:8px;">🗑 清空缴费记录</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('payments')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_payments').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                             <input type="file" id="csvFileInput_payments" accept=".csv" style="display:none;" onchange="adminImportCSV('payments', this)">
-                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">&#25903;&#25345;CSV&#25991;&#20214;&#23548;&#20837;&#23548;&#20986;</span>
+                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">支持CSV文件导入导出</span>
                         </div>
                         <div id="adminPaymentsContent">
-                            <div style="text-align:center;padding:40px;color:var(--gray-500);">&#35831;&#20808;&#36873;&#25321;&#20445;&#21333;</div>
+                            <div style="text-align:center;padding:40px;color:var(--gray-500);">请先选择保单</div>
                         </div>
                     </div>
                     
                     <!-- 保单信息管理 -->
                     <div id="adminPoliciesTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
-                            <strong>&#128203; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#20445;&#21333;&#22522;&#30784;&#20449;&#24687;&#12290;保单号&#19981;&#21487;&#20462;&#25913;&#65292;&#20854;&#20182;&#23383;&#27573;&#22343;&#21487;&#32534;&#36753;&#65292;&#20462;&#25913;&#21518;&#21363;&#26102;&#20445;&#23384;&#12290;
+                            <strong>📋 说明：</strong>管理保单基础信息。保单号不可修改，其他字段均可编辑，修改后即时保存。
                         </div>
-                        <div style="margin-bottom:12px;"><button class="btn btn-sm btn-outline btn-danger" onclick="adminClearPolicies()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#20445;&#21333;&#20449;&#24687;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('policies')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_policies').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                        <div style="margin-bottom:12px;"><button class="btn btn-sm btn-outline btn-danger" onclick="adminClearPolicies()" style="margin-left:8px;">🗑 清空保单信息</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('policies')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_policies').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                             <input type="file" id="csvFileInput_policies" accept=".csv" style="display:none;" onchange="adminImportCSV('policies', this)">
-                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">&#25903;&#25345;CSV&#25991;&#20214;&#23548;&#20837;&#23548;&#20986;</span></div>
+                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">支持CSV文件导入导出</span></div>
                             <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
                                         <th style="min-width:110px;">保单号</th>
-                                        <th style="min-width:80px;">&#20445;&#21333;&#29366;&#24577;</th>
-                                        <th style="min-width:120px;">&#20027;&#38505;&#21517;&#31216;</th>
-                                        <th style="min-width:80px;">&#20027;&#38505;&#20195;&#30721;</th>
-                                        <th style="min-width:70px;">&#25237;&#20445;&#20154;</th>
-                                        <th style="min-width:120px;">&#35777;&#20214;&#21495;</th>
-                                        <th style="min-width:110px;">&#25163;&#26426;&#21495;</th>
-                                        <th style="min-width:90px;">&#32564;&#36153;&#26041;&#24335;</th>
-                                        <th style="min-width:100px;">&#19979;&#27425;&#32564;&#36153;&#26085;&#26399;</th>
-                                        <th style="min-width:100px;">&#36131;&#20219;&#36215;&#26399;</th>
-                                        <th style="min-width:100px;">&#36131;&#20219;&#27490;&#26399;</th>
-                                        <th style="min-width:100px;">&#38144;&#21806;&#28192;&#36947;</th>
-                                        <th style="min-width:80px;">&#38144;&#21806;&#23376;&#28192;&#36947;</th>
-                                        <th style="min-width:110px;">&#25152;&#23646;&#20998;&#20844;&#21496;</th>
-                                        <th style="min-width:140px;">&#25152;&#23646;&#26426;&#26500;</th>
-                                        <th style="min-width:200px;">&#25910;&#36153;&#22320;&#22336;</th>
-                                    <th style="min-width:120px;">&#38134;&#34892;&#21517;&#31216;</th>
-                                    <th style="min-width:150px;">&#38134;&#34892;&#21345;&#21495;</th>
+                                        <th style="min-width:80px;">保单状态</th>
+                                        <th style="min-width:120px;">主险名称</th>
+                                        <th style="min-width:80px;">主险代码</th>
+                                        <th style="min-width:70px;">投保人</th>
+                                        <th style="min-width:120px;">证件号</th>
+                                        <th style="min-width:110px;">手机号</th>
+                                        <th style="min-width:90px;">缴费方式</th>
+                                        <th style="min-width:100px;">下次缴费日期</th>
+                                        <th style="min-width:100px;">责任起期</th>
+                                        <th style="min-width:100px;">责任止期</th>
+                                        <th style="min-width:100px;">销售渠道</th>
+                                        <th style="min-width:80px;">销售子渠道</th>
+                                        <th style="min-width:110px;">所属分公司</th>
+                                        <th style="min-width:140px;">所属机构</th>
+                                        <th style="min-width:200px;">收费地址</th>
+                                    <th style="min-width:120px;">银行名称</th>
+                                    <th style="min-width:150px;">银行卡号</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminPoliciesBody"></tbody>
@@ -1114,32 +1114,32 @@
                     <!-- 自然人信息管理 -->
                     <div id="adminNaturalPersonTab" style="display:none;">
                         <div style="background:#fce4ec;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#c62828;">
-                            <strong>&#128274; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#25237;&#20445;&#20154;&#33258;&#28982;&#20154;&#20449;&#24687;&#65288;&#21453;&#27927;&#38065;9&#23383;&#27573;&#65289;&#12290;&#26032;&#20445;&#21333;&#38656;&#25163;&#21160;&#28155;&#21152;&#33258;&#28982;&#20154;&#35760;&#24405;&#65292;&#25152;&#26377;&#23383;&#27573;&#22343;&#21487;&#32534;&#36753;&#12290;
+                            <strong>🔒 说明：</strong>管理投保人自然人信息（反洗钱9字段）。新保单需手动添加自然人记录，所有字段均可编辑。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-primary" onclick="adminAddNaturalPerson()">&#10133; &#26032;&#22686;&#33258;&#28982;&#20154;&#35760;&#24405;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('naturalPerson')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_naturalPerson').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                            <button class="btn btn-sm btn-primary" onclick="adminAddNaturalPerson()">➕ 新增自然人记录</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('naturalPerson')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_naturalPerson').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                             <input type="file" id="csvFileInput_naturalPerson" accept=".csv" style="display:none;" onchange="adminImportCSV('naturalPerson', this)">
-                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">&#25903;&#25345;CSV&#25991;&#20214;&#23548;&#20837;&#23548;&#20986;</span>
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearNaturalPerson()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#33258;&#28982;&#20154;</button>
+                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">支持CSV文件导入导出</span>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearNaturalPerson()" style="margin-left:8px;">🗑 清空自然人</button>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:110px;">&#20851;&#32852;保单号</th>
-                                        <th style="min-width:70px;">&#22995;&#21517;</th>
-                                        <th style="min-width:55px;">&#24615;&#21035;</th>
-                                        <th style="min-width:70px;">&#22269;&#31821;</th>
-                                        <th style="min-width:90px;">&#32844;&#19994;</th>
-                                        <th style="min-width:180px;">&#20303;&#25152;&#22320;&#25110;&#24037;&#20316;&#21333;&#20301;&#22320;&#22336;</th>
-                                        <th style="min-width:110px;">&#32852;&#31995;&#26041;&#24335;</th>
-                                        <th style="min-width:90px;">&#36523;&#20221;&#35777;&#20214;&#31181;&#31867;</th>
-                                        <th style="min-width:130px;">&#21495;&#30721;</th>
-                                        <th style="min-width:100px;">&#26377;&#25928;&#26399;&#38480;</th>
-                                        <th style="min-width:110px;">&#26159;&#21542;&#20851;&#27880;&#22826;&#24179;&#27915;&#23551;&#38505;&#23448;&#24494;</th>
-                                        <th style="min-width:50px;">&#25805;&#20316;</th>
+                                        <th style="min-width:110px;">关联保单号</th>
+                                        <th style="min-width:70px;">姓名</th>
+                                        <th style="min-width:55px;">性别</th>
+                                        <th style="min-width:70px;">国籍</th>
+                                        <th style="min-width:90px;">职业</th>
+                                        <th style="min-width:180px;">住所地或工作单位地址</th>
+                                        <th style="min-width:110px;">联系方式</th>
+                                        <th style="min-width:90px;">身份证件种类</th>
+                                        <th style="min-width:130px;">号码</th>
+                                        <th style="min-width:100px;">有效期限</th>
+                                        <th style="min-width:110px;">是否关注太平洋寿险官微</th>
+                                        <th style="min-width:50px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminNaturalPersonBody"></tbody>
@@ -1150,44 +1150,44 @@
                     <!-- 场景管理 -->
                     <div id="adminScenarioTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
-                            <strong>&#128203; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#20445;&#21333;&#22330;&#26223;&#26631;&#24535;&#20301;&#65292;&#29992;&#20110;&#36864;&#36153;&#21463;&#29702;&#26102;&#21028;&#26029;&#20445;&#21333;&#24403;&#21069;&#25152;&#22788;&#22330;&#26223;&#12290;&#36873;&#25321;&#20445;&#21333;&#21518;&#21487;&#32534;&#36753;&#21508;&#26631;&#24535;&#20301;&#12290;
+                            <strong>📋 说明：</strong>管理保单场景标志位，用于退费受理时判断保单当前所处场景。选择保单后可编辑各标志位。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
                             <select class="form-control" id="adminScenarioPolicySelect" style="width:320px;" onchange="adminLoadScenario()">
-                                <option value="">-- &#36873;&#25321;&#20445;&#21333; --</option>
+                                <option value="">-- 选择保单 --</option>
                             </select>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('scenario')" style="margin-left:12px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_scenario').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('scenario')" style="margin-left:12px;color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_scenario').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                             <input type="file" id="csvFileInput_scenario" accept=".csv" style="display:none;" onchange="adminImportCSV('scenario', this)">
-                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">&#25903;&#25345;CSV&#25991;&#20214;&#23548;&#20837;&#23548;&#20986;</span>
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearScenario()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#22330;&#26223;</button>
-                            <span id="adminScenarioSaved" style="display:none;color:#2e7d32;font-size:13px;margin-left:12px;">&#10003; &#24050;&#20445;&#23384;</span>
+                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">支持CSV文件导入导出</span>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearScenario()" style="margin-left:8px;">🗑 清空场景</button>
+                            <span id="adminScenarioSaved" style="display:none;color:#2e7d32;font-size:13px;margin-left:12px;">✓ 已保存</span>
                         </div>
                         <div id="adminScenarioContent">
-                            <div style="text-align:center;padding:40px;color:var(--gray-500);">&#35831;&#20808;&#36873;&#25321;&#20445;&#21333;</div>
+                            <div style="text-align:center;padding:40px;color:var(--gray-500);">请先选择保单</div>
                         </div>
                     </div>
                     
                     <!-- 分公司管理 -->
                     <div id="adminBranchesTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
-                            <strong>&#127970; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#25152;&#23646;&#20998;&#20844;&#21496;&#22522;&#30784;&#25968;&#25454;&#12290;&#29992;&#20110;&#20445;&#21333;&#20449;&#24687;&#21644;&#36864;&#36153;&#35760;&#24405;&#20013;&#30340;&#20998;&#20844;&#21496;&#36873;&#25321;&#12290;&#21487;&#28857;&#20987;"&#24674;&#22797;&#40664;&#35748;"&#37325;&#32622;&#20026;38&#23478;&#20998;&#20844;&#21496;&#12290;
+                            <strong>🏢 说明：</strong>管理所属分公司基础数据。用于保单信息和退费记录中的分公司选择。可点击"恢复默认"重置为38家分公司。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-primary" onclick="adminAddBranch()">&#10133; &#26032;&#22686;&#20998;&#20844;&#21496;</button>
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearBranches()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#20998;&#20844;&#21496;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('branches')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_branches').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                            <button class="btn btn-sm btn-primary" onclick="adminAddBranch()">➕ 新增分公司</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearBranches()" style="margin-left:8px;">🗑 清空分公司</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('branches')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_branches').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                             <input type="file" id="csvFileInput_branches" accept=".csv" style="display:none;" onchange="adminImportCSV('branches', this)">
-                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">&#25903;&#25345;CSV&#25991;&#20214;&#23548;&#20837;&#23548;&#20986;</span>
+                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">支持CSV文件导入导出</span>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:60px;">&#24207;&#21495;</th>
-                                        <th style="min-width:300px;">&#25152;&#23646;&#20998;&#20844;&#21496;</th>
-                                        <th style="min-width:50px;">&#25805;&#20316;</th>
+                                        <th style="min-width:60px;">序号</th>
+                                        <th style="min-width:300px;">所属分公司</th>
+                                        <th style="min-width:50px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminBranchesBody"></tbody>
@@ -1198,24 +1198,24 @@
                     <!-- 所属机构管理 -->
                     <div id="adminBranchInstsTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
-                            <strong>&#127970; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#20998;&#20844;&#21496;&#19979;&#30340;&#25152;&#23646;&#26426;&#26500;&#65288;&#20013;&#25903;&#65289;&#12290;&#20998;&#20844;&#21496;&#19979;&#25289;&#26694;&#25903;&#25345;&#25628;&#32034;&#65292;&#26426;&#26500;&#21517;&#31216;&#21487;&#33258;&#30001;&#22635;&#20889;&#65288;&#22914;"-"&#34920;&#31034;&#26080;&#20013;&#25903;&#65292;"&#21335;&#20140;&#20013;&#25903;"&#34920;&#31034;&#21335;&#20140;&#20013;&#25903;&#26426;&#26500;&#65289;&#12290;
+                            <strong>🏢 说明：</strong>管理分公司下的所属机构（中支）。分公司下拉框支持搜索，机构名称可自由填写（如"-"表示无中支，"南京中支"表示南京中支机构）。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-primary" onclick="adminAddBranchInst()">&#10133; &#26032;&#22686;&#26426;&#26500;</button>
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearBranchInsts()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#25152;&#23646;&#26426;&#26500;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('branchInsts')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_branchInsts').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                            <button class="btn btn-sm btn-primary" onclick="adminAddBranchInst()">➕ 新增机构</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearBranchInsts()" style="margin-left:8px;">🗑 清空所属机构</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportCSV('branchInsts')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_branchInsts').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                             <input type="file" id="csvFileInput_branchInsts" accept=".csv" style="display:none;" onchange="adminImportCSV('branchInsts', this)">
-                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">&#25903;&#25345;CSV&#25991;&#20214;&#23548;&#20837;&#23548;&#20986;</span>
+                            <span style="font-size:11px;color:var(--gray-500);margin-left:8px;">支持CSV文件导入导出</span>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:50px;">&#24207;&#21495;</th>
-                                        <th style="min-width:200px;">&#25152;&#23646;&#20998;&#20844;&#21496;</th>
-                                        <th style="min-width:200px;">&#25152;&#23646;&#26426;&#26500;</th>
-                                        <th style="min-width:50px;">&#25805;&#20316;</th>
+                                        <th style="min-width:50px;">序号</th>
+                                        <th style="min-width:200px;">所属分公司</th>
+                                        <th style="min-width:200px;">所属机构</th>
+                                        <th style="min-width:50px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminBranchInstsBody"></tbody>
@@ -1226,22 +1226,22 @@
                     <!-- 角色管理 -->
                     <div id="adminRolesTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
-                            <strong>&#128101; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#31995;&#32479;&#35282;&#33394;&#22522;&#30784;&#25968;&#25454;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
+                            <strong>👥 说明：</strong>管理系统角色基础数据。可通过 CSV 导出，通过"恢复默认"从 CSV 导入。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-primary" onclick="adminAddRole()">&#10133; &#26032;&#22686;&#35282;&#33394;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportRolesCSV()">&#128229; &#23548;&#20986; CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_roles').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837; CSV</button>
+                            <button class="btn btn-sm btn-primary" onclick="adminAddRole()">➕ 新增角色</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportRolesCSV()">📥 导出 CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_roles').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入 CSV</button>
                             <input type="file" id="csvFileInput_roles" accept=".csv" style="display:none;" onchange="adminImportCSV('roles', this)">
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearRoles()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#35282;&#33394;</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearRoles()" style="margin-left:8px;">🗑 清空角色</button>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:120px;">&#35282;&#33394;ID</th>
-                                        <th style="min-width:250px;">&#35282;&#33394;&#21517;&#31216;</th>
-                                        <th style="min-width:50px;">&#25805;&#20316;</th>
+                                        <th style="min-width:120px;">角色ID</th>
+                                        <th style="min-width:250px;">角色名称</th>
+                                        <th style="min-width:50px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminRolesBody"></tbody>
@@ -1252,22 +1252,22 @@
                     <!-- 权限管理 -->
                     <div id="adminPermsTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
-                            <strong>&#128273; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#31995;&#32479;&#26435;&#38480;&#22522;&#30784;&#25968;&#25454;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
+                            <strong>🔑 说明：</strong>管理系统权限基础数据。可通过 CSV 导出，通过"恢复默认"从 CSV 导入。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-primary" onclick="adminAddPerm()">&#10133; &#26032;&#22686;&#26435;&#38480;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportPermsCSV()">&#128229; &#23548;&#20986; CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_perms').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837; CSV</button>
+                            <button class="btn btn-sm btn-primary" onclick="adminAddPerm()">➕ 新增权限</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportPermsCSV()">📥 导出 CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_perms').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入 CSV</button>
                             <input type="file" id="csvFileInput_perms" accept=".csv" style="display:none;" onchange="adminImportCSV('perms', this)">
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearPerms()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#26435;&#38480;</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearPerms()" style="margin-left:8px;">🗑 清空权限</button>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:120px;">&#26435;&#38480;ID</th>
-                                        <th style="min-width:250px;">&#26435;&#38480;&#21517;&#31216;</th>
-                                        <th style="min-width:50px;">&#25805;&#20316;</th>
+                                        <th style="min-width:120px;">权限ID</th>
+                                        <th style="min-width:250px;">权限名称</th>
+                                        <th style="min-width:50px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminPermsBody"></tbody>
@@ -1278,24 +1278,24 @@
                     <!-- 角色对应权限管理 -->
                     <div id="adminRolePermsTab" style="display:none;">
                         <div style="background:#fff3e0;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#e65100;">
-                            <strong>&#128279; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#35282;&#33394;&#19982;&#26435;&#38480;&#30340;&#23545;&#24212;&#20851;&#31995;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
+                            <strong>🔗 说明：</strong>管理角色与权限的对应关系。可通过 CSV 导出，通过"恢复默认"从 CSV 导入。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-primary" onclick="adminAddRolePerm()">&#10133; &#26032;&#22686;&#26144;&#23556;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportRolePermsCSV()">&#128229; &#23548;&#20986; CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_rolePerms').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837; CSV</button>
+                            <button class="btn btn-sm btn-primary" onclick="adminAddRolePerm()">➕ 新增映射</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportRolePermsCSV()">📥 导出 CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_rolePerms').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入 CSV</button>
                             <input type="file" id="csvFileInput_rolePerms" accept=".csv" style="display:none;" onchange="adminImportCSV('rolePerms', this)">
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearRolePerms()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#35282;&#33394;&#23545;&#24212;&#26435;&#38480;&#20449;&#24687;</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearRolePerms()" style="margin-left:8px;">🗑 清空角色对应权限信息</button>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:140px;">&#35282;&#33394;ID</th>
-                                        <th style="min-width:80px;">&#35282;&#33394;&#21517;&#31216;</th>
-                                        <th style="min-width:140px;">&#26435;&#38480;ID</th>
-                                        <th style="min-width:200px;">&#26435;&#38480;&#21517;&#31216;</th>
-                                        <th style="min-width:50px;">&#25805;&#20316;</th>
+                                        <th style="min-width:140px;">角色ID</th>
+                                        <th style="min-width:80px;">角色名称</th>
+                                        <th style="min-width:140px;">权限ID</th>
+                                        <th style="min-width:200px;">权限名称</th>
+                                        <th style="min-width:50px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminRolePermsBody"></tbody>
@@ -1306,24 +1306,24 @@
                     <!-- 用户管理 -->
                     <div id="adminUsersTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
-                            <strong>&#128100; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#31995;&#32479;&#29992;&#25143;&#22522;&#30784;&#25968;&#25454;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
+                            <strong>👤 说明：</strong>管理系统用户基础数据。可通过 CSV 导出，通过"恢复默认"从 CSV 导入。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-primary" onclick="adminAddUser()">&#10133; &#26032;&#22686;&#29992;&#25143;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportUsersCSV()">&#128229; &#23548;&#20986; CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_users').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837; CSV</button>
+                            <button class="btn btn-sm btn-primary" onclick="adminAddUser()">➕ 新增用户</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportUsersCSV()">📥 导出 CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_users').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入 CSV</button>
                             <input type="file" id="csvFileInput_users" accept=".csv" style="display:none;" onchange="adminImportCSV('users', this)">
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearUsers()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#29992;&#25143;&#20449;&#24687;</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearUsers()" style="margin-left:8px;">🗑 清空用户信息</button>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:100px;">&#29992;&#25143;ID</th>
-                                        <th style="min-width:100px;">&#29992;&#25143;&#22995;&#21517;</th>
-                                        <th style="min-width:150px;">&#29992;&#25143;&#21517;</th>
-                                        <th style="min-width:120px;">&#21475;&#20196;</th>
-                                        <th style="min-width:50px;">&#25805;&#20316;</th>
+                                        <th style="min-width:100px;">用户ID</th>
+                                        <th style="min-width:100px;">用户姓名</th>
+                                        <th style="min-width:150px;">用户名</th>
+                                        <th style="min-width:120px;">口令</th>
+                                        <th style="min-width:50px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminUsersBody"></tbody>
@@ -1334,25 +1334,25 @@
                     <!-- 用户角色管理 -->
                     <div id="adminUserRolesTab" style="display:none;">
                         <div style="background:#fff3e0;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#e65100;">
-                            <strong>&#128279; &#35828;&#26126;&#65306;</strong>&#31649;&#29702;&#29992;&#25143;&#19982;&#35282;&#33394;&#30340;&#23545;&#24212;&#20851;&#31995;&#12290;&#21487;&#36890;&#36807; CSV &#23548;&#20986;&#65292;&#36890;&#36807;"&#24674;&#22797;&#40664;&#35748;"&#20174; CSV &#23548;&#20837;&#12290;
+                            <strong>🔗 说明：</strong>管理用户与角色的对应关系。可通过 CSV 导出，通过"恢复默认"从 CSV 导入。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-primary" onclick="adminAddUserRole()">&#10133; &#26032;&#22686;&#26144;&#23556;</button>
-                            <button class="btn btn-sm btn-outline" onclick="adminExportUserRolesCSV()">&#128229; &#23548;&#20986; CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_userRoles').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837; CSV</button>
+                            <button class="btn btn-sm btn-primary" onclick="adminAddUserRole()">➕ 新增映射</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportUserRolesCSV()">📥 导出 CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_userRoles').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入 CSV</button>
                             <input type="file" id="csvFileInput_userRoles" accept=".csv" style="display:none;" onchange="adminImportCSV('userRoles', this)">
-                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearUserRoles()" style="margin-left:8px;">&#128465; &#28165;&#31354;&#29992;&#25143;&#35282;&#33394;&#20449;&#24687;</button>
+                            <button class="btn btn-sm btn-outline btn-danger" onclick="adminClearUserRoles()" style="margin-left:8px;">🗑 清空用户角色信息</button>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:100px;">&#29992;&#25143;ID</th>
-                                        <th style="min-width:100px;">&#29992;&#25143;&#22995;&#21517;</th>
-                                        <th style="min-width:100px;">&#29992;&#25143;&#21517;</th>
-                                        <th style="min-width:100px;">&#35282;&#33394;ID</th>
-                                        <th style="min-width:100px;">&#35282;&#33394;&#21517;&#31216;</th>
-                                        <th style="min-width:80px;">&#25805;&#20316;</th>
+                                        <th style="min-width:100px;">用户ID</th>
+                                        <th style="min-width:100px;">用户姓名</th>
+                                        <th style="min-width:100px;">用户名</th>
+                                        <th style="min-width:100px;">角色ID</th>
+                                        <th style="min-width:100px;">角色名称</th>
+                                        <th style="min-width:80px;">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminUserRolesBody"></tbody>
@@ -1363,25 +1363,25 @@
                     <!-- 短信发送记录 Tab -->
                     <div id="adminSmsRecordsTab" style="display:none;">
                         <div style="background:#e3f2fd;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#1565c0;">
-                            <strong>&#128241; &#35828;&#26126;&#65306;</strong>&#35760;&#24405;&#31995;&#32479;&#23545;&#22806;&#21457;&#36865;&#30340;&#30701;&#20449;&#27969;&#27700;&#12290;&#25903;&#25345; CSV &#23548;&#20986;&#65292;&#19981;&#21487;&#23548;&#20837;&#12290;
+                            <strong>📱 说明：</strong>记录系统对外发送的短信流水。支持 CSV 导出，不可导入。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-outline" onclick="adminExportSmsCSV()">&#128229; &#23548;&#20986; CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_smsRecords').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837; CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportSmsCSV()">📥 导出 CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_smsRecords').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入 CSV</button>
                             <input type="file" id="csvFileInput_smsRecords" accept=".csv" style="display:none;" onchange="adminImportCSV('smsRecords', this)">
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:90px;">&#21457;&#36865;ID</th>
+                                        <th style="min-width:90px;">发送ID</th>
                                         <th style="min-width:100px;">保单号</th>
-                                        <th style="min-width:120px;">&#25163;&#26426;&#21495;</th>
+                                        <th style="min-width:120px;">手机号</th>
                                         <th style="min-width:280px;">短信内容</th>
-                                        <th style="min-width:150px;">&#21457;&#36865;&#26102;&#38388;</th>
-                                        <th style="min-width:70px;">&#21457;&#36865;&#29366;&#24577;</th>
-                                        <th style="min-width:100px;">&#21463;&#29702;&#20154;</th>
-                                        <th style="min-width:90px;">&#21463;&#29702;&#28192;&#36947;</th>
+                                        <th style="min-width:150px;">发送时间</th>
+                                        <th style="min-width:70px;">发送状态</th>
+                                        <th style="min-width:100px;">受理人</th>
+                                        <th style="min-width:90px;">受理渠道</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminSmsRecordsBody"></tbody>
@@ -1392,25 +1392,25 @@
                     <!-- 微信发送记录 Tab -->
                     <div id="adminWechatRecordsTab" style="display:none;">
                         <div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#2e7d32;">
-                            <strong>&#128172; &#35828;&#26126;&#65306;</strong>&#35760;&#24405;&#31995;&#32479;&#23545;&#22806;&#21457;&#36865;&#30340;&#24494;&#20449;&#36890;&#30693;&#27969;&#27700;&#12290;&#25903;&#25345; CSV &#23548;&#20986;&#65292;&#19981;&#21487;&#23548;&#20837;&#12290;
+                            <strong>💬 说明：</strong>记录系统对外发送的微信通知流水。支持 CSV 导出，不可导入。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
-                            <button class="btn btn-sm btn-outline" onclick="adminExportWechatCSV()">&#128229; &#23548;&#20986; CSV</button>
-                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_wechatRecords').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837; CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="adminExportWechatCSV()">📥 导出 CSV</button>
+                            <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_wechatRecords').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入 CSV</button>
                             <input type="file" id="csvFileInput_wechatRecords" accept=".csv" style="display:none;" onchange="adminImportCSV('wechatRecords', this)">
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:90px;">&#21457;&#36865;ID</th>
+                                        <th style="min-width:90px;">发送ID</th>
                                         <th style="min-width:100px;">保单号</th>
-                                        <th style="min-width:120px;">&#25163;&#26426;&#21495;</th>
+                                        <th style="min-width:120px;">手机号</th>
                                         <th style="min-width:280px;">微信内容</th>
-                                        <th style="min-width:150px;">&#21457;&#36865;&#26102;&#38388;</th>
-                                        <th style="min-width:70px;">&#21457;&#36865;&#29366;&#24577;</th>
-                                        <th style="min-width:100px;">&#21463;&#29702;&#20154;</th>
-                                        <th style="min-width:90px;">&#21463;&#29702;&#28192;&#36947;</th>
+                                        <th style="min-width:150px;">发送时间</th>
+                                        <th style="min-width:70px;">发送状态</th>
+                                        <th style="min-width:100px;">受理人</th>
+                                        <th style="min-width:90px;">受理渠道</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminWechatRecordsBody"></tbody>
@@ -1421,32 +1421,32 @@
                     <!-- 审批链记录 -->
                     <div id="adminApprovalChainTab" style="display:none;">
                         <div style="background:#e8eaf6;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#283593;">
-                            <strong>&#128274; &#35828;&#26126;&#65306;</strong>&#23457;&#25209;&#38142;&#35760;&#24405;&#20026;&#21482;&#35835;&#35270;&#22270;&#65292;&#25968;&#25454;&#28304;&#33258;&#8220;&#23457;&#25209;&#27969;&#31649;&#29702;&#8221;&#27169;&#22359;&#30340;&#23457;&#25209;&#33410;&#28857;&#37197;&#32622;&#12290;&#38656;&#20462;&#25913;&#33410;&#28857;&#20449;&#24687;&#35831;&#21069;&#24448;&#23457;&#25209;&#27969;&#31649;&#29702;&#25805;&#20316;&#12290;
+                            <strong>🔒 说明：</strong>审批链记录为只读视图，数据源自“审批流管理”模块的审批节点配置。需修改节点信息请前往审批流管理操作。
                         </div>
                         <div class="toolbar" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-                                <button class="btn btn-sm btn-outline" onclick="adminExportCSV('approvalChain')" style="color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_approvalChain').click()" style="color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                                <button class="btn btn-sm btn-outline" onclick="adminExportCSV('approvalChain')" style="color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_approvalChain').click()" style="color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                                 <input type="file" id="csvFileInput_approvalChain" accept=".csv" style="display:none;" onchange="adminImportCSV('approvalChain', this)">
-                                <button class="btn btn-sm btn-outline" onclick="adminExportJSON('approvalChain')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;JSON</button>
-                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('jsonFileInput_approvalChain').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;JSON</button>
+                                <button class="btn btn-sm btn-outline" onclick="adminExportJSON('approvalChain')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出JSON</button>
+                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('jsonFileInput_approvalChain').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入JSON</button>
                                 <input type="file" id="jsonFileInput_approvalChain" accept=".json" style="display:none;" onchange="adminImportJSON('approvalChain', this)">
-                                <button class="btn btn-sm" style="color:#ea4335;border-color:#ea4335;" onclick="clearApprovalConfig()">&#128465;&#65039; &#28165;&#31354;&#23457;&#25209;&#38142;&#25968;&#25454;</button>
-                                <button class="btn btn-sm btn-outline" id="adminApprovalChainJsonBtn" onclick="adminShowApprovalChainJSON()" style="color:#1a73e8;border-color:#1a73e8;">&#128196; JSON&#35270;&#22270;</button>
+                                <button class="btn btn-sm" style="color:#ea4335;border-color:#ea4335;" onclick="clearApprovalConfig()">🗑️ 清空审批链数据</button>
+                                <button class="btn btn-sm btn-outline" id="adminApprovalChainJsonBtn" onclick="adminShowApprovalChainJSON()" style="color:#1a73e8;border-color:#1a73e8;">📄 JSON视图</button>
                         </div>
                         <div class="table-wrapper" style="max-height:600px;overflow-y:auto;">
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:60px;">&#33410;&#28857;&#32534;&#21495;</th>
-                                        <th style="min-width:90px;">&#38144;&#21806;&#28192;&#36947;</th>
-                                        <th style="min-width:80px;">&#23376;&#28192;&#36947;</th>
-                                        <th style="min-width:110px;">&#25152;&#23646;&#20998;&#20844;&#21496;</th>
-                                        <th style="min-width:110px;">&#25152;&#23646;&#26426;&#26500;</th>
-                                        <th style="min-width:130px;">&#37329;&#39069;&#21306;&#38388;</th>
-                                        <th style="min-width:160px;">&#33410;&#28857;&#21517;&#31216;</th>
-                                        <th style="min-width:120px;">&#29992;&#25143;&#21517;</th>
-                                        <th style="min-width:100px;">&#29992;&#25143;&#22995;&#21517;</th>
-                                        <th style="min-width:120px;">&#23457;&#25209;&#23618;&#32423;</th>
+                                        <th style="min-width:60px;">节点编号</th>
+                                        <th style="min-width:90px;">销售渠道</th>
+                                        <th style="min-width:80px;">子渠道</th>
+                                        <th style="min-width:110px;">所属分公司</th>
+                                        <th style="min-width:110px;">所属机构</th>
+                                        <th style="min-width:130px;">金额区间</th>
+                                        <th style="min-width:160px;">节点名称</th>
+                                        <th style="min-width:120px;">用户名</th>
+                                        <th style="min-width:100px;">用户姓名</th>
+                                        <th style="min-width:120px;">审批层级</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminApprovalChainBody"></tbody>
@@ -1458,13 +1458,13 @@
                     <!-- 续期退费审批记录 -->
                     <div id="adminApprovalRecordsTab" style="display:none;">
                         <div style="background:#fff3e0;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;color:#e65100;">
-                            <strong>&#128274; &#35828;&#26126;&#65306;</strong>&#23457;&#25209;&#35760;&#24405;&#20174;&#36864;&#36153;&#35760;&#24405;&#30340;&#23457;&#25209;&#33410;&#28857;&#21644;&#25805;&#20316;&#26085;&#24535;&#20013;&#23454;&#26102;&#37325;&#24314;&#65292;&#30830;&#20445;&#19982;&#23457;&#25209;&#29366;&#24577;&#21516;&#27493;&#12290;
+                            <strong>🔒 说明：</strong>审批记录从退费记录的审批节点和操作日志中实时重建，确保与审批状态同步。
                         </div>
                         <div class="toolbar" style="margin-bottom:16px;">
                             <div style="flex:1;">
-                                <button class="btn btn-sm btn-outline" onclick="refreshAdminApprovalRecords()" style="color:#1b5e20;border-color:#1b5e20;">&#128260; &#21047;&#26032;</button>
-                                <button class="btn btn-sm btn-outline" onclick="adminExportCSV('approvalRecords')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">&#128229; &#23548;&#20986;CSV</button>
-                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_approvalRecords').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">&#128228; &#23548;&#20837;CSV</button>
+                                <button class="btn btn-sm btn-outline" onclick="refreshAdminApprovalRecords()" style="color:#1b5e20;border-color:#1b5e20;">🔄 刷新</button>
+                                <button class="btn btn-sm btn-outline" onclick="adminExportCSV('approvalRecords')" style="margin-left:8px;color:#1b5e20;border-color:#1b5e20;">📥 导出CSV</button>
+                                <button class="btn btn-sm btn-outline" onclick="document.getElementById('csvFileInput_approvalRecords').click()" style="margin-left:4px;color:#e65100;border-color:#e65100;">📤 导入CSV</button>
                                 <input type="file" id="csvFileInput_approvalRecords" accept=".csv" style="display:none;" onchange="adminImportCSV('approvalRecords', this)">
                             </div>
                         </div>
@@ -1472,13 +1472,13 @@
                             <table style="font-size:12px;">
                                 <thead style="position:sticky;top:0;background:var(--gray-100);z-index:10;">
                                     <tr>
-                                        <th style="min-width:80px;">&#35760;&#24405;ID</th>
+                                        <th style="min-width:80px;">记录ID</th>
                                         <th style="min-width:100px;">保单号</th>
-                                        <th style="min-width:160px;">&#36864;&#36153;&#21463;&#29702;&#21495;</th>
-                                        <th style="min-width:110px;">&#23457;&#25209;&#21160;&#20316;</th>
-                                        <th style="min-width:100px;">&#23457;&#25209;&#20154;</th>
-                                        <th style="min-width:140px;">&#23457;&#25209;&#26102;&#38388;</th>
-                                        <th style="min-width:220px;">&#23457;&#25209;&#35814;&#24773;</th>
+                                        <th style="min-width:160px;">退费受理号</th>
+                                        <th style="min-width:110px;">审批动作</th>
+                                        <th style="min-width:100px;">审批人</th>
+                                        <th style="min-width:140px;">审批时间</th>
+                                        <th style="min-width:220px;">审批详情</th>
                                     </tr>
                                 </thead>
                                 <tbody id="adminApprovalRecordsBody"></tbody>
@@ -1494,53 +1494,53 @@
     <!-- 移动端视图 -->
     <div class="mobile-view mobile-container" id="mobileView">
         <div class="mobile-header">
-            <button class="mobile-back" onclick="showMobileEntry()">&#8592;</button>
-            <span id="mobileTitle">&#32493;&#26399;&#36864;&#36153;</span>
+            <button class="mobile-back" onclick="showMobileEntry()">←</button>
+            <span id="mobileTitle">续期退费</span>
         </div>
         <div class="mobile-content">
             <!-- 移动端入口页面 -->
             <div id="mobileEntry">
                 <!-- 标题区 -->
                 <div style="text-align: center; margin-bottom: 24px;">
-                    <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 4px;">&#32493;&#26399;&#20445;&#36153;&#36864;&#36153;</h2>
+                    <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 4px;">续期保费退费</h2>
                 </div>
 
                 <!-- ========== 登录区（未登录时显示） ========== -->
                 <div id="mobileLoginSection">
                     <div class="mobile-login-tabs">
-                        <button class="mobile-login-tab active" onclick="switchMobileLoginTab('employee')">&#128084; &#21592;&#24037;&#30331;&#24405;</button>
-                        <button class="mobile-login-tab" onclick="switchMobileLoginTab('customer')">&#128100; &#23458;&#25143;&#30331;&#24405;</button>
+                        <button class="mobile-login-tab active" onclick="switchMobileLoginTab('employee')">👔 员工登录</button>
+                        <button class="mobile-login-tab" onclick="switchMobileLoginTab('customer')">👤 客户登录</button>
                     </div>
                     <!-- 员工登录 -->
                     <div class="mobile-login-form active" id="mobileEmployeeLoginForm">
                         <div class="login-form-group">
-                            <label>&#29992;&#25143;&#21517;</label>
-                            <input type="text" id="mEmpUsername" placeholder="&#35831;&#36755;&#20837;&#29992;&#25143;&#21517;" autocomplete="username">
+                            <label>用户名</label>
+                            <input type="text" id="mEmpUsername" placeholder="请输入用户名" autocomplete="username">
                         </div>
                         <div class="login-form-group">
-                            <label>&#21475;&#20196;</label>
-                            <input type="password" id="mEmpPassword" placeholder="&#35831;&#36755;&#20837;&#21475;&#20196;" autocomplete="current-password">
+                            <label>口令</label>
+                            <input type="password" id="mEmpPassword" placeholder="请输入口令" autocomplete="current-password">
                         </div>
-                        <div class="login-error" id="mEmpLoginError">&#29992;&#25143;&#21517;&#25110;&#21475;&#20196;&#38169;&#35823;</div>
-                        <button class="login-btn" onclick="doMobileEmployeeLogin()">&#30331; &#24405;</button>
+                        <div class="login-error" id="mEmpLoginError">用户名或口令错误</div>
+                        <button class="login-btn" onclick="doMobileEmployeeLogin()">登 录</button>
                         <div class="user-list-section" id="mEmpUserListSection">
-                            <p class="user-list-title">&#128161; &#24555;&#25463;&#30331;&#24405;&#65306;&#28857;&#20987;&#22995;&#21517;&#26597;&#30475;&#35282;&#33394;&#65292;&#28857;&#20987;&#35282;&#33394;&#33258;&#21160;&#30331;&#24405;</p>
+                            <p class="user-list-title">💡 快捷登录：点击姓名查看角色，点击角色自动登录</p>
                             <div id="mEmpUserListContent"></div>
                         </div>
                     </div>
                     <!-- 客户登录 -->
                     <div class="mobile-login-form" id="mobileCustomerLoginForm">
                         <div class="login-form-group">
-                            <label>&#25237;&#20445;&#20154;&#35777;&#20214;&#21495;</label>
-                            <input type="text" id="mCustIdNo" placeholder="&#35831;&#36755;&#20837;&#35777;&#20214;&#21495;" autocomplete="off">
+                            <label>投保人证件号</label>
+                            <input type="text" id="mCustIdNo" placeholder="请输入证件号" autocomplete="off">
                         </div>
                         <div class="login-form-group">
-                            <label>&#25163;&#26426;&#21495;&#30721;</label>
-                            <input type="tel" id="mCustPhone" placeholder="&#35831;&#36755;&#20837;&#25163;&#26426;&#21495;" autocomplete="off">
+                            <label>手机号码</label>
+                            <input type="tel" id="mCustPhone" placeholder="请输入手机号" autocomplete="off">
                         </div>
-                        <div class="login-error" id="mCustLoginError">&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#19981;&#21305;&#37197;</div>
-                        <button class="login-btn" onclick="doMobileCustomerLogin()">&#30331; &#24405;</button>
-                        <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--gray-500);">&#27979;&#35797;&#65306;310101199001011234 / 13812345678</p>
+                        <div class="login-error" id="mCustLoginError">证件号或手机号不匹配</div>
+                        <button class="login-btn" onclick="doMobileCustomerLogin()">登 录</button>
+                        <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--gray-500);">测试：310101199001011234 / 13812345678</p>
                     </div>
 
                     <!-- 客户快捷登录列表 -->
@@ -1555,52 +1555,52 @@
                     <!-- 当前身份条 -->
                     <div id="mobileIdentityBar" style="background:#f0f4ff;padding:10px 14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:13px;">
                         <div style="display:flex;flex-direction:column;gap:2px;">
-                            <span>&#24403;&#21069;&#29992;&#25143;&#65306;<strong id="mobileUserInfo"></strong></span>
-                            <span>&#24403;&#21069;&#35282;&#33394;&#65306;<strong id="mobileRoleName"></strong></span>
+                            <span>当前用户：<strong id="mobileUserInfo"></strong></span>
+                            <span>当前角色：<strong id="mobileRoleName"></strong></span>
                         </div>
-                        <button class="mobile-btn" style="background:var(--danger);color:white;font-size:11px;padding:5px 40px;border-radius:4px;white-space:nowrap;width:auto;" onclick="doLogout()">&#36864;&#20986;</button>
+                        <button class="mobile-btn" style="background:var(--danger);color:white;font-size:11px;padding:5px 40px;border-radius:4px;white-space:nowrap;width:auto;" onclick="doLogout()">退出</button>
                     </div>
 
                     <!-- 客户功能块（客户角色可见） —— 三框布局：短信 / 微信 / 审批 -->
                     <div id="mobileCustomerBlock" style="margin-bottom: 32px; display:none;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-200);">
-                            <span style="font-size: 16px;">&#128100;</span>
-                            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800);">&#24453;&#21150;&#25552;&#37266;</h3>
+                            <span style="font-size: 16px;">👤</span>
+                            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800);">待办提醒</h3>
                         </div>
                         <!-- 📩 短信通知 -->
                         <div class="mobile-card" style="background: #f8f9fa; border-left: 4px solid #007bff; padding: 14px; margin-bottom: 12px;">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 20px;">&#128233;</span>
+                                    <span style="font-size: 20px;">📩</span>
                                     <div>
-                                        <div style="font-weight: 600; font-size: 14px; color: #333;">&#30701;&#20449;&#36890;&#30693;</div>
-                                        <div style="font-size: 11px; color: #999;">&#22826;&#24179;&#27915;&#20445;&#38505; &#183; &#36828;&#31243;&#36864;&#36153;&#21463;&#29702;</div>
+                                        <div style="font-weight: 600; font-size: 14px; color: #333;">短信通知</div>
+                                        <div style="font-size: 11px; color: #999;">太平洋保险 · 远程退费受理</div>
                                     </div>
                                 </div>
-                                <span style="font-size: 10px; background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 10px;">&#26597;&#30475;&#30701;&#20449;&#35814;&#24773;</span>
+                                <span style="font-size: 10px; background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 10px;">查看短信详情</span>
                             </div>
 
                             <div style="display: flex; gap: 8px;">
-                                <button id="smsBtnMaterial" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerMaterial')">&#128206; 材料补充</button>
-                                <button id="smsBtnQuery" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerQuery')">&#128269; \u67e5\u8be2\u8fdb\u5ea6</button>
+                                <button id="smsBtnMaterial" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerMaterial')">📎 材料补充</button>
+                                <button id="smsBtnQuery" class="mobile-btn mobile-btn-primary" style="font-size: 12px; padding: 8px 14px; flex:1;" onclick="openMobileModule('customerQuery')">🔍 \u67e5\u8be2\u8fdb\u5ea6</button>
                             </div>
                         </div>
                         <!-- 💬 微信通知 -->
                         <div class="mobile-card" style="background: #f0fff4; border-left: 4px solid #07c160; padding: 14px; margin-bottom: 12px;">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 20px;">&#128172;</span>
+                                    <span style="font-size: 20px;">💬</span>
                                     <div>
-                                        <div style="font-weight: 600; font-size: 14px; color: #333;">&#24494;&#20449;&#36890;&#30693;</div>
-                                        <div style="font-size: 11px; color: #999;">&#22826;&#24179;&#27915;&#20445;&#38505;&#20844;&#20247;&#21495;</div>
+                                        <div style="font-weight: 600; font-size: 14px; color: #333;">微信通知</div>
+                                        <div style="font-size: 11px; color: #999;">太平洋保险公众号</div>
                                     </div>
                                 </div>
-                                <span style="font-size: 10px; background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px;">&#26597;&#30475;&#24494;&#20449;&#35814;&#24773;</span>
+                                <span style="font-size: 10px; background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px;">查看微信详情</span>
                             </div>
 
                             <div style="display: flex; gap: 8px;">
-                                <button id="wechatBtnMaterial" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerMaterial')">&#128206; 材料补充</button>
-                                <button id="wechatBtnQuery" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerQuery')">&#128269; \u67e5\u8be2\u8fdb\u5ea6</button>
+                                <button id="wechatBtnMaterial" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerMaterial')">📎 材料补充</button>
+                                <button id="wechatBtnQuery" class="mobile-btn" style="font-size: 12px; padding: 8px 14px; flex:1; background: #07c160; color: #fff;" onclick="openMobileModule('customerQuery')">🔍 \u67e5\u8be2\u8fdb\u5ea6</button>
                             </div>
                         </div>
                     </div>
@@ -1610,16 +1610,16 @@
                     <!-- 审批流管理块（员工角色且有审批权限可见） -->
                     <div id="mobileApprovalBlock" style="border-top: 2px solid var(--gray-200); padding-top: 24px; display:none;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-200);">
-                            <span style="font-size: 16px;">&#128084;</span>
-                            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800);">&#32493;&#26399;&#36864;&#36153;&#23457;&#25209;&#25805;&#20316;</h3>
+                            <span style="font-size: 16px;">👔</span>
+                            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800);">续期退费审批操作</h3>
                         </div>
                         <div class="mobile-card" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border: 1px solid #ffc107; padding: 16px;" onclick="openMobileModule('mobileApproval')">
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">&#9989;</div>
+                                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">✅</div>
                                 <div style="flex: 1;">
-                                    <h4 style="margin-bottom: 4px; font-size: 15px;">&#23457;&#25209;&#25805;&#20316;</h4>
+                                    <h4 style="margin-bottom: 4px; font-size: 15px;">审批操作</h4>
                                 </div>
-                                <div style="font-size: 20px; color: var(--gray-400);">&#8250;</div>
+                                <div style="font-size: 20px; color: var(--gray-400);">›</div>
                             </div>
                         </div>
                     </div>
@@ -1631,142 +1631,142 @@
                 <!-- 登录验证页 -->
                 <div id="mobileMaterialLogin">
                     <div class="mobile-card" style="border-left: 4px solid #007bff;">
-                        <h3 style="margin-bottom: 16px;">&#128272; 材料补充&#38142;&#25509;&#39564;&#35777;</h3>
-                        <p style="font-size: 13px; color: var(--gray-600); margin-bottom: 16px;">&#35831;&#36755;&#20837;&#24744;&#22312;&#32493;&#26399;&#36864;&#36153;&#30003;&#35831;&#26102;&#30331;&#35760;&#30340;&#35777;&#20214;&#21495;&#21644;&#25163;&#26426;&#21495;</p>
-                        <div class="form-group"><label class="form-label">&#25237;&#20445;&#20154;&#35777;&#20214;&#21495; *</label><input type="text" class="form-control" id="mobileIdNo" placeholder="&#35831;&#36755;&#20837;&#35777;&#20214;&#21495;"></div>
-                        <div class="form-group"><label class="form-label">&#25163;&#26426;&#21495;&#30721; *</label><input type="tel" class="form-control" id="mobilePhone" placeholder="&#35831;&#36755;&#20837;&#25163;&#26426;&#21495;"></div>
-                        <button class="mobile-btn mobile-btn-primary" onclick="verifyCustomerLink()">&#39564;&#35777;&#36523;&#20221;</button>
+                        <h3 style="margin-bottom: 16px;">🔐 材料补充链接验证</h3>
+                        <p style="font-size: 13px; color: var(--gray-600); margin-bottom: 16px;">请输入您在续期退费申请时登记的证件号和手机号</p>
+                        <div class="form-group"><label class="form-label">投保人证件号 *</label><input type="text" class="form-control" id="mobileIdNo" placeholder="请输入证件号"></div>
+                        <div class="form-group"><label class="form-label">手机号码 *</label><input type="tel" class="form-control" id="mobilePhone" placeholder="请输入手机号"></div>
+                        <button class="mobile-btn mobile-btn-primary" onclick="verifyCustomerLink()">验证身份</button>
                     </div>
                     <div class="mobile-card" style="background: #fff8e1; border-left: 4px solid #ff9800; margin-top: 12px;">
-                        <h4 style="font-size: 13px; color: #e65100; margin-bottom: 10px;">&#128206; &#32493;&#26399;&#36864;&#36153;&#25152;&#38656;材料</h4>
+                        <h4 style="font-size: 13px; color: #e65100; margin-bottom: 10px;">📎 续期退费所需材料</h4>
                         <ul style="font-size: 12px; color: var(--gray-700); padding-left: 18px; margin: 0; line-height: 1.8;">
-                            <li>&#25237;&#20445;&#20154;&#26412;&#20154;&#36523;&#20221;&#35777;<strong>&#27491;&#38754;</strong>&#24433;&#20687;</li>
-                            <li>&#25237;&#20445;&#20154;&#26412;&#20154;&#36523;&#20221;&#35777;<strong>&#21453;&#38754;</strong>&#24433;&#20687;</li>
-                            <li>&#25237;&#20445;&#20154;&#26412;&#20154;&#38134;&#34892;&#21345;&#27491;&#38754;&#29031;&#29255;&#65288;&#38750;&#21407;&#21345;&#21407;&#36864;&#26102;&#65289;</li>
+                            <li>投保人本人身份证<strong>正面</strong>影像</li>
+                            <li>投保人本人身份证<strong>反面</strong>影像</li>
+                            <li>投保人本人银行卡正面照片（非原卡原退时）</li>
                         </ul>
-                        <p style="font-size: 11px; color: var(--gray-500); margin-top: 8px;">&#128161; 补充;材料&#38142;&#25509;24&#23567;&#26102;&#26377;&#25928;&#65292;&#36229;&#26399;&#35831;&#32852;&#31995;95500&#25110;&#26426;&#26500;&#20869;&#21220;&#34917;&#21457;</p>
+                        <p style="font-size: 11px; color: var(--gray-500); margin-top: 8px;">💡 补充;材料链接24小时有效，超期请联系95500或机构内勤补发</p>
                     </div>
                 </div>
                 
                 <!-- 材料补充表单 -->
                 <div id="mobileMaterialForm" style="display: none;">
                     <div class="mobile-card" style="background: #e8f5e9; border-left: 4px solid #28a745;">
-                        <p style="font-size: 13px; color: #2e7d32;">&#9989; &#36523;&#20221;&#39564;&#35777;&#36890;&#36807;</p>
+                        <p style="font-size: 13px; color: #2e7d32;">✅ 身份验证通过</p>
                     </div>
                     
                     <!-- 保单信息 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128203; &#20445;&#21333;&#20449;&#24687;</h3>
+                        <h3 style="margin-bottom: 12px;">📋 保单信息</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
                             <div class="info-item"><span class="info-label">保单号</span><span class="info-value" id="mcPolicyNo">-</span></div>
-                            <div class="info-item"><span class="info-label">&#20445;&#21333;&#29366;&#24577;</span><span class="info-value" id="mcPolicyStatus">&#26377;&#25928;</span></div>
-                            <div class="info-item"><span class="info-label">&#20027;&#38505;&#21517;&#31216;</span><span class="info-value" id="mcMainRisk">-</span></div>
-                            <div class="info-item"><span class="info-label">&#20027;&#38505;&#20195;&#30721;</span><span class="info-value" id="mcMainRiskCode">-</span></div>
-                            <div class="info-item"><span class="info-label">&#36131;&#20219;&#36215;&#26399;</span><span class="info-value" id="mcStartDate">-</span></div>
-                            <div class="info-item"><span class="info-label">&#36131;&#20219;&#27490;&#26399;</span><span class="info-value" id="mcEndDate">-</span></div>
-                            <div class="info-item"><span class="info-label">&#19979;&#27425;&#32564;&#36153;&#26085;&#26399;</span><span class="info-value" id="mcNextPayDate">-</span></div>
-                            <div class="info-item"><span class="info-label">&#20132;&#36153;&#26041;&#24335;</span><span class="info-value" id="mcPayMethod">-</span></div>
-                            <div class="info-item"><span class="info-label">&#20445;&#21333;&#25152;&#23646;&#20998;&#20844;&#21496;</span><span class="info-value" id="mcBranch">-</span></div>
-                            <div class="info-item"><span class="info-label">&#20445;&#21333;&#25152;&#23646;&#26426;&#26500;</span><span class="info-value" id="mcOrg">-</span></div>
+                            <div class="info-item"><span class="info-label">保单状态</span><span class="info-value" id="mcPolicyStatus">有效</span></div>
+                            <div class="info-item"><span class="info-label">主险名称</span><span class="info-value" id="mcMainRisk">-</span></div>
+                            <div class="info-item"><span class="info-label">主险代码</span><span class="info-value" id="mcMainRiskCode">-</span></div>
+                            <div class="info-item"><span class="info-label">责任起期</span><span class="info-value" id="mcStartDate">-</span></div>
+                            <div class="info-item"><span class="info-label">责任止期</span><span class="info-value" id="mcEndDate">-</span></div>
+                            <div class="info-item"><span class="info-label">下次缴费日期</span><span class="info-value" id="mcNextPayDate">-</span></div>
+                            <div class="info-item"><span class="info-label">交费方式</span><span class="info-value" id="mcPayMethod">-</span></div>
+                            <div class="info-item"><span class="info-label">保单所属分公司</span><span class="info-value" id="mcBranch">-</span></div>
+                            <div class="info-item"><span class="info-label">保单所属机构</span><span class="info-value" id="mcOrg">-</span></div>
                         </div>
                     </div>
                     
                     <!-- 缴费信息 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128179; &#32564;&#36153;&#36134;&#25143;&#20449;&#24687;</h3>
+                        <h3 style="margin-bottom: 12px;">💳 缴费账户信息</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
-                            <div class="info-item"><span class="info-label">&#36134;&#25143;&#22995;&#21517;</span><span class="info-value" id="mcAccountName">-</span></div>
-                            <div class="info-item"><span class="info-label">&#21345;&#21495;</span><span class="info-value" id="mcAccountNo">-</span></div>
-                            <div class="info-item"><span class="info-label">&#38134;&#34892;&#21517;&#31216;</span><span class="info-value" id="mcBankName">-</span></div>
+                            <div class="info-item"><span class="info-label">账户姓名</span><span class="info-value" id="mcAccountName">-</span></div>
+                            <div class="info-item"><span class="info-label">卡号</span><span class="info-value" id="mcAccountNo">-</span></div>
+                            <div class="info-item"><span class="info-label">银行名称</span><span class="info-value" id="mcBankName">-</span></div>
                         </div>
                     </div>
                     
                     <!-- 续期交费记录 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128209; &#32493;&#26399;&#20132;&#36153;&#35760;&#24405;</h3>
+                        <h3 style="margin-bottom: 12px;">📑 续期交费记录</h3>
                         <div id="mcPaymentRecords"></div>
                     </div>
                     
                     <!-- 退费信息 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128176; &#36864;&#36153;&#20449;&#24687;</h3>
+                        <h3 style="margin-bottom: 12px;">💰 退费信息</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
-                            <div class="info-item"><span class="info-label">&#36864;&#36153;&#37329;&#39069;</span><span class="info-value highlight" id="mcRefundAmount">&#165;0.00</span></div>
-                            <div class="info-item"><span class="info-label">&#36864;&#36153;&#26399;&#27425;</span><span class="info-value" id="mcRefundPeriods">-</span></div>
-                            <div class="info-item"><span class="info-label">&#27969;&#27700;&#21495;</span><span class="info-value" id="mcRefundId" style="font-size: 12px;">-</span></div>
+                            <div class="info-item"><span class="info-label">退费金额</span><span class="info-value highlight" id="mcRefundAmount">¥0.00</span></div>
+                            <div class="info-item"><span class="info-label">退费期次</span><span class="info-value" id="mcRefundPeriods">-</span></div>
+                            <div class="info-item"><span class="info-label">流水号</span><span class="info-value" id="mcRefundId" style="font-size: 12px;">-</span></div>
                         </div>
                     </div>
                     
                     <!-- 退费原因 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128221; &#36864;&#36153;&#21407;&#22240;</h3>
+                        <h3 style="margin-bottom: 12px;">📝 退费原因</h3>
                         <p style="font-size: 13px; color: var(--gray-700); margin-bottom: 12px;" id="mcRefundReason">-</p>
-                        <div class="form-group"><label class="form-label">&#20462;&#25913;&#36864;&#36153;&#21407;&#22240;&#65288;&#21487;&#36873;&#65289;</label><textarea class="form-control" id="mobileRefundReason" placeholder="&#35831;&#36755;&#20837;&#36864;&#36153;&#21407;&#22240;..." rows="2"></textarea></div>
+                        <div class="form-group"><label class="form-label">修改退费原因（可选）</label><textarea class="form-control" id="mobileRefundReason" placeholder="请输入退费原因..." rows="2"></textarea></div>
                     </div>
                     
                     <!-- 材料上传（原卡原退失败场景） -->
                     <div class="mobile-card" style="background: #fff8e1; border-left: 4px solid #ff9800;">
-                        <h3 style="margin-bottom: 12px;">&#129706; &#36523;&#20221;&#35777;&#19978;&#20256;</h3>
-                        <p style="font-size: 12px; color: var(--gray-600); margin-bottom: 12px;">&#21407;&#21345;&#21407;&#36864;&#22833;&#36133;&#38656;&#26356;&#25442;&#38134;&#34892;&#21345;&#26102;&#65292;&#35831;&#19978;&#20256;&#36523;&#20221;&#35777;&#27491;&#21453;&#38754;</p>
+                        <h3 style="margin-bottom: 12px;">🪪 身份证上传</h3>
+                        <p style="font-size: 12px; color: var(--gray-600); margin-bottom: 12px;">原卡原退失败需更换银行卡时，请上传身份证正反面</p>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="upload-area" style="padding: 16px;" onclick="simulateUpload('idFront')">
-                                <div style="font-size: 28px; margin-bottom: 6px;">&#128247;</div>
-                                <p style="font-size: 12px;">&#36523;&#20221;&#35777;&#27491;&#38754;</p>
-                                <p style="font-size: 11px; color: var(--gray-500);" id="idFrontStatus">&#28857;&#20987;&#19978;&#20256;</p>
+                                <div style="font-size: 28px; margin-bottom: 6px;">📷</div>
+                                <p style="font-size: 12px;">身份证正面</p>
+                                <p style="font-size: 11px; color: var(--gray-500);" id="idFrontStatus">点击上传</p>
                             </div>
                             <div class="upload-area" style="padding: 16px;" onclick="simulateUpload('idBack')">
-                                <div style="font-size: 28px; margin-bottom: 6px;">&#128247;</div>
-                                <p style="font-size: 12px;">&#36523;&#20221;&#35777;&#21453;&#38754;</p>
-                                <p style="font-size: 11px; color: var(--gray-500);" id="idBackStatus">&#28857;&#20987;&#19978;&#20256;</p>
+                                <div style="font-size: 28px; margin-bottom: 6px;">📷</div>
+                                <p style="font-size: 12px;">身份证反面</p>
+                                <p style="font-size: 11px; color: var(--gray-500);" id="idBackStatus">点击上传</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="mobile-card" style="background: #fff8e1; border-left: 4px solid #ff9800;">
-                        <h3 style="margin-bottom: 12px;">&#128179; &#38134;&#34892;&#21345;&#20449;&#24687;</h3>
-                        <p style="font-size: 12px; color: var(--gray-600); margin-bottom: 12px;">&#35831;&#36755;&#20837;&#25237;&#20445;&#20154;&#20854;&#20182;&#38134;&#34892;&#21345;&#21495;&#24182;&#19978;&#20256;&#38134;&#34892;&#21345;&#24433;&#20687;</p>
-                        <div class="form-group"><label class="form-label">&#26032;&#38134;&#34892;&#21345;&#21495;</label><input type="text" class="form-control" id="mobileNewBankCard" placeholder="&#35831;&#36755;&#20837;&#26032;&#30340;&#38134;&#34892;&#21345;&#21495;"></div>
+                        <h3 style="margin-bottom: 12px;">💳 银行卡信息</h3>
+                        <p style="font-size: 12px; color: var(--gray-600); margin-bottom: 12px;">请输入投保人其他银行卡号并上传银行卡影像</p>
+                        <div class="form-group"><label class="form-label">新银行卡号</label><input type="text" class="form-control" id="mobileNewBankCard" placeholder="请输入新的银行卡号"></div>
                         <div class="upload-area" style="margin-top: 12px;" onclick="simulateUpload('bankCard')">
-                            <div style="font-size: 28px; margin-bottom: 6px;">&#128179;</div>
-                            <p style="font-size: 12px;">&#38134;&#34892;&#21345;&#29031;&#29255;</p>
-                            <p style="font-size: 11px; color: var(--gray-500);" id="bankCardStatus">&#28857;&#20987;&#19978;&#20256;</p>
+                            <div style="font-size: 28px; margin-bottom: 6px;">💳</div>
+                            <p style="font-size: 12px;">银行卡照片</p>
+                            <p style="font-size: 11px; color: var(--gray-500);" id="bankCardStatus">点击上传</p>
                         </div>
                     </div>
                     
-                    <button class="mobile-btn mobile-btn-success" onclick="submitMobileMaterial()">&#25552;&#20132;材料</button>
-                    <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 12px;">&#8592; &#36820;&#22238;</button>
+                    <button class="mobile-btn mobile-btn-success" onclick="submitMobileMaterial()">提交材料</button>
+                    <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 12px;">← 返回</button>
                 </div>
                 
                 <!-- 链接失效提示 -->
                 <div id="mobileMaterialExpired" style="display: none;">
                     <div class="mobile-card" style="background: #ffebee; border-left: 4px solid #f44336; text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">&#9200;</div>
-                        <h3 style="color: #c62828; margin-bottom: 12px;">&#38142;&#25509;&#24050;&#36229;&#26399;</h3>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">&#35831;&#24744;&#32852;&#31995;95500&#25110;&#26426;&#26500;&#20869;&#21220;&#34917;&#21457;&#38142;&#25509;</p>
-                        <p style="font-size: 11px; color: var(--gray-500);">材料补充&#38142;&#25509;24&#23567;&#26102;&#26377;&#25928;&#65292;&#36827;&#23637;查询&#38142;&#25509;72&#23567;&#26102;&#26377;&#25928;</p>
-                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 16px;">&#8592; &#36820;&#22238;</button>
+                        <div style="font-size: 48px; margin-bottom: 16px;">⏰</div>
+                        <h3 style="color: #c62828; margin-bottom: 12px;">链接已超期</h3>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">请您联系95500或机构内勤补发链接</p>
+                        <p style="font-size: 11px; color: var(--gray-500);">材料补充链接24小时有效，进展查询链接72小时有效</p>
+                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 16px;">← 返回</button>
                     </div>
                 </div>
                 
                 <!-- 无退费记录提示 -->
                 <div id="mobileMaterialNotFound" style="display: none;">
                     <div class="mobile-card" style="background: #fff3e0; border-left: 4px solid #ff9800; text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">&#10067;</div>
-                        <h3 style="color: #e65100; margin-bottom: 12px;">&#26410;&#25214;&#21040;&#36864;&#36153;&#30003;&#35831;</h3>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">&#35831;&#24744;&#30830;&#35748;&#26159;&#21542;&#21457;&#36215;&#20102;&#32493;&#26399;&#36864;&#36153;&#30003;&#35831;</p>
-                        <p style="font-size: 11px; color: var(--gray-500);">&#22914;&#26377;&#30097;&#38382;&#65292;&#35831;&#33268;&#30005;95500&#25110;&#32852;&#31995;&#24744;&#30340;&#20445;&#21333;&#26381;&#21153;&#20154;&#21592;</p>
-                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 16px;">&#8592; &#36820;&#22238;</button>
+                        <div style="font-size: 48px; margin-bottom: 16px;">❓</div>
+                        <h3 style="color: #e65100; margin-bottom: 12px;">未找到退费申请</h3>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">请您确认是否发起了续期退费申请</p>
+                        <p style="font-size: 11px; color: var(--gray-500);">如有疑问，请致电95500或联系您的保单服务人员</p>
+                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 16px;">← 返回</button>
                     </div>
                 </div>
                 
                 <!-- 不需要补充;材料提示 -->
                 <div id="mobileMaterialNotNeeded" style="display: none;">
                     <div class="mobile-card" style="background: #e3f2fd; border-left: 4px solid #2196f3; text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">&#9989;</div>
-                        <h3 style="color: #1565c0; margin-bottom: 12px;">&#26242;&#19981;&#38656;&#35201;补充;材料</h3>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">&#24403;&#21069;&#36824;&#19981;&#38656;&#35201;&#24744;&#19978;&#20256;材料</p>
-                        <p style="font-size: 11px; color: var(--gray-500);">&#21518;&#32493;&#22914;&#38656;补充;材料&#65292;&#23558;&#36890;&#36807;&#30701;&#20449;&#25110;&#24494;&#20449;&#36890;&#30693;&#24744;</p>
-                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 16px;">&#8592; &#36820;&#22238;</button>
+                        <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+                        <h3 style="color: #1565c0; margin-bottom: 12px;">暂不需要补充;材料</h3>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">当前还不需要您上传材料</p>
+                        <p style="font-size: 11px; color: var(--gray-500);">后续如需补充;材料，将通过短信或微信通知您</p>
+                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()" style="margin-top: 16px;">← 返回</button>
                     </div>
                 </div>
             </div>
@@ -1776,10 +1776,10 @@
                 <!-- 登录验证页 -->
                 <div id="mobileQueryLogin">
                     <div class="mobile-card" style="border-left: 4px solid #28a745;">
-                        <h3 style="margin-bottom: 16px;">&#128272; 进度查询&#38142;&#25509;&#39564;&#35777;</h3>
-                        <p style="font-size: 13px; color: var(--gray-600); margin-bottom: 16px;">&#35831;&#36755;&#20837;&#24744;&#22312;&#32493;&#26399;&#36864;&#36153;&#30003;&#35831;&#26102;&#30331;&#35760;&#30340;&#35777;&#20214;&#21495;&#21644;&#25163;&#26426;&#21495;</p>
-                        <div class="form-group"><label class="form-label">&#25237;&#20445;&#20154;&#35777;&#20214;&#21495; *</label><input type="text" class="form-control" id="mobileQueryIdNo" placeholder="&#35831;&#36755;&#20837;&#35777;&#20214;&#21495;"></div>
-                        <div class="form-group"><label class="form-label">&#25163;&#26426;&#21495;&#30721; *</label><input type="tel" class="form-control" id="mobileQueryPhone" placeholder="&#35831;&#36755;&#20837;&#25163;&#26426;&#21495;"></div>
+                        <h3 style="margin-bottom: 16px;">🔐 进度查询链接验证</h3>
+                        <p style="font-size: 13px; color: var(--gray-600); margin-bottom: 16px;">请输入您在续期退费申请时登记的证件号和手机号</p>
+                        <div class="form-group"><label class="form-label">投保人证件号 *</label><input type="text" class="form-control" id="mobileQueryIdNo" placeholder="请输入证件号"></div>
+                        <div class="form-group"><label class="form-label">手机号码 *</label><input type="tel" class="form-control" id="mobileQueryPhone" placeholder="请输入手机号"></div>
                         <button class="mobile-btn mobile-btn-success" onclick="verifyQueryLink()">\u67e5\u8be2\u8fdb\u5ea6</button>
                     </div>
                 </div>
@@ -1788,73 +1788,73 @@
                 <div id="mobileQueryResult" style="display: none;">
                     <!-- 保单信息 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128203; &#20445;&#21333;&#20449;&#24687;</h3>
+                        <h3 style="margin-bottom: 12px;">📋 保单信息</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
                             <div class="info-item"><span class="info-label">保单号</span><span class="info-value" id="mqPolicyNo">-</span></div>
-                            <div class="info-item"><span class="info-label">&#20027;&#38505;&#21517;&#31216;</span><span class="info-value" id="mqMainRisk">-</span></div>
-                            <div class="info-item"><span class="info-label">&#25237;&#20445;&#20154;</span><span class="info-value" id="mqHolderName">-</span></div>
+                            <div class="info-item"><span class="info-label">主险名称</span><span class="info-value" id="mqMainRisk">-</span></div>
+                            <div class="info-item"><span class="info-label">投保人</span><span class="info-value" id="mqHolderName">-</span></div>
                         </div>
                     </div>
                     
                     <!-- 退费信息 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128176; &#36864;&#36153;&#20449;&#24687;</h3>
+                        <h3 style="margin-bottom: 12px;">💰 退费信息</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
-                            <div class="info-item"><span class="info-label">&#36864;&#36153;&#37329;&#39069;</span><span class="info-value highlight" id="mqRefundAmount">&#165;0.00</span></div>
-                            <div class="info-item"><span class="info-label">&#36864;&#36153;&#26399;&#27425;</span><span class="info-value" id="mqRefundPeriods">-</span></div>
-                            <div class="info-item"><span class="info-label">&#36864;&#36153;&#21407;&#22240;</span><span class="info-value" id="mqRefundReason">-</span></div>
+                            <div class="info-item"><span class="info-label">退费金额</span><span class="info-value highlight" id="mqRefundAmount">¥0.00</span></div>
+                            <div class="info-item"><span class="info-label">退费期次</span><span class="info-value" id="mqRefundPeriods">-</span></div>
+                            <div class="info-item"><span class="info-label">退费原因</span><span class="info-value" id="mqRefundReason">-</span></div>
                         </div>
                     </div>
                     
                     <!-- 当前状态 -->
                     <div class="mobile-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                        <h3 style="margin-bottom: 8px; color: white;">&#128205; &#24403;&#21069;&#29366;&#24577;</h3>
+                        <h3 style="margin-bottom: 8px; color: white;">📍 当前状态</h3>
                         <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px;" id="mqStatusName">-</div>
                         <div style="font-size: 12px; opacity: 0.9;" id="mqStatusTime">-</div>
                     </div>
                     
                     <!-- 缴费信息 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128179; &#32564;&#36153;&#36134;&#25143;&#20449;&#24687;</h3>
+                        <h3 style="margin-bottom: 12px;">💳 缴费账户信息</h3>
                         <div class="info-grid" style="gap: 6px; font-size: 13px;">
-                            <div class="info-item"><span class="info-label">&#36134;&#25143;&#22995;&#21517;</span><span class="info-value" id="mqAccountName">-</span></div>
-                            <div class="info-item"><span class="info-label">&#21345;&#21495;</span><span class="info-value" id="mqAccountNo">-</span></div>
-                            <div class="info-item"><span class="info-label">&#38134;&#34892;&#21517;&#31216;</span><span class="info-value" id="mqBankName">-</span></div>
+                            <div class="info-item"><span class="info-label">账户姓名</span><span class="info-value" id="mqAccountName">-</span></div>
+                            <div class="info-item"><span class="info-label">卡号</span><span class="info-value" id="mqAccountNo">-</span></div>
+                            <div class="info-item"><span class="info-label">银行名称</span><span class="info-value" id="mqBankName">-</span></div>
                         </div>
                     </div>
                     
                     <!-- 续期交费记录 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#128209; &#32493;&#26399;&#20132;&#36153;&#35760;&#24405;</h3>
+                        <h3 style="margin-bottom: 12px;">📑 续期交费记录</h3>
                         <div id="mqPaymentRecords"></div>
                     </div>
                     
                     <!-- 状态时间线 -->
                     <div class="mobile-card">
-                        <h3 style="margin-bottom: 12px;">&#9201;&#65039; &#29366;&#24577;&#26102;&#38388;&#32447;</h3>
+                        <h3 style="margin-bottom: 12px;">⏱️ 状态时间线</h3>
                         <div class="mobile-timeline" id="mobileTimeline"></div>
                     </div>
                     
-                    <button class="mobile-btn mobile-btn-outline" onclick="showMobileQueryLogin()">&#8592; &#37325;&#26032;查询</button>
+                    <button class="mobile-btn mobile-btn-outline" onclick="showMobileQueryLogin()">← 重新查询</button>
                 </div>
                 
                 <!-- 链接失效提示 -->
                 <div id="mobileQueryExpired" style="display: none;">
                     <div class="mobile-card" style="background: #ffebee; border-left: 4px solid #f44336; text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">&#9200;</div>
-                        <h3 style="color: #c62828; margin-bottom: 12px;">&#38142;&#25509;&#24050;&#36229;&#26399;</h3>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">&#35831;&#24744;&#32852;&#31995;95500&#25110;&#26426;&#26500;&#20869;&#21220;&#34917;&#21457;&#38142;&#25509;</p>
-                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()">&#8592; &#36820;&#22238;</button>
+                        <div style="font-size: 48px; margin-bottom: 16px;">⏰</div>
+                        <h3 style="color: #c62828; margin-bottom: 12px;">链接已超期</h3>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">请您联系95500或机构内勤补发链接</p>
+                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()">← 返回</button>
                     </div>
                 </div>
                 
                 <!-- 无退费记录提示 -->
                 <div id="mobileQueryNotFound" style="display: none;">
                     <div class="mobile-card" style="background: #fff3e0; border-left: 4px solid #ff9800; text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">&#10067;</div>
-                        <h3 style="color: #e65100; margin-bottom: 12px;">&#26410;&#25214;&#21040;&#36864;&#36153;&#30003;&#35831;</h3>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">&#35831;&#24744;&#30830;&#35748;&#26159;&#21542;&#21457;&#36215;&#20102;&#32493;&#26399;&#36864;&#36153;&#30003;&#35831;</p>
-                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()">&#8592; &#36820;&#22238;</button>
+                        <div style="font-size: 48px; margin-bottom: 16px;">❓</div>
+                        <h3 style="color: #e65100; margin-bottom: 12px;">未找到退费申请</h3>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">请您确认是否发起了续期退费申请</p>
+                        <button class="mobile-btn mobile-btn-outline" onclick="showMobileEntry()">← 返回</button>
                     </div>
                 </div>
             </div>
@@ -1862,67 +1862,67 @@
             <!-- 审批操作（太好钉） -->
             <div id="mobileApproval" style="display: none;">
                 <div id="mobileApprovalList">
-                    <h3 style="margin-bottom: 16px;">&#24453;&#23457;&#25209;&#21015;&#34920;</h3>
+                    <h3 style="margin-bottom: 16px;">待审批列表</h3>
                     <div id="mobilePendingApprovals"></div>
                 </div>
                 <div id="mobileApprovalDetail" style="display: none;">
-                    <button class="btn btn-sm btn-outline" onclick="showMobileApprovalList()" style="margin-bottom: 12px;">&#8592; &#36820;&#22238;&#21015;&#34920;</button>
+                    <button class="btn btn-sm btn-outline" onclick="showMobileApprovalList()" style="margin-bottom: 12px;">← 返回列表</button>
                     <!-- 受理信息卡片 -->
                     <div class="mobile-card" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border: 1px solid #ffc107;">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--gray-500);">&#21463;&#29702;&#21495;</span><span style="font-weight:600;" id="mobileBizNo">-</span></div>
-                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--gray-500);">&#21463;&#29702;&#28192;&#36947;</span><span id="mobileChannel">-</span></div>
-                        <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--gray-500);">&#21463;&#29702;&#26102;&#38388;</span><span id="mobileAcceptTime">-</span></div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--gray-500);">受理号</span><span style="font-weight:600;" id="mobileBizNo">-</span></div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--gray-500);">受理渠道</span><span id="mobileChannel">-</span></div>
+                        <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--gray-500);">受理时间</span><span id="mobileAcceptTime">-</span></div>
                     </div>
                     <!-- 保单信息 -->
                     <div class="mobile-card">
-                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128203; &#20445;&#21333;&#20449;&#24687;</h4>
+                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">📋 保单信息</h4>
                         <div id="mobilePolicyInfo" class="info-grid" style="gap: 6px; font-size: 12px;"></div>
                     </div>
                     <!-- 退费信息 -->
                     <div class="mobile-card">
-                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128176; &#36864;&#36153;&#20449;&#24687;</h4>
+                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">💰 退费信息</h4>
                         <div id="mobileRefundInfo" class="info-grid" style="gap: 6px; font-size: 12px;"></div>
                     </div>
                     <!-- 续期交费记录 -->
                     <div class="mobile-card">
-                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128197; &#32493;&#26399;&#20132;&#36153;&#35760;&#24405;</h4>
+                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">📅 续期交费记录</h4>
                         <div id="mobilePaymentRecords" style="font-size: 12px;"></div>
                     </div>
                     <!-- 退费原因 -->
                     <div class="mobile-card">
-                        <h4 style="margin-bottom: 8px; font-size: 14px; color: var(--primary);">&#128221; &#36864;&#36153;&#21407;&#22240;</h4>
+                        <h4 style="margin-bottom: 8px; font-size: 14px; color: var(--primary);">📝 退费原因</h4>
                         <div id="mobileApprovalRefundReason" style="font-size: 13px; color: var(--gray-700);"></div>
                     </div>
                     <!-- 审批流程 -->
                     <div class="mobile-card">
-                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128202; &#23457;&#25209;&#27969;&#31243;</h4>
+                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">📊 审批流程</h4>
                         <div id="mobileApprovalChannelInfo" style="font-size: 11px; color: var(--gray-500); margin-bottom: 8px;"></div>
                         <div id="mobileApprovalFlowNodes"></div>
                     </div>
                     <!-- 操作日志 -->
                     <div class="mobile-card">
-                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">&#128220; &#25805;&#20316;&#26085;&#24535;</h4>
+                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">📜 操作日志</h4>
                         <div id="mobileOperationLog" style="font-size: 12px; max-height: 200px; overflow-y: auto;"></div>
                     </div>
                     <!-- 审批操作区 -->
                     <div class="mobile-card" id="mobileActionArea" style="background: #f8f9fa;">
-                        <h4 style="margin-bottom: 12px; font-size: 14px;">&#128172; &#23457;&#25209;&#25805;&#20316;</h4>
+                        <h4 style="margin-bottom: 12px; font-size: 14px;">💬 审批操作</h4>
                         <!-- 扣回续佣复选框（首节点可见） -->
                         <div id="mobileCommissionRebate" style="display:none;margin-bottom:12px;">
                             <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#e65100;font-weight:600;cursor:pointer;">
                                 <input type="checkbox" id="mobileCommissionChecked">
-                                <span>&#25187;&#22238;&#32493;&#20323;&#20449;&#24687; &#8212; &#24050;&#19982;&#19994;&#21153;&#21592;&#27807;&#36890;&#30830;&#35748;</span>
+                                <span>扣回续佣信息 — 已与业务员沟通确认</span>
                             </label>
                         </div>
-                        <textarea class="form-control" id="mobileApproveOpinion" placeholder="&#35831;&#22635;&#20889;&#23457;&#25209;&#24847;&#35265;&#65288;&#24517;&#22635;&#65289;..." style="min-height: 80px;"></textarea>
+                        <textarea class="form-control" id="mobileApproveOpinion" placeholder="请填写审批意见（必填）..." style="min-height: 80px;"></textarea>
                         <!-- 驳回理由（驳回时展示） -->
                         <div id="mobileRejectReasonInput" style="display:none;margin-top:8px;">
-                            <label style="font-size:12px;color:#ea4335;">&#39539;&#22238;&#21407;&#22240;&#65288;&#19981;&#23569;&#20110;10&#20010;&#27721;&#23383;&#65289;*</label>
-                            <textarea class="form-control" id="mobileRejectReason" placeholder="&#35831;&#22635;&#20889;&#39539;&#22238;&#21407;&#22240;&#65292;&#29992;&#20110;&#21521;&#23458;&#25143;&#27807;&#36890;&#21518;&#32493;&#25764;&#38144;&#32493;&#26399;&#36864;&#36153;&#27969;&#31243;..." style="min-height: 60px; border-color: #ea4335;"></textarea>
+                            <label style="font-size:12px;color:#ea4335;">驳回原因（不少于10个汉字）*</label>
+                            <textarea class="form-control" id="mobileRejectReason" placeholder="请填写驳回原因，用于向客户沟通后续撤销续期退费流程..." style="min-height: 60px; border-color: #ea4335;"></textarea>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
-                            <button class="mobile-btn mobile-btn-success" onclick="mobileApproveConfirm()" style="flex:1;">&#9989; &#21516;&#24847;</button>
-                            <button class="mobile-btn mobile-btn-danger" onclick="mobileReject()" style="flex:1;">&#10060; &#25298;&#32477;</button>
+                            <button class="mobile-btn mobile-btn-success" onclick="mobileApproveConfirm()" style="flex:1;">✅ 同意</button>
+                            <button class="mobile-btn mobile-btn-danger" onclick="mobileReject()" style="flex:1;">❌ 拒绝</button>
                         </div>
                     </div>
                 </div>
@@ -1937,8 +1937,8 @@
 
     <!-- 通知消息 -->
     <div class="notification" id="notification">
-        <span class="notification-icon">&#10003;</span>
-        <span class="notification-message" id="notificationMessage">&#25805;&#20316;&#25104;&#21151;</span>
+        <span class="notification-icon">✓</span>
+        <span class="notification-message" id="notificationMessage">操作成功</span>
     </div>
 
     <script>
@@ -2820,7 +2820,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             var cardsHtml = '';
             if (perms.includes('Q1')) cardsHtml += '<div class="entry-card" onclick="openModule(\'reception\')"><div class="entry-card-icon icon-blue">📞</div><h3>95500坐席受理</h3><p>电话客服渠道受理客户续期退费申请</p><span class="badge" style="background: rgba(26,115,232,0.1); color: var(--primary);">PC端</span></div>';
             if (perms.includes('Q3') || perms.includes('Q4') || perms.includes('Q5')) cardsHtml += '<div class="entry-card" onclick="openModule(\'workbench\')"><div class="entry-card-icon icon-green">⚙️</div><h3>内勤工作台</h3><p>材料确认、失败件处理等内勤操作</p><span class="badge" style="background: rgba(52,168,83,0.1); color: var(--success);">PC端</span></div>';
-            if (perms.includes('Q9')) cardsHtml += '<div class="entry-card" onclick="openModule(\'approval\')"><div class="entry-card-icon icon-orange">&#9881;&#65039;</div><h3>审批流管理</h3><p>审批节点、流程定义与配置</p><span class="badge" style="background: rgba(245,124,0,0.1); color: #e65100;">PC端</span></div>';
+            if (perms.includes('Q9')) cardsHtml += '<div class="entry-card" onclick="openModule(\'approval\')"><div class="entry-card-icon icon-orange">⚙️</div><h3>审批流管理</h3><p>审批节点、流程定义与配置</p><span class="badge" style="background: rgba(245,124,0,0.1); color: #e65100;">PC端</span></div>';
             if (perms.includes('Q2')) cardsHtml += '<div class="entry-card" onclick="openModule(\'report\')"><div class="entry-card-icon icon-purple">📊</div><h3>任务管理与报表</h3><p>进度查询、统计报表、数据导出</p><span class="badge" style="background: rgba(102,126,234,0.1); color: #764ba2;">PC端</span></div>';
 
             if (cardsHtml === '') {
@@ -3167,7 +3167,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 if (policySearch) policySearch.value = '';
                 // 清空搜索结果列表
                 const searchResults = document.getElementById('searchResults');
-                if (searchResults) searchResults.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--gray-500);">&#35831;&#36755;&#20837;保单号&#12289;&#35777;&#20214;&#21495;&#25110;&#25163;&#26426;&#21495;&#36827;&#34892;查询</div>';
+                if (searchResults) searchResults.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--gray-500);">请输入保单号、证件号或手机号进行查询</div>';
                 // 隐藏P17快处信息卡片（清理缓存）
                 const p17InfoCard = document.getElementById('p17InfoCard');
                 if (p17InfoCard) p17InfoCard.style.display = 'none';
@@ -3545,11 +3545,11 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // 通知方式可行性检查（根据是否关注官微决定微信通知是否可用）
             const followOfficial2 = np && np.followOfficialAcct === '是';
             if (followOfficial2) {
-                html += `<div class="rule-card pass"><div class="rule-title"><span>&#128172;</span><span>&#36890;&#30693;&#26041;&#24335;&#26816;&#26597;</span><span class="rule-status">&#10004; &#24494;&#20449;&#21487;&#29992;</span></div><div style="font-size:13px;color:#2e7d32;margin-top:4px;">&#23458;&#25143;&#24050;&#20851;&#27880;&#22826;&#24179;&#27915;&#23551;&#38505;&#23448;&#24494;&#65292;&#25903;&#25344;&#24494;&#20449;&#36890;&#30693; / &#30701;&#20449;&#36890;&#30693;</div></div>`;
+                html += `<div class="rule-card pass"><div class="rule-title"><span>💬</span><span>通知方式检查</span><span class="rule-status">✔ 微信可用</span></div><div style="font-size:13px;color:#2e7d32;margin-top:4px;">客户已关注太平洋寿险官微，支挀微信通知 / 短信通知</div></div>`;
             } else if (!np) {
-                html += `<div class="rule-card pass"><div class="rule-title"><span>&#128172;</span><span>&#36890;&#30693;&#26041;&#24335;&#26816;&#26597;</span><span class="rule-status" style="background:#fff3e0;color:#e65100;">&#8463;&#21482;&#30701;&#20449;</span></div><div style="font-size:13px;color:#e65100;margin-top:4px;">&#27809;&#26377;&#23458;&#25143;&#20449;&#24687;&#65292;&#19981;&#33021;&#30830;&#35748;&#26159;&#21542;&#20851;&#27880;&#23448;&#24494;&#65292;&#20165;&#25903;&#25345;&#30701;&#20449;&#36890;&#30693;</div></div>`;
+                html += `<div class="rule-card pass"><div class="rule-title"><span>💬</span><span>通知方式检查</span><span class="rule-status" style="background:#fff3e0;color:#e65100;">ℏ只短信</span></div><div style="font-size:13px;color:#e65100;margin-top:4px;">没有客户信息，不能确认是否关注官微，仅支持短信通知</div></div>`;
             } else {
-                html += `<div class="rule-card pass"><div class="rule-title"><span>&#128172;</span><span>&#36890;&#30693;&#26041;&#24335;&#26816;&#26597;</span><span class="rule-status" style="background:#fff3e0;color:#e65100;">&#8463;&#21482;&#30701;&#20449;</span></div><div style="font-size:13px;color:#e65100;margin-top:4px;">&#23458;&#25143;&#26410;&#20851;&#27880;&#22826;&#24179;&#27915;&#23551;&#38505;&#23448;&#24494;&#65292;&#20165;&#25903;&#25345;&#30701;&#20449;&#36890;&#30693;</div></div>`;
+                html += `<div class="rule-card pass"><div class="rule-title"><span>💬</span><span>通知方式检查</span><span class="rule-status" style="background:#fff3e0;color:#e65100;">ℏ只短信</span></div><div style="font-size:13px;color:#e65100;margin-top:4px;">客户未关注太平洋寿险官微，仅支持短信通知</div></div>`;
             }
             
             // 审批判断（5.1 免审批 / 5.2 人工审批）
@@ -4277,7 +4277,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
 
             // ===== 配置范围选择 =====
             h.push('<div class="cfg-scope-row" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:#f8f9fa;border-radius:10px;border:1px solid #e8eaed;">');
-            h.push('<span style="font-size:13px;color:#555;font-weight:600;white-space:nowrap;">&#128203; 配置范围：</span>');
+            h.push('<span style="font-size:13px;color:#555;font-weight:600;white-space:nowrap;">📋 配置范围：</span>');
             [
                 {k:'hq', l:'总公司模板'},
                 {k:'branch', l:'分公司模板'},
@@ -4321,7 +4321,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // 分公司选择器 (branch模式)
             if(s.configScope==='branch'){
                 if(s.channel==='在线'){
-                    h.push('<div style="margin-top:12px;padding:10px 14px;background:#e3f2fd;border-radius:8px;border:1px solid #bbdefb;color:#1565c0;font-size:13px;">&#10067; 在线渠道不使用分公司层审批模板，请在<b>总公司模板</b>中配置</div>');
+                    h.push('<div style="margin-top:12px;padding:10px 14px;background:#e3f2fd;border-radius:8px;border:1px solid #bbdefb;color:#1565c0;font-size:13px;">❓ 在线渠道不使用分公司层审批模板，请在<b>总公司模板</b>中配置</div>');
                 } else {
                     var blist=getBranchStore()||[];
                     h.push('<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;">');
@@ -4337,7 +4337,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             // 所属机构选择器 (inst模式)
                 if(s.configScope==='inst'){
                 if(s.channel==='在线'){
-                    h.push('<div style="margin-top:12px;padding:10px 14px;background:#e3f2fd;border-radius:8px;border:1px solid #bbdefb;color:#1565c0;font-size:13px;">&#10067; 在线渠道不使用所属机构审批模板，请在<b>总公司模板</b>中配置</div>');
+                    h.push('<div style="margin-top:12px;padding:10px 14px;background:#e3f2fd;border-radius:8px;border:1px solid #bbdefb;color:#1565c0;font-size:13px;">❓ 在线渠道不使用所属机构审批模板，请在<b>总公司模板</b>中配置</div>');
                 } else {
                 var blist2=getBranchStore()||[];
                 h.push('<div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 14px;background:#fff3e0;border-radius:8px;border:1px solid #ffe0b2;"><span style="font-size:12px;color:#e65100;font-weight:600">分公司：</span>');
@@ -4353,11 +4353,11 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                         h.push('</select></div>');
                         // 有中支：显示配置引导
                         if(!s.instOrgName){
-                            h.push('<div class="cfg-special-note" style="margin-top:8px;padding:8px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">&#128196; 选择所属机构后，可按金额区间（5000元以下 / 5000~50万 / 50万+）分别配置</div>');
+                            h.push('<div class="cfg-special-note" style="margin-top:8px;padding:8px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">📄 选择所属机构后，可按金额区间（5000元以下 / 5000~50万 / 50万+）分别配置</div>');
                         }
                     } else {
                         // 无中支：显示提示，并自动将 instOrgName 设为 '-' 以允许配置
-                        h.push('<div style="padding:8px 14px;color:#e65100;font-size:12px;margin-top:8px">&#9888; 该分公司无所属机构，可直接按金额区间配置审批节点</div>');
+                        h.push('<div style="padding:8px 14px;color:#e65100;font-size:12px;margin-top:8px">⚠ 该分公司无所属机构，可直接按金额区间配置审批节点</div>');
                         // 自动设置 instOrgName 为 '-'（表示无中支，直接配置）
                         if(s.instOrgName!=='-'){ s.instOrgName='-'; try{localStorage.setItem('approvalFlowConfig',JSON.stringify(APPROVAL_FLOW_CONFIG));}catch(e){}; }
                     }
@@ -4384,7 +4384,7 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 ];
                 var hintIdx = (s.tierIdx>=0&&s.tierIdx<3)?s.tierIdx:0;
                 if(s.instOrgName || s.branchName){
-                    h.push('<div style="margin-top:6px;padding:6px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">&#128196; ' + tierHints[hintIdx] + '</div>');
+                    h.push('<div style="margin-top:6px;padding:6px 12px;background:#fff8e1;border-radius:6px;font-size:11px;color:#f57c00">📄 ' + tierHints[hintIdx] + '</div>');
                 }
             }
 
@@ -4419,14 +4419,14 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                     // 50万+：个险=分公司+总公司，银保/团险=分公司
                     copyLabel = isGeXianLabel ? '分公司节点+总公司节点' : '分公司节点';
                 }
-                h.push('<button class="btn btn-secondary btn-sm" onclick="_onCopyNodesToTier()" style="margin-left:8px;">&#128260; 复制审批节点（' + copyLabel + '）</button>');
+                h.push('<button class="btn btn-secondary btn-sm" onclick="_onCopyNodesToTier()" style="margin-left:8px;">🔄 复制审批节点（' + copyLabel + '）</button>');
             }
             h.push('</div>');
 
             // 特殊提示
             if(s.configScope==='hq'){
-                if(s.channel==='银保'||s.channel==='团险') h.push('<div style="margin-bottom:10px;padding:8px 12px;background:#e3f2fd;border-radius:6px;font-size:12px;color:#1565c0">&#10067; ' + s.channel + ' 不需要总公司审批，模板默认为空</div>');
-                if(s.channel==='在线') h.push('<div style="margin-bottom:10px;padding:8px 12px;background:#fce4ec;border-radius:6px;font-size:12px;color:#c62828">&#10067; 在线:5万以下单人审批，5万+双人审批</div>');
+                if(s.channel==='银保'||s.channel==='团险') h.push('<div style="margin-bottom:10px;padding:8px 12px;background:#e3f2fd;border-radius:6px;font-size:12px;color:#1565c0">❓ ' + s.channel + ' 不需要总公司审批，模板默认为空</div>');
+                if(s.channel==='在线') h.push('<div style="margin-bottom:10px;padding:8px 12px;background:#fce4ec;border-radius:6px;font-size:12px;color:#c62828">❓ 在线:5万以下单人审批，5万+双人审批</div>');
             }
 
             // 节点列表
@@ -7329,7 +7329,7 @@ function switchAdminTab(tab) {
         }
 
         function adminViewLocalData() {
-            document.getElementById('localDataModalTitle').innerHTML = '&#128065; &#26412;&#22320;&#25968;&#25496;&#26126;&#32454;';
+            document.getElementById('localDataModalTitle').innerHTML = '👁 本地数掘明细';
             var rawPolicies = localStorage.getItem(POLICY_STORAGE_KEY);
             var rawRefunds = localStorage.getItem(STORAGE_KEY);
             var rawPayments = localStorage.getItem(POLICY_PAYMENT_KEY);
@@ -7358,7 +7358,7 @@ function switchAdminTab(tab) {
             lines.push('========== 退费记录 ==========');
             if (rawRefunds) {
                 var refs = JSON.parse(rawRefunds);
-                lines.push('数据来源: localStorage (' + STORAGE_KEY + ')  <a href="#" onclick="jumpToRefundJSONView();return false;" style="color:#1a73e8;text-decoration:underline;font-weight:600;">&#128196; &#26597;&#30475;JSON&#35270;&#22270; &#8599;</a>');
+                lines.push('数据来源: localStorage (' + STORAGE_KEY + ')  <a href="#" onclick="jumpToRefundJSONView();return false;" style="color:#1a73e8;text-decoration:underline;font-weight:600;">📄 查看JSON视图 ↗</a>');
                 if (Array.isArray(refs) && refs.length > 0) {
                     lines.push('退费记录数: ' + refs.length);
                     lines.push('流水号,保单号,投保人,退费金额,状态,申请日期');
@@ -7625,7 +7625,7 @@ function switchAdminTab(tab) {
             if (rawApproval) {
                 try {
                     var acg = JSON.parse(rawApproval);
-                    lines.push('\u6570\u636e\u6765\u6e90: localStorage (approvalFlowConfig)  <a href="#" onclick="jumpToApprovalChainJSONView();return false;" style="color:#1a73e8;text-decoration:underline;font-weight:600;">&#128196; &#26597;&#30475;JSON&#35270;&#22270; &#8599;</a>');
+                    lines.push('\u6570\u636e\u6765\u6e90: localStorage (approvalFlowConfig)  <a href="#" onclick="jumpToApprovalChainJSONView();return false;" style="color:#1a73e8;text-decoration:underline;font-weight:600;">📄 查看JSON视图 ↗</a>');
                     // 新格式：统计 hqTemplate/branchTemplates/instTemplates
                     var hqCount = 0, branchCount = 0, instCount = 0;
                     if (acg.hqTemplate) {
@@ -8718,7 +8718,7 @@ function switchAdminTab(tab) {
                 return '<tr style="background:' + (idx % 2 === 0 ? 'white' : 'var(--gray-100)') + '">' +
                     '<td style="color:var(--gray-600);">' + (idx + 1) + '</td>' +
                     '<td><input type="text" class="form-control" value="' + name + '" onchange="adminUpdateBranch(' + idx + ', this.value)" style="font-size:11px;padding:4px 8px;width:280px;"></td>' +
-                    '<td><button class="btn btn-sm btn-danger" onclick="adminDeleteBranch(' + idx + ')">&#128465;&#65039;</button></td>' +
+                    '<td><button class="btn btn-sm btn-danger" onclick="adminDeleteBranch(' + idx + ')">🗑️</button></td>' +
                     '</tr>';
             }).join('');
         }
@@ -8794,7 +8794,7 @@ function switchAdminTab(tab) {
                     '<td style="color:var(--gray-600);">' + (idx + 1) + '</td>' +
                     '<td><input type="text" class="form-control" list="branchInstDatalist" value="' + item.branch + '" onchange="adminUpdateBranchInst(' + idx + ', \'branch\', this.value)" style="font-size:11px;padding:4px 8px;width:180px;" placeholder="搜索或输入分公司..."></td>' +
                     '<td><input type="text" class="form-control" value="' + item.institution + '" onchange="adminUpdateBranchInst(' + idx + ', \'institution\', this.value)" style="font-size:11px;padding:4px 8px;width:180px;" placeholder="如 &quot;-&quot; 或 &quot;南京中支&quot;"></td>' +
-                    '<td><button class="btn btn-sm btn-danger" onclick="adminDeleteBranchInst(' + idx + ')">&#128465;&#65039;</button></td>' +
+                    '<td><button class="btn btn-sm btn-danger" onclick="adminDeleteBranchInst(' + idx + ')">🗑️</button></td>' +
                     '</tr>';
             }).join('');
         }
@@ -9110,7 +9110,7 @@ function switchAdminTab(tab) {
                     '<td style="font-size:11px;padding:4px 6px;color:var(--gray-600);">' + userUsername + '</td>' +
                     '<td><input type="text" class="form-control" value="' + rid + '" onchange="adminUpdateUserRoleField(' + idx + ', \'\u89d2\u8272ID\', this.value)" style="font-size:11px;padding:4px 6px;width:100px;"></td>' +
                     '<td style="font-size:11px;padding:4px 6px;color:var(--gray-600);">' + roleName + '</td>' +
-                    '<td><button class="btn btn-sm btn-danger" onclick="adminDeleteUserRole(' + idx + ')">&#128465;</button></td>' +
+                    '<td><button class="btn btn-sm btn-danger" onclick="adminDeleteUserRole(' + idx + ')">🗑</button></td>' +
                     '</tr>';
             }).join('');
         }
@@ -10021,15 +10021,15 @@ function switchAdminTab(tab) {
             <p id="resultMsg" style="text-align:center;color:#666;margin-bottom:16px;font-size:14px;"></p>
             <div id="resultDetail" style="background:#f8f9fa;border-radius:8px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;"></div>
             <div id="resultActions" style="text-align:center;">
-                <button class="btn btn-primary" onclick="closeResultModal()" style="min-width:120px;">&#30830;&#35748;</button>
+                <button class="btn btn-primary" onclick="closeResultModal()" style="min-width:120px;">确认</button>
             </div>
         </div>
     </div>
     <div id="localDataModalOverlay" class="local-data-modal-overlay" onclick="if(event.target===this)closeLocalDataModal()">
         <div class="local-data-modal-box">
             <div class="local-data-modal-header">
-                <span id="localDataModalTitle">&#128065; &#26412;&#22320;&#25968;&#25454;&#26126;&#32454;</span>
-                <button onclick="closeLocalDataModal()">&#20851;&#38381; &#10005;</button>
+                <span id="localDataModalTitle">👁 本地数据明细</span>
+                <button onclick="closeLocalDataModal()">关闭 ✕</button>
             </div>
             <div id="localDataModalBody" class="local-data-modal-body"></div>
         </div>
