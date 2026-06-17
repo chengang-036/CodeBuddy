@@ -4382,9 +4382,9 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
                 h.push('</div>');
                 // 显示当前区间的来源提示
                 var tierHints = [
-                    '5000元以下：独立配置（可直接编辑，或点击「复制审批节点」从分公司复制）',
-                    '5000~50万：可点击「复制审批节点」从分公司模板复制并编辑',
-                    '50万+：可点击「复制审批节点」从分公司+总公司复制并编辑'
+                    '5000元以下：独立配置（无中支时可从分公司复制）',
+                    '5000~50万：可点击「复制审批节点」从中支公司+分公司复制并编辑',
+                    '50万+：可点击「复制审批节点」从中支公司+分公司+总公司复制并编辑'
                 ];
                 var hintIdx = (s.tierIdx>=0&&s.tierIdx<3)?s.tierIdx:0;
                 if(s.instOrgName || s.branchName){
@@ -4409,19 +4409,26 @@ let currentUserRole = '';    // 当前操作角色名称（从loginState同步�
             h.push('</div>');
             if(s.configScope==='hq') h.push('<button class="btn btn-secondary btn-sm" onclick="_exportHqJson()">导出JSON</button>');
             // 机构模板模式 + 已选分公司和所属机构：显示"复制审批节点"按钮（在线渠道不显示）
-            if(s.configScope==='inst' && s.branchName && s.instOrgName && s.tierIdx>=0 && s.channel!=='在线'){
-                var noMid = (!s.instOrgName || s.instOrgName==='-'); // 无中支
-                var isGeXianLabel = (s.channel==='个险'||s.channel.indexOf('个险')===0);
+            var noMid = (!s.instOrgName || s.instOrgName==='-'); // 无中支
+            var isGeXianLabel = (s.channel==='个险'||s.channel.indexOf('个险')===0);
+            // 5000元以下 + 有中支 → 不显示（独立配置）
+            var showCopyBtn = (s.configScope==='inst' && s.branchName && s.instOrgName && s.tierIdx>=0 && s.channel!=='在线');
+            if (showCopyBtn && s.tierIdx===0 && !noMid) showCopyBtn = false;
+            if(showCopyBtn){
                 var copyLabel = '';
-                if(s.tierIdx===0){
-                    // 5000元以下：从分公司模板复制
+                if(s.tierIdx===0 && noMid){
+                    // 无中支，5000元以下：从分公司模板复制
                     copyLabel = '分公司节点';
                 } else if(s.tierIdx===1){
-                    // 5000~50万：从分公司模板复制
-                    copyLabel = '分公司节点';
+                    // 5000~50万
+                    copyLabel = noMid ? '分公司节点' : '中支公司节点+分公司节点';
                 } else if(s.tierIdx===2){
-                    // 50万+：个险=分公司+总公司，银保/团险=分公司
-                    copyLabel = isGeXianLabel ? '分公司节点+总公司节点' : '分公司节点';
+                    // 50万+
+                    if(isGeXianLabel){
+                        copyLabel = noMid ? '分公司节点+总公司节点' : '中支公司节点+分公司节点+总公司节点';
+                    } else {
+                        copyLabel = noMid ? '分公司节点' : '中支公司节点+分公司节点';
+                    }
                 }
                 h.push('<button class="btn btn-secondary btn-sm" onclick="_onCopyNodesToTier()" style="margin-left:8px;">🔄 复制审批节点（' + copyLabel + '）</button>');
             }
@@ -9997,12 +10004,17 @@ function switchAdminTab(tab) {
             var instTpl=cfg.instTemplates&&cfg.instTemplates[ik];
             if(!instTpl||!instTpl.tiers){showToast('机构模板不存在','error');return;}
             var noMid = (!s.instOrgName || s.instOrgName==='-'); // 无中支
-            // 来源：分公司模板节点
+            // 来源1：中支公司节点（当前机构模板tier0已配置的节点）
+            var instNodes = [];
+            if (!noMid && instTpl.tiers[0] && instTpl.tiers[0].nodes) {
+                instNodes = JSON.parse(JSON.stringify(instTpl.tiers[0].nodes));
+            }
+            // 来源2：分公司模板节点
             var bk=s.channel+'_'+s.branchName, branchNodes=[];
             if(cfg.branchTemplates&&cfg.branchTemplates[bk]&&cfg.branchTemplates[bk].tiers&&cfg.branchTemplates[bk].tiers[0].nodes){
                 branchNodes = JSON.parse(JSON.stringify(cfg.branchTemplates[bk].tiers[0].nodes));
             }
-            // 来源：总公司模板节点
+            // 来源3：总公司模板节点
             var hk=s.channel, hqNodes=[];
             if(cfg.hqTemplate&&cfg.hqTemplate[hk]&&cfg.hqTemplate[hk].nodes){
                 hqNodes = JSON.parse(JSON.stringify(cfg.hqTemplate[hk].nodes));
@@ -10010,25 +10022,34 @@ function switchAdminTab(tab) {
             // 去重函数
             function dedupe(arr){var seen={}; return arr.filter(function(n){ if(seen[n.name])return false; seen[n.name]=true; return true; });}
             var isGeXian = (s.channel==='个险'||s.channel.indexOf('个险')===0);
-            if(s.tierIdx===0){
-                // 5000元以下：复制分公司模板节点
+            if(s.tierIdx===0 && noMid){
+                // 无中支，5000元以下：复制分公司模板节点
                 instTpl.tiers[0].nodes = dedupe(branchNodes);
                 _saveAndRender();
                 showToast('已复制分公司节点(' + branchNodes.length + '个) 到5000元以下区间','success');
             } else if(s.tierIdx===1){
-                // 5000~50万：复制分公司模板节点
-                instTpl.tiers[1].nodes = dedupe(branchNodes);
+                // 5000~50万
+                var _merged1 = noMid ? dedupe(branchNodes) : dedupe(instNodes.concat(branchNodes));
+                instTpl.tiers[1].nodes = _merged1;
                 _saveAndRender();
-                showToast('已复制分公司节点(' + branchNodes.length + '个) 到5000~50万区间','success');
+                var _label1 = noMid ? '分公司节点' : '中支公司节点+分公司节点';
+                showToast('已复制' + _label1 + '(' + _merged1.length + '个) 到5000~50万区间','success');
             } else if(s.tierIdx===2){
-                // 50万+：个险=分公司+总公司，银保/团险=分公司
-                var merged = isGeXian ? dedupe(branchNodes.concat(hqNodes)) : dedupe(branchNodes);
-                instTpl.tiers[2].nodes = merged;
-                _saveAndRender();
+                // 50万+
                 if(isGeXian){
-                    showToast('已复制：分公司(' + branchNodes.length + '个) + 总公司(' + hqNodes.length + '个) → 50万+区间','success');
+                    // 个险：中支+分公司+总公司（有中支）；分公司+总公司（无中支）
+                    var _merged2 = noMid ? dedupe(branchNodes.concat(hqNodes)) : dedupe(instNodes.concat(branchNodes).concat(hqNodes));
+                    instTpl.tiers[2].nodes = _merged2;
+                    _saveAndRender();
+                    var _label2 = noMid ? '分公司节点+总公司节点' : '中支公司节点+分公司节点+总公司节点';
+                    showToast('已复制' + _label2 + '(' + _merged2.length + '个) 到50万+区间','success');
                 } else {
-                    showToast('已复制分公司节点(' + branchNodes.length + '个) 到50万+区间','success');
+                    // 银保/团险：中支+分公司（有中支）；分公司（无中支）
+                    var _merged3 = noMid ? dedupe(branchNodes) : dedupe(instNodes.concat(branchNodes));
+                    instTpl.tiers[2].nodes = _merged3;
+                    _saveAndRender();
+                    var _label3 = noMid ? '分公司节点' : '中支公司节点+分公司节点';
+                    showToast('已复制' + _label3 + '(' + _merged3.length + '个) 到50万+区间','success');
                 }
             }
         }
