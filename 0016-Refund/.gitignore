@@ -9,8 +9,8 @@ backups/
 *_backup_*
 *_pre_*
 
-# CSV exports (sensitive data)
-csv_export/
+# CSV exports (sensitive data) - 已移除忽略规则，允许提交
+# csv_export/
 
 # General
 *.zip

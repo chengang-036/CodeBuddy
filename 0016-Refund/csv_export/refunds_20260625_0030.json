@@ -1,0 +1,358 @@
+[
+  {
+    "id": "REFUND-20260624-0001",
+    "policyNo": "PB20200101003",
+    "holderName": "赵伟",
+    "holderId": "320101199203033456",
+    "phone": "13712345678",
+    "acceptChannel": "95500电话",
+    "acceptor": "张晓燕",
+    "branch": "浙江分公司",
+    "subBranch": "杭州中支",
+    "salesChannel": "个险渠道",
+    "subChannel": "PAA",
+    "bankName": "中国农业银行",
+    "bankAccount": "622201***********9012",
+    "amount": 12800,
+    "acceptTime": "2026/6/24 16:31:07",
+    "refundPeriods": "3",
+    "refundReason": "测试页面，需要退费解决生活问题",
+    "isAutoApproval": false,
+    "isOriginalCard": false,
+    "notifyMethod": "wechat",
+    "payments": [
+      {
+        "period": "3",
+        "amount": 12800,
+        "shouldPayDate": "2026-06-01",
+        "actualPayDate": "2026-06-03",
+        "source": "授权账户",
+        "selected": true
+      }
+    ],
+    "p17RecordFlow": "P17-REC-MQRTBZ9A",
+    "p17BizFlow": "P17-BIZ-MQRTBZ9A",
+    "logs": [
+      {
+        "time": "2026/6/24 16:31:07",
+        "action": "生成续期退费受理业务流水号",
+        "operator": "系统",
+        "detail": "流水号：REFUND-20260624-0001"
+      },
+      {
+        "time": "2026/6/24 16:31:07",
+        "action": "P17关联",
+        "operator": "系统",
+        "detail": "P17录音流水号：P17-REC-MQRTBZ9A，P17业务流水号：P17-BIZ-MQRTBZ9A"
+      },
+      {
+        "time": "2026/6/24 16:31:07",
+        "action": "提交审批",
+        "operator": "系统",
+        "detail": "需人工审批 — 垫缴退费业务 | 渠道: 个险 | 5000~50万(机构审批流)"
+      },
+      {
+        "time": "2026/6/24 16:31:07",
+        "action": "发送微信通知",
+        "operator": "系统",
+        "detail": "给客户发送远程进度查询短链接（链接72小时有效）；超过1万元需补充材料"
+      },
+      {
+        "time": "2026/6/24 16:31:07",
+        "action": "向审批节点发通知",
+        "operator": "系统",
+        "detail": "太好钉待办已推送至中支公司业务部门内勤"
+      },
+      {
+        "time": "2026-06-24 16:33:38",
+        "action": "审批同意",
+        "operator": "赵坚",
+        "detail": "同意 → 流转至下一节点: 中支公司业务部门负责人"
+      },
+      {
+        "time": "2026-06-24 16:34:32",
+        "action": "审批同意",
+        "operator": "刘杰",
+        "detail": "同意 → 流转至下一节点: 中支公司业务部门分管领导"
+      },
+      {
+        "time": "2026-06-24 16:34:56",
+        "action": "审批同意",
+        "operator": "桑立",
+        "detail": "同意 → 流转至下一节点: 中支公司财务部门负责人"
+      },
+      {
+        "time": "2026-06-24 16:35:14",
+        "action": "审批同意",
+        "operator": "寿小龙",
+        "detail": "同意 → 流转至下一节点: 中支公司财务部门分管领导"
+      },
+      {
+        "time": "2026-06-24 16:35:38",
+        "action": "审批同意",
+        "operator": "叶江",
+        "detail": "同意 → 流转至下一节点: 分公司业务部门室经理"
+      },
+      {
+        "time": "2026-06-24 16:47:39",
+        "action": "审批同意",
+        "operator": "许立",
+        "detail": "同意 → 流转至下一节点: 分公司业务部门负责人"
+      },
+      {
+        "time": "2026-06-24 16:48:05",
+        "action": "审批同意",
+        "operator": "程珊",
+        "detail": "同意 → 流转至下一节点: 分公司财务部门室经理"
+      },
+      {
+        "time": "2026-06-24 16:48:35",
+        "action": "审批同意",
+        "operator": "陆超",
+        "detail": "同意 → 流转至下一节点: 分公司财务部门负责人"
+      },
+      {
+        "time": "2026-06-24 16:48:55",
+        "action": "审批完成",
+        "operator": "黄哲峰",
+        "detail": "同意"
+      },
+      {
+        "time": "2026-06-24 16:48:55",
+        "action": "发送材料补充链接",
+        "operator": "系统",
+        "detail": "「垫缴退费业务」审批完成，请客户远程补充材料（链接24小时有效）"
+      },
+      {
+        "time": "2026-06-24 16:48:55",
+        "action": "通知客户",
+        "operator": "系统",
+        "detail": "短信/微信通知客户上传身份证、银行卡影像"
+      },
+      {
+        "time": "2026-06-24 16:50:17",
+        "action": "客户提交材料",
+        "operator": "客户（移动端）",
+        "detail": "身份证、银行卡影像已上传"
+      },
+      {
+        "time": "2026-06-24 16:50:17",
+        "action": "通知内勤确认",
+        "operator": "系统",
+        "detail": "已通知机构内勤确认上传材料"
+      },
+      {
+        "time": "2026-06-24 16:52:34",
+        "action": "材料确认完成",
+        "operator": "内勤-操作员",
+        "detail": "确认客户上传材料无误"
+      },
+      {
+        "time": "2026-06-24 16:52:34",
+        "action": "提交核心退费",
+        "operator": "系统",
+        "detail": "进入退费流程"
+      }
+    ],
+    "status": 8,
+    "statusName": "进入退费流程",
+    "approvalChannel": "个险",
+    "approvalTier": "5000~50万",
+    "approvalLevel": "机构审批流",
+    "approvalNodes": [
+      {
+        "name": "中支公司业务部门内勤",
+        "role": "中支公司业务部门内勤",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "赵坚",
+        "time": "2026-06-24 16:33",
+        "isFirstNode": true,
+        "showCommissionRebate": true,
+        "showRejectBack": true,
+        "isFinancial": false,
+        "selectedUsers": [
+          {
+            "userID": "U33",
+            "username": "赵坚",
+            "userDisplayName": "赵坚"
+          },
+          {
+            "userID": "U34",
+            "username": "张卫红",
+            "userDisplayName": "张卫红"
+          },
+          {
+            "userID": "U35",
+            "username": "潘一芳",
+            "userDisplayName": "潘一芳"
+          }
+        ],
+        "operatorID": "U33"
+      },
+      {
+        "name": "中支公司业务部门负责人",
+        "role": "中支公司业务部门负责人",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "刘杰",
+        "time": "2026-06-24 16:34",
+        "isFirstNode": false,
+        "showCommissionRebate": false,
+        "showRejectBack": true,
+        "isFinancial": false,
+        "selectedUsers": [
+          {
+            "userID": "U36",
+            "username": "刘杰",
+            "userDisplayName": "刘杰"
+          }
+        ],
+        "operatorID": "U36"
+      },
+      {
+        "name": "中支公司业务部门分管领导",
+        "role": "中支公司业务部门分管领导",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "桑立",
+        "time": "2026-06-24 16:34",
+        "isFirstNode": false,
+        "showCommissionRebate": false,
+        "showRejectBack": true,
+        "isFinancial": false,
+        "selectedUsers": [
+          {
+            "userID": "U37",
+            "username": "桑立",
+            "userDisplayName": "桑立"
+          }
+        ],
+        "operatorID": "U37"
+      },
+      {
+        "name": "中支公司财务部门负责人",
+        "role": "中支公司财务部门负责人",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "寿小龙",
+        "time": "2026-06-24 16:35",
+        "isFirstNode": false,
+        "showCommissionRebate": false,
+        "showRejectBack": true,
+        "isFinancial": true,
+        "selectedUsers": [
+          {
+            "userID": "U38",
+            "username": "寿小龙",
+            "userDisplayName": "寿小龙"
+          }
+        ],
+        "operatorID": "U38"
+      },
+      {
+        "name": "中支公司财务部门分管领导",
+        "role": "中支公司财务部门分管领导",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "叶江",
+        "time": "2026-06-24 16:35",
+        "isFirstNode": false,
+        "showCommissionRebate": false,
+        "showRejectBack": true,
+        "isFinancial": true,
+        "selectedUsers": [
+          {
+            "userID": "U39",
+            "username": "叶江",
+            "userDisplayName": "叶江"
+          }
+        ],
+        "operatorID": "U39"
+      },
+      {
+        "name": "分公司业务部门室经理",
+        "role": "分公司业务部门室经理",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "许立",
+        "time": "2026-06-24 16:47",
+        "isFirstNode": false,
+        "showCommissionRebate": false,
+        "showRejectBack": true,
+        "isFinancial": false,
+        "selectedUsers": [
+          {
+            "userID": "U29",
+            "username": "许立",
+            "userDisplayName": "许立"
+          }
+        ],
+        "operatorID": "U29"
+      },
+      {
+        "name": "分公司业务部门负责人",
+        "role": "分公司业务部门负责人",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "程珊",
+        "time": "2026-06-24 16:48",
+        "isFirstNode": false,
+        "showCommissionRebate": false,
+        "showRejectBack": true,
+        "isFinancial": false,
+        "selectedUsers": [
+          {
+            "userID": "U30",
+            "username": "程珊",
+            "userDisplayName": "程珊"
+          }
+        ],
+        "operatorID": "U30"
+      },
+      {
+        "name": "分公司财务部门室经理",
+        "role": "分公司财务部门室经理",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "陆超",
+        "time": "2026-06-24 16:48",
+        "isFirstNode": false,
+        "showCommissionRebate": false,
+        "showRejectBack": true,
+        "isFinancial": true,
+        "selectedUsers": [
+          {
+            "userID": "U31",
+            "username": "陆超",
+            "userDisplayName": "陆超"
+          }
+        ],
+        "operatorID": "U31"
+      },
+      {
+        "name": "分公司财务部门负责人",
+        "role": "分公司财务部门负责人",
+        "level": "机构审批流",
+        "status": "completed",
+        "operator": "黄哲峰",
+        "time": "2026-06-24 16:48",
+        "isFirstNode": false,
+        "showCommissionRebate": false,
+        "showRejectBack": true,
+        "isFinancial": true,
+        "selectedUsers": [
+          {
+            "userID": "U32",
+            "username": "黄哲峰",
+            "userDisplayName": "黄哲峰"
+          }
+        ],
+        "operatorID": "U32"
+      }
+    ],
+    "approvalBlockReasons": [
+      "垫缴退费业务"
+    ]
+  }
+]

@@ -1,0 +1,2250 @@
+{
+  "version": "2.0.0",
+  "hqTemplate": {
+    "个险PAA": {
+      "nodes": [
+        {
+          "name": "总公司业务部门室经理",
+          "selectedUsers": [
+            {
+              "userID": "U12",
+              "username": "wenghentao",
+              "userDisplayName": "瓮恒涛"
+            }
+          ]
+        },
+        {
+          "name": "总公司业务部门负责人",
+          "selectedUsers": [
+            {
+              "userID": "U13",
+              "username": "huanglinyun",
+              "userDisplayName": "黄凌云"
+            }
+          ]
+        },
+        {
+          "name": "总公司财务部门室经理",
+          "selectedUsers": [
+            {
+              "userID": "U19",
+              "username": "fanli",
+              "userDisplayName": "樊莉"
+            }
+          ]
+        },
+        {
+          "name": "总公司财务部门负责人",
+          "selectedUsers": [
+            {
+              "userID": "U20",
+              "username": "huletian",
+              "userDisplayName": "胡乐天"
+            }
+          ]
+        }
+      ]
+    },
+    "个险PSA": {
+      "nodes": [
+        {
+          "name": "总公司业务部门室经理",
+          "selectedUsers": [
+            {
+              "userID": "U12",
+              "username": "wenghentao",
+              "userDisplayName": "瓮恒涛"
+            }
+          ]
+        },
+        {
+          "name": "总公司业务部门负责人",
+          "selectedUsers": [
+            {
+              "userID": "U13",
+              "username": "huanglinyun",
+              "userDisplayName": "黄凌云"
+            }
+          ]
+        },
+        {
+          "name": "总公司财务部门室经理",
+          "selectedUsers": [
+            {
+              "userID": "U19",
+              "username": "fanli",
+              "userDisplayName": "樊莉"
+            }
+          ]
+        },
+        {
+          "name": "总公司财务部门负责人",
+          "selectedUsers": [
+            {
+              "userID": "U20",
+              "username": "huletian",
+              "userDisplayName": "胡乐天"
+            }
+          ]
+        }
+      ]
+    },
+    "银保": {
+      "nodes": []
+    },
+    "团险": {
+      "nodes": []
+    },
+    "在线": {
+      "tiers": [
+        {
+          "label": "5万以下",
+          "nodes": [
+            {
+              "name": "5万元以下单人审批",
+              "selectedUsers": [
+                {
+                  "userID": "U17",
+                  "username": "lizhuoyou",
+                  "userDisplayName": "李卓莜"
+                },
+                {
+                  "userID": "U18",
+                  "username": "guowei",
+                  "userDisplayName": "郭伟"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "5万及以上",
+          "nodes": [
+            {
+              "name": "5万元以上双人审批（初审）",
+              "selectedUsers": [
+                {
+                  "userID": "U18",
+                  "username": "guowei",
+                  "userDisplayName": "郭伟"
+                },
+                {
+                  "userID": "U17",
+                  "username": "lizhuoyou",
+                  "userDisplayName": "李卓莜"
+                }
+              ]
+            },
+            {
+              "name": "5万元以上双人审批（复审）",
+              "selectedUsers": [
+                {
+                  "userID": "U16",
+                  "username": "dinghongzhi",
+                  "userDisplayName": "丁洪智"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "branchTemplates": {
+    "个险PAA_浙江分公司": {
+      "tiers": [
+        {
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U28",
+                  "username": "chensiye",
+                  "userDisplayName": "陈思冶"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": null
+        }
+      ]
+    },
+    "个险PAA_上海分公司": {
+      "tiers": [
+        {
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                },
+                {
+                  "userID": "U22",
+                  "username": "zhangru",
+                  "userDisplayName": "张汝"
+                },
+                {
+                  "userID": "U23",
+                  "username": "huanglu",
+                  "userDisplayName": "黄露"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": null
+        }
+      ]
+    },
+    "个险PSA_上海分公司": {
+      "tiers": [
+        {
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": null
+        }
+      ]
+    },
+    "银保_上海分公司": {
+      "tiers": [
+        {
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": null
+        }
+      ]
+    },
+    "个险PSA_浙江分公司": {
+      "tiers": [
+        {
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U28",
+                  "username": "chensiye",
+                  "userDisplayName": "陈思冶"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": null
+        }
+      ]
+    },
+    "个险PSA_江苏分公司": {
+      "tiers": [
+        {
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": []
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": []
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": []
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": []
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": []
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": null
+        }
+      ]
+    },
+    "银保_浙江分公司": {
+      "tiers": [
+        {
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U28",
+                  "username": "chensiye",
+                  "userDisplayName": "陈思冶"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": null
+        }
+      ]
+    },
+    "团险_浙江分公司": {
+      "tiers": [
+        {
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U28",
+                  "username": "chensiye",
+                  "userDisplayName": "陈思冶"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": null
+        }
+      ]
+    },
+    "团险_上海分公司": {
+      "tiers": [
+        {
+          "minAmount": 0,
+          "maxAmount": null,
+          "label": "分公司层",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "instTemplates": {
+    "个险PAA_浙江分公司_杭州中支": {
+      "tiers": [
+        {
+          "label": "5000元以下",
+          "level": "中支",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U33",
+                  "username": "zhaojian",
+                  "userDisplayName": "赵坚"
+                },
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                },
+                {
+                  "userID": "U35",
+                  "username": "panyifang",
+                  "userDisplayName": "潘一芳"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": 5000
+        },
+        {
+          "label": "5000~50万",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U33",
+                  "username": "zhaojian",
+                  "userDisplayName": "赵坚"
+                },
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                },
+                {
+                  "userID": "U35",
+                  "username": "panyifang",
+                  "userDisplayName": "潘一芳"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ],
+          "minAmount": 5000,
+          "maxAmount": 500000
+        },
+        {
+          "label": "50万+",
+          "level": "总公司",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U33",
+                  "username": "zhaojian",
+                  "userDisplayName": "赵坚"
+                },
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                },
+                {
+                  "userID": "U35",
+                  "username": "panyifang",
+                  "userDisplayName": "潘一芳"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            },
+            {
+              "name": "总公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U12",
+                  "username": "wenghentao",
+                  "userDisplayName": "瓮恒涛"
+                }
+              ]
+            },
+            {
+              "name": "总公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U13",
+                  "username": "huanglinyun",
+                  "userDisplayName": "黄凌云"
+                }
+              ]
+            },
+            {
+              "name": "总公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U19",
+                  "username": "fanli",
+                  "userDisplayName": "樊莉"
+                }
+              ]
+            },
+            {
+              "name": "总公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U20",
+                  "username": "huletian",
+                  "userDisplayName": "胡乐天"
+                }
+              ]
+            }
+          ],
+          "minAmount": 500000,
+          "maxAmount": null
+        }
+      ]
+    },
+    "个险PAA_浙江分公司_-": {
+      "tiers": [
+        {
+          "label": "5000元以下",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": []
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": []
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": []
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": []
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": []
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": 5000
+        },
+        {
+          "label": "5000~50万",
+          "level": "分公司",
+          "nodes": [],
+          "minAmount": 5000,
+          "maxAmount": 500000
+        },
+        {
+          "label": "50万+",
+          "level": "总公司",
+          "nodes": [],
+          "minAmount": 500000,
+          "maxAmount": null
+        }
+      ]
+    },
+    "个险PAA_上海分公司_-": {
+      "tiers": [
+        {
+          "label": "5000元以下",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                },
+                {
+                  "userID": "U22",
+                  "username": "zhangru",
+                  "userDisplayName": "张汝"
+                },
+                {
+                  "userID": "U23",
+                  "username": "huanglu",
+                  "userDisplayName": "黄露"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": 5000
+        },
+        {
+          "label": "5000~50万",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                },
+                {
+                  "userID": "U22",
+                  "username": "zhangru",
+                  "userDisplayName": "张汝"
+                },
+                {
+                  "userID": "U23",
+                  "username": "huanglu",
+                  "userDisplayName": "黄露"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ],
+          "minAmount": 5000,
+          "maxAmount": 500000
+        },
+        {
+          "label": "50万+",
+          "level": "总公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                },
+                {
+                  "userID": "U22",
+                  "username": "zhangru",
+                  "userDisplayName": "张汝"
+                },
+                {
+                  "userID": "U23",
+                  "username": "huanglu",
+                  "userDisplayName": "黄露"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            },
+            {
+              "name": "总公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U12",
+                  "username": "wenghentao",
+                  "userDisplayName": "瓮恒涛"
+                }
+              ]
+            },
+            {
+              "name": "总公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U13",
+                  "username": "huanglinyun",
+                  "userDisplayName": "黄凌云"
+                }
+              ]
+            },
+            {
+              "name": "总公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U19",
+                  "username": "fanli",
+                  "userDisplayName": "樊莉"
+                }
+              ]
+            },
+            {
+              "name": "总公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U20",
+                  "username": "huletian",
+                  "userDisplayName": "胡乐天"
+                }
+              ]
+            }
+          ],
+          "minAmount": 500000,
+          "maxAmount": null
+        }
+      ]
+    },
+    "银保_上海分公司_-": {
+      "tiers": [
+        {
+          "label": "5000元以下",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ],
+          "minAmount": 0,
+          "maxAmount": 5000
+        },
+        {
+          "label": "5000~50万",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ],
+          "minAmount": 5000,
+          "maxAmount": 500000
+        },
+        {
+          "label": "50万+",
+          "level": "总公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ],
+          "minAmount": 500000,
+          "maxAmount": null
+        }
+      ]
+    },
+    "团险_上海分公司_-": {
+      "tiers": [
+        {
+          "minAmount": 0,
+          "maxAmount": 5000,
+          "label": "5000元以下",
+          "level": "中支层",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "minAmount": 5000,
+          "maxAmount": 500000,
+          "label": "5000—50万以下",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "minAmount": 500000,
+          "maxAmount": null,
+          "label": "50万及以上",
+          "level": "总公司",
+          "nodes": [
+            {
+              "name": "分公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U21",
+                  "username": "qinying",
+                  "userDisplayName": "秦颖"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U24",
+                  "username": "zhouying",
+                  "userDisplayName": "周莺"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U25",
+                  "username": "liyumin",
+                  "userDisplayName": "李玉民"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U26",
+                  "username": "chenyue",
+                  "userDisplayName": "陈悦"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U27",
+                  "username": "yangyan",
+                  "userDisplayName": "杨滟"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "团险_浙江分公司_杭州中支": {
+      "tiers": [
+        {
+          "minAmount": 0,
+          "maxAmount": 5000,
+          "label": "5000元以下",
+          "level": "中支层",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "minAmount": 5000,
+          "maxAmount": 500000,
+          "label": "5000—50万以下",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "minAmount": 500000,
+          "maxAmount": null,
+          "label": "50万及以上",
+          "level": "总公司",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "银保_浙江分公司_杭州中支": {
+      "tiers": [
+        {
+          "minAmount": 0,
+          "maxAmount": 5000,
+          "label": "5000元以下",
+          "level": "中支层",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                },
+                {
+                  "userID": "U35",
+                  "username": "panyifang",
+                  "userDisplayName": "潘一芳"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "minAmount": 5000,
+          "maxAmount": 500000,
+          "label": "5000—50万以下",
+          "level": "分公司",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                },
+                {
+                  "userID": "U35",
+                  "username": "panyifang",
+                  "userDisplayName": "潘一芳"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "minAmount": 500000,
+          "maxAmount": null,
+          "label": "50万及以上",
+          "level": "总公司",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": [
+                {
+                  "userID": "U34",
+                  "username": "zhangweihong",
+                  "userDisplayName": "张卫红"
+                },
+                {
+                  "userID": "U35",
+                  "username": "panyifang",
+                  "userDisplayName": "潘一芳"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U36",
+                  "username": "liujie",
+                  "userDisplayName": "刘杰"
+                }
+              ]
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U37",
+                  "username": "sangli",
+                  "userDisplayName": "桑立"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U38",
+                  "username": "shouxiaolong",
+                  "userDisplayName": "寿小龙"
+                }
+              ]
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": [
+                {
+                  "userID": "U39",
+                  "username": "yejiang",
+                  "userDisplayName": "叶江"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U29",
+                  "username": "xuli",
+                  "userDisplayName": "许立"
+                }
+              ]
+            },
+            {
+              "name": "分公司业务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U30",
+                  "username": "chengshan",
+                  "userDisplayName": "程珊"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门室经理",
+              "selectedUsers": [
+                {
+                  "userID": "U31",
+                  "username": "luchao",
+                  "userDisplayName": "陆超"
+                }
+              ]
+            },
+            {
+              "name": "分公司财务部门负责人",
+              "selectedUsers": [
+                {
+                  "userID": "U32",
+                  "username": "huangzhefeng",
+                  "userDisplayName": "黄哲峰"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "团险_湖北分公司_武汉中支": {
+      "tiers": [
+        {
+          "minAmount": 0,
+          "maxAmount": 5000,
+          "label": "5000元以下",
+          "level": "中支层",
+          "nodes": [
+            {
+              "name": "中支公司业务部门内勤",
+              "selectedUsers": []
+            },
+            {
+              "name": "中支公司业务部门负责人",
+              "selectedUsers": []
+            },
+            {
+              "name": "中支公司业务部门分管领导",
+              "selectedUsers": []
+            },
+            {
+              "name": "中支公司财务部门负责人",
+              "selectedUsers": []
+            },
+            {
+              "name": "中支公司财务部门分管领导",
+              "selectedUsers": []
+            }
+          ]
+        },
+        {
+          "minAmount": 5000,
+          "maxAmount": 500000,
+          "label": "5000—50万以下",
+          "level": "分公司",
+          "nodes": []
+        },
+        {
+          "minAmount": 500000,
+          "maxAmount": null,
+          "label": "50万及以上",
+          "level": "总公司",
+          "nodes": []
+        }
+      ]
+    }
+  }
+}
