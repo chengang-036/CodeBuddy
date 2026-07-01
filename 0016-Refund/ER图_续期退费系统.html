@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>续期退费系统 - ER图</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .diagram-container {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            overflow: auto;
+        }
+        .mermaid {
+            text-align: center;
+            min-width: 1200px;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #1f77b4;
+        }
+        .legend h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .legend-item {
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        .legend-item h4 {
+            font-size: 14px;
+            color: #1f77b4;
+            margin-bottom: 8px;
+        }
+        .legend-item ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .legend-item li {
+            font-size: 13px;
+            color: #555;
+            padding: 3px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .legend-item li:last-child {
+            border-bottom: none;
+        }
+        .relationship-codes {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 6px;
+            border: 1px solid #ffc107;
+        }
+        .relationship-codes h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .relationship-codes code {
+            display: inline-block;
+            background: white;
+            padding: 2px 6px;
+            margin: 2px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>续期退费系统 - ER图</h1>
+        <p class="subtitle">数据实体关系图 (Entity Relationship Diagram)</p>
+
+        <div class="diagram-container">
+            <pre class="mermaid">
+erDiagram
+    %% ========== 核心业务实体 ==========
+    POLICY ||--o{ PAYMENT : contains
+    POLICY ||--|{ NATURAL_PERSON : holder_of
+    POLICY ||--|{ SCENARIO : rules_for
+    POLICY ||--o{ REFUND : generates
+
+    %% ========== 退费流程 ==========
+    REFUND }o--|| BRANCH : belongs_to
+    REFUND }o--|| BRANCH_INST : inst_at
+    REFUND ||--o{ APPROVAL_NODE : has_nodes
+    REFUND ||--o{ REFUND_LOG : logs
+
+    %% ========== 权限体系 ==========
+    USER }o--o{ USER_ROLE : assigned
+    USER_ROLE }o--|| ROLE : links_to
+    ROLE }o--o{ ROLE_PERM : grants
+    ROLE_PERM }o--|| PERMISSION : maps_to
+
+    %% ========== 通知记录 ==========
+    REFUND ||--o{ SMS_RECORD : sends_sms
+    REFUND ||--o{ WECHAT_RECORD : sends_wx
+
+    %% ========== 组织机构 ==========
+    BRANCH ||--o{ BRANCH_INST : manages
+
+    %% ========== 实体属性 ==========
+    POLICY {
+        string policy_no PK
+        string holder_name
+        string id_card
+        string product_name
+        string risk_code
+        string status
+        date start_date
+        date end_date
+        date next_pay_date
+        string pay_method
+        string branch_name
+        string sub_branch
+        float total_premium
+        string channel
+    }
+
+    PAYMENT {
+        string policy_no FK
+        int period_no
+        float amount
+        date due_date
+        date paid_date
+        string source
+    }
+
+    NATURAL_PERSON {
+        string policy_no FK
+        string name
+        string gender
+        string nationality
+        string occupation
+        string address
+        string phone
+        string id_type
+        string id_number
+        date id_valid_until
+        boolean follow_wechat
+    }
+
+    SCENARIO {
+        string policy_no FK
+        boolean has_claim_after_due
+        boolean has_reduction_after_due
+        boolean holder_changed
+        boolean has_outstanding_loan
+        boolean commission_paid
+        boolean advance_refund
+    }
+
+    REFUND {
+        string refund_id PK
+        string policy_no FK
+        string holder_name
+        string id_card
+        string phone
+        float refund_amount
+        int status
+        string status_name
+        string accept_channel
+        datetime accept_time
+        string accept_user
+        string refund_period
+        string reason
+        boolean auto_approve
+        boolean original_card
+        datetime material_deadline
+        string channel
+        string sub_channel
+        string branch_name
+        string inst_name
+    }
+
+    APPROVAL_NODE {
+        string refund_id FK
+        int node_index
+        string node_name
+        string status
+        string operator
+        datetime operate_time
+        string opinion
+    }
+
+    REFUND_LOG {
+        string refund_id FK
+        datetime time
+        string action
+        string operator
+        string detail
+    }
+
+    USER {
+        string user_id PK
+        string display_name
+        string username
+        string password_hash
+    }
+
+    ROLE {
+        string role_id PK
+        string role_name
+    }
+
+    PERMISSION {
+        string perm_id PK
+        string perm_name
+    }
+
+    USER_ROLE {
+        string user_id FK
+        string role_id FK
+    }
+
+    ROLE_PERM {
+        string role_id FK
+        string perm_id FK
+    }
+
+    BRANCH {
+        string branch_name PK
+    }
+
+    BRANCH_INST {
+        string branch_name FK
+        string inst_name PK
+    }
+
+    SMS_RECORD {
+        string record_id PK
+        string refund_id FK
+        string phone
+        string content
+        datetime send_time
+        string status
+    }
+
+    WECHAT_RECORD {
+        string record_id PK
+        string refund_id FK
+        string wx_id
+        string content
+        datetime send_time
+        string status
+    }
+            </pre>
+        </div>
+
+        <div class="legend">
+            <h3>实体说明</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <h4>核心业务实体</h4>
+                    <ul>
+                        <li><strong>POLICY (保单)</strong>: 保单基本信息</li>
+                        <li><strong>PAYMENT (缴费记录)</strong>: 历年缴费记录</li>
+                        <li><strong>NATURAL_PERSON (自然人)</strong>: 投保人信息</li>
+                        <li><strong>SCENARIO (场景规则)</strong>: 退费前置校验规则</li>
+                        <li><strong>REFUND (退费记录)</strong>: 退费申请主记录</li>
+                    </ul>
+                </div>
+
+                <div class="legend-item">
+                    <h4>审批流程</h4>
+                    <ul>
+                        <li><strong>APPROVAL_NODE (审批节点)</strong>: 多级审批记录</li>
+                        <li><strong>REFUND_LOG (操作日志)</strong>: 全流程操作记录</li>
+                    </ul>
+                </div>
+
+                <div class="legend-item">
+                    <h4>权限体系</h4>
+                    <ul>
+                        <li><strong>USER (用户)</strong>: 系统用户</li>
+                        <li><strong>ROLE (角色)</strong>: J1-J8 角色定义</li>
+                        <li><strong>PERMISSION (权限)</strong>: Q1-Q9 权限定义</li>
+                        <li><strong>USER_ROLE (用户角色)</strong>: 用户-角色关联</li>
+                        <li><strong>ROLE_PERM (角色权限)</strong>: 角色-权限关联</li>
+                    </ul>
+                </div>
+
+                <div class="legend-item">
+                    <h4>组织机构</h4>
+                    <ul>
+                        <li><strong>BRANCH (分公司)</strong>: 38家分公司</li>
+                        <li><strong>BRANCH_INST (所属机构)</strong>: 中支公司</li>
+                    </ul>
+                </div>
+
+                <div class="legend-item">
+                    <h4>通知记录</h4>
+                    <ul>
+                        <li><strong>SMS_RECORD (短信记录)</strong>: 短信通知历史</li>
+                        <li><strong>WECHAT_RECORD (微信记录)</strong>: 微信通知历史</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="relationship-codes">
+                <h4>关系符号说明</h4>
+                <p>
+                    <code>||</code> 表示 Exactly 1 (一对一)<br>
+                    <code>o{</code> 表示 Zero or More (零或多)<br>
+                    <code>|{</code> 表示 One or More (一或多)<br>
+                    <code>}o</code> 表示 Zero or One (零或一)<br>
+                    <code>--</code> 表示关系连接
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            er: {
+                diagramPadding: 20,
+                layoutDirection: 'LR',
+                minEntityWidth: 100,
+                minEntityHeight: 75,
+                entityPadding: 15,
+                useMaxWidth: true
+            },
+            themeVariables: {
+                primaryColor: '#ffffff',
+                primaryTextColor: '#333333',
+                primaryBorderColor: '#1f77b4',
+                lineColor: '#1f77b4',
+                secondaryColor: '#f9f9f9',
+                tertiaryColor: '#fff3cd'
+            }
+        });
+    </script>
+</body>
+</html>

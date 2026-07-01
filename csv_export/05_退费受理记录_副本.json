@@ -1,0 +1,462 @@
+[
+  {
+    "id": "RF20250507001",
+    "policyNo": "PB20200101001",
+    "holderName": "李明",
+    "holderId": "310101199001011234",
+    "phone": "13812345678",
+    "amount": 3580,
+    "status": 5,
+    "statusName": "待客户补材料",
+    "acceptChannel": "95500电话",
+    "acceptTime": "2025-05-07 09:30:00",
+    "acceptor": "张晓燕",
+    "refundPeriods": "2025年度第1期",
+    "refundReason": "客户经济原因申请退费",
+    "isAutoApproval": true,
+    "isOriginalCard": false,
+    "payments": [
+      {
+        "period": "2025年度第1期",
+        "amount": 3580,
+        "shouldPayDate": "2025-05-01",
+        "actualPayDate": "2025-05-02",
+        "source": "银行转账"
+      },
+      {
+        "period": "2025年度第2期",
+        "amount": 3580,
+        "shouldPayDate": "2025-06-01",
+        "actualPayDate": "2025-06-01",
+        "source": "银行转账"
+      }
+    ],
+    "logs": [
+      {
+        "time": "2025-05-07 09:30:00",
+        "action": "受理",
+        "operator": "张晓燕",
+        "detail": "95500坐席受理"
+      },
+      {
+        "time": "2025-05-07 09:31:00",
+        "action": "系统自动审批",
+        "operator": "系统",
+        "detail": "免审批通过"
+      },
+      {
+        "time": "2025-05-07 09:31:05",
+        "action": "发送材料补充链接",
+        "operator": "系统",
+        "detail": "非原卡原退，需客户补充材料"
+      }
+    ],
+    "materialDeadline": "2025-05-08 09:31:05",
+    "failureReason": null
+  },
+  {
+    "id": "RF20250507002",
+    "policyNo": "PB20200101002",
+    "holderName": "王芳",
+    "holderId": "310102198503032345",
+    "phone": "13923456789",
+    "amount": 12800,
+    "status": 3,
+    "statusName": "审批未完成",
+    "acceptChannel": "95500电话",
+    "acceptTime": "2025-05-06 14:20:00",
+    "acceptor": "张晓燕",
+    "refundPeriods": "2025年度第1期",
+    "refundReason": "客户资金周转需要",
+    "isAutoApproval": false,
+    "isOriginalCard": true,
+    "payments": [
+      {
+        "period": "2025年度第1期",
+        "amount": 12800,
+        "shouldPayDate": "2025-03-01",
+        "actualPayDate": "2025-03-02",
+        "source": "银行转账"
+      }
+    ],
+    "logs": [
+      {
+        "time": "2025-05-06 14:20:00",
+        "action": "受理",
+        "operator": "张晓燕",
+        "detail": "95500坐席受理"
+      },
+      {
+        "time": "2025-05-06 14:21:00",
+        "action": "提交审批",
+        "operator": "系统",
+        "detail": "需人工审批，金额12800元"
+      },
+      {
+        "time": "2025-05-06 14:25:00",
+        "action": "中支内勤审批",
+        "operator": "刘伟",
+        "detail": "审批中"
+      }
+    ],
+    "approvalLevel": 2,
+    "approvalNodes": [
+      {
+        "name": "中支业务内勤",
+        "status": "completed",
+        "operator": "刘伟",
+        "time": "2025-05-06 14:25"
+      },
+      {
+        "name": "中支业务负责人",
+        "status": "pending",
+        "operator": "-",
+        "time": "-"
+      },
+      {
+        "name": "分公司财务",
+        "status": "pending",
+        "operator": "-",
+        "time": "-"
+      }
+    ],
+    "failureReason": null
+  },
+  {
+    "id": "RF20250507003",
+    "policyNo": "PB20200101003",
+    "holderName": "赵伟",
+    "holderId": "310103199208081234",
+    "phone": "13734567890",
+    "amount": 2800,
+    "status": 10,
+    "statusName": "退费失败",
+    "acceptChannel": "95500电话",
+    "acceptTime": "2025-05-05 10:15:00",
+    "acceptor": "张晓燕",
+    "refundPeriods": "2025年度第1期",
+    "refundReason": "客户不需要此保险",
+    "isAutoApproval": true,
+    "isOriginalCard": true,
+    "payments": [
+      {
+        "period": "2025年度第1期",
+        "amount": 2800,
+        "shouldPayDate": "2025-03-01",
+        "actualPayDate": "2025-03-01",
+        "source": "银行转账"
+      }
+    ],
+    "logs": [
+      {
+        "time": "2025-05-05 10:15:00",
+        "action": "受理",
+        "operator": "张晓燕",
+        "detail": "95500坐席受理"
+      },
+      {
+        "time": "2025-05-05 10:16:00",
+        "action": "系统自动审批",
+        "operator": "系统",
+        "detail": "免审批通过"
+      },
+      {
+        "time": "2025-05-05 10:16:05",
+        "action": "提交核心退费",
+        "operator": "系统",
+        "detail": "进入退费流程"
+      },
+      {
+        "time": "2025-05-05 15:30:00",
+        "action": "退费失败",
+        "operator": "核心系统",
+        "detail": "账号错误：卡号已注销"
+      }
+    ],
+    "failureReason": "账号错误：卡号已注销",
+    "failureType": "account"
+  },
+  {
+    "id": "RF20250507004",
+    "policyNo": "PB20200101004",
+    "holderName": "陈静",
+    "holderId": "310104199505121567",
+    "phone": "13645678901",
+    "amount": 15800,
+    "status": 9,
+    "statusName": "退费完成",
+    "acceptChannel": "95500电话",
+    "acceptTime": "2025-05-04 11:00:00",
+    "acceptor": "张晓燕",
+    "refundPeriods": "2025年度第1期",
+    "refundReason": "产品不符合预期",
+    "isAutoApproval": false,
+    "isOriginalCard": true,
+    "payments": [
+      {
+        "period": "2025年度第1期",
+        "amount": 15800,
+        "shouldPayDate": "2025-03-01",
+        "actualPayDate": "2025-03-01",
+        "source": "银行转账"
+      }
+    ],
+    "logs": [
+      {
+        "time": "2025-05-04 11:00:00",
+        "action": "受理",
+        "operator": "张晓燕",
+        "detail": "95500坐席受理"
+      },
+      {
+        "time": "2025-05-04 11:01:00",
+        "action": "提交审批",
+        "operator": "系统",
+        "detail": "需人工审批"
+      },
+      {
+        "time": "2025-05-04 14:30:00",
+        "action": "中支内勤审批",
+        "operator": "刘伟",
+        "detail": "同意"
+      },
+      {
+        "time": "2025-05-04 16:00:00",
+        "action": "中支负责人审批",
+        "operator": "王强",
+        "detail": "同意"
+      },
+      {
+        "time": "2025-05-04 17:30:00",
+        "action": "分公司财务审批",
+        "operator": "李华",
+        "detail": "同意，审批完成"
+      },
+      {
+        "time": "2025-05-04 17:35:00",
+        "action": "提交核心退费",
+        "operator": "系统",
+        "detail": "进入退费流程"
+      },
+      {
+        "time": "2025-05-05 10:00:00",
+        "action": "退费完成",
+        "operator": "核心系统",
+        "detail": "退费成功，金额15800元"
+      }
+    ],
+    "failureReason": null
+  },
+  {
+    "id": "RF20250507005",
+    "policyNo": "PB20200101005",
+    "holderName": "刘洋",
+    "holderId": "310105199010101890",
+    "phone": "13556789012",
+    "amount": 4500,
+    "status": 6,
+    "statusName": "客户已完成远程材料补充",
+    "acceptChannel": "95500电话",
+    "acceptTime": "2025-05-07 08:00:00",
+    "acceptor": "张晓燕",
+    "refundPeriods": "2025年度第1期",
+    "refundReason": "经济压力较大",
+    "isAutoApproval": true,
+    "isOriginalCard": false,
+    "payments": [
+      {
+        "period": "2025年度第1期",
+        "amount": 4500,
+        "shouldPayDate": "2025-03-01",
+        "actualPayDate": "2025-03-01",
+        "source": "银行转账"
+      }
+    ],
+    "logs": [
+      {
+        "time": "2025-05-07 08:00:00",
+        "action": "受理",
+        "operator": "张晓燕",
+        "detail": "95500坐席受理"
+      },
+      {
+        "time": "2025-05-07 08:01:00",
+        "action": "系统自动审批",
+        "operator": "系统",
+        "detail": "免审批通过"
+      },
+      {
+        "time": "2025-05-07 08:01:05",
+        "action": "发送材料补充链接",
+        "operator": "系统",
+        "detail": "非原卡原退"
+      },
+      {
+        "time": "2025-05-07 10:30:00",
+        "action": "客户提交材料",
+        "operator": "刘洋",
+        "detail": "身份证、银行卡已上传"
+      }
+    ],
+    "materialDeadline": "2025-05-08 08:01:05",
+    "failureReason": null
+  },
+  {
+    "id": "RF20250507006",
+    "policyNo": "PB20200101006",
+    "holderName": "周涛",
+    "holderId": "310106198808081234",
+    "phone": "13312345678",
+    "amount": 68000,
+    "status": 3,
+    "statusName": "审批未完成",
+    "acceptChannel": "95500电话",
+    "acceptTime": "2025-05-06 09:00:00",
+    "acceptor": "张晓燕",
+    "refundPeriods": "2025年度第1期",
+    "refundReason": "产品收益不达预期",
+    "isAutoApproval": false,
+    "isOriginalCard": false,
+    "payments": [
+      {
+        "period": "2025年度第1期",
+        "amount": 68000,
+        "shouldPayDate": "2025-03-01",
+        "actualPayDate": "2025-03-01",
+        "source": "银行转账"
+      }
+    ],
+    "logs": [
+      {
+        "time": "2025-05-06 09:00:00",
+        "action": "受理",
+        "operator": "张晓燕",
+        "detail": "95500坐席受理"
+      },
+      {
+        "time": "2025-05-06 09:01:00",
+        "action": "提交审批",
+        "operator": "系统",
+        "detail": "需人工审批，金额68000元"
+      },
+      {
+        "time": "2025-05-06 10:00:00",
+        "action": "中支业务内勤审批",
+        "operator": "刘伟",
+        "detail": "同意，请客户补充材料"
+      },
+      {
+        "time": "2025-05-06 11:00:00",
+        "action": "中支业务负责人审批",
+        "operator": "王强",
+        "detail": "同意"
+      },
+      {
+        "time": "2025-05-06 14:00:00",
+        "action": "分公司财务审批",
+        "operator": "李华",
+        "detail": "同意，审批完成，将发送材料补充链接"
+      }
+    ],
+    "approvalNodes": [
+      {
+        "name": "中支业务内勤",
+        "status": "completed",
+        "operator": "刘伟",
+        "time": "2025-05-06 10:00"
+      },
+      {
+        "name": "中支业务负责人",
+        "status": "completed",
+        "operator": "王强",
+        "time": "2025-05-06 11:00"
+      },
+      {
+        "name": "分公司财务（最终节点）",
+        "status": "completed",
+        "operator": "李华",
+        "time": "2025-05-06 14:00"
+      },
+      {
+        "name": "待客户补材料（非原卡原退）",
+        "status": "pending",
+        "operator": "-",
+        "time": "-"
+      }
+    ],
+    "failureReason": null
+  },
+  {
+    "id": "RF20250507007",
+    "policyNo": "PB20200101007",
+    "holderName": "吴婷",
+    "holderId": "310107199303031234",
+    "phone": "13456789012",
+    "amount": 8500,
+    "status": 8,
+    "statusName": "进入退费流程",
+    "acceptChannel": "95500电话",
+    "acceptTime": "2025-05-05 10:00:00",
+    "acceptor": "张晓燕",
+    "refundPeriods": "2025年度第1期",
+    "refundReason": "客户资金周转",
+    "isAutoApproval": false,
+    "isOriginalCard": true,
+    "payments": [
+      {
+        "period": "2025年度第1期",
+        "amount": 8500,
+        "shouldPayDate": "2025-03-01",
+        "actualPayDate": "2025-03-01",
+        "source": "银行转账"
+      }
+    ],
+    "logs": [
+      {
+        "time": "2025-05-05 10:00:00",
+        "action": "受理",
+        "operator": "张晓燕",
+        "detail": "95500坐席受理"
+      },
+      {
+        "time": "2025-05-05 10:01:00",
+        "action": "提交审批",
+        "operator": "系统",
+        "detail": "需人工审批，金额8500元，原卡原退"
+      },
+      {
+        "time": "2025-05-05 11:00:00",
+        "action": "中支业务内勤审批",
+        "operator": "刘伟",
+        "detail": "同意"
+      },
+      {
+        "time": "2025-05-05 14:00:00",
+        "action": "中支业务负责人审批",
+        "operator": "王强",
+        "detail": "同意，原卡原退，审批通过即发起退费"
+      },
+      {
+        "time": "2025-05-05 14:05:00",
+        "action": "提交核心退费",
+        "operator": "系统",
+        "detail": "原卡原退，审批完成，直接发起退费"
+      }
+    ],
+    "approvalNodes": [
+      {
+        "name": "中支业务内勤",
+        "status": "completed",
+        "operator": "刘伟",
+        "time": "2025-05-05 11:00"
+      },
+      {
+        "name": "中支业务负责人（最终节点）",
+        "status": "completed",
+        "operator": "王强",
+        "time": "2025-05-05 14:00"
+      }
+    ],
+    "failureReason": null
+  }
+]
