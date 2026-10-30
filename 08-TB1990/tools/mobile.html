@@ -40,6 +40,8 @@
             var G = w.__game;
             G.state = w.GAME_ST.PLAYING;
             G.introT = 0;
+            // 清掉出生闪烁计时，否则截图里看到的是星星动画而不是坦克本体
+            if (G.player) G.player.spawnT = 0;
 
             var zone = d.getElementById('stick-zone');
             if (!zone) return;

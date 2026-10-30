@@ -272,9 +272,10 @@
     drawTitle: function (ctx, game) {
       this.dim(ctx, 1);
       var cx = CFG.W / 2;
-      // 装饰坦克
-      ctx.drawImage(S.tank.p1.UP[0], 60, 150, 48, 48);
-      ctx.drawImage(S.tank.armor4.DOWN[0], 400, 150, 48, 48);
+      // 装饰坦克：必须按整数倍（2x = 64px）绘制，1.5 倍会让 32px 像素错位发糊
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(S.tank.p1.UP[0], 54, 142, 64, 64);
+      ctx.drawImage(S.tank.armor4.DOWN[0], 394, 142, 64, 64);
 
       text(ctx, '坦 克 大 战', cx, 120, { size: 46, align: 'center', cn: true, color: '#ffe066' });
       text(ctx, 'TANK BATTLE 1990', cx, 155, { size: 18, align: 'center', color: '#e8e8ee' });
@@ -290,7 +291,7 @@
         { size: 14, align: 'center', cn: true, color: '#b9bcc8' });
 
       var lines = g.__isTouch
-        ? ['左下方十字键：移动', '右下方圆钮：射击', '右上角按钮：暂停 / 静音']
+        ? ['左下摇杆：按住拖向任意方向移动', '右下橙色按钮：按住连发', '右上角按钮：暂停 / 静音']
         : ['↑ ↓ ← → 或 W A S D：移动', '空格 / J：射击', 'P 或 ESC：暂停'];
       for (var i = 0; i < lines.length; i++) {
         text(ctx, lines[i], cx, 340 + i * 24, { size: 13, align: 'center', cn: true, color: CFG.COLORS.dim });
