@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>渲染自检</title>
+<style>body{margin:0;background:#000}canvas{display:block}</style>
+</head>
+<body>
+<canvas id="c" width="512" height="480"></canvas>
+<script src="../preview/js/platform.js"></script>
+<script src="../preview/js/config.js"></script>
+<script src="../preview/js/sprites.js"></script>
+<script src="../preview/js/audio.js"></script>
+<script src="../preview/js/input.js"></script>
+<script src="../preview/js/level.js"></script>
+<script src="../preview/js/entities.js"></script>
+<script src="../preview/js/game.js"></script>
+<script src="../preview/js/ui.js"></script>
+<script>
+  var canvas = document.getElementById('c');
+  window.__mainCanvas = canvas;
+  var ctx = canvas.getContext('2d');
+  window.__isTouch = false;
+  Sprites.init(); UI.init();
+  var game = new Game();
+  window.__game = game;
+
+  var hash = (location.hash || '#600').slice(1);
+  var parts = hash.split(',');
+  var frames = parseInt(parts[0], 10) || 0;
+  var stage = parseInt(parts[1], 10) || 1;
+
+  if (frames > 0) {
+    game.startNewGame();
+    game.stage = stage;
+    game.startStage();
+    game.state = GAME_ST.PLAYING;
+    var dirs = ['UP', 'DOWN', 'LEFT', 'RIGHT', null];
+    Input.pickDir = function () { return dirs[Math.floor(Math.random() * dirs.length)]; };
+    Input.consumeFire = function () { return Math.random() < 0.3; };
+    for (var i = 0; i < frames; i++) game.update(1 / 60);
+  }
+  UI.draw(ctx, game);
+</script>
+</body>
+</html>

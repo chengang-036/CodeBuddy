@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>measuring</title>
+<style>body{margin:0;background:#000;color:#0f0;font:12px monospace}</style></head>
+<body>
+<iframe id="f" src="/preview/index.html" style="width:100%;height:100vh;border:0"></iframe>
+<pre id="out"></pre>
+<script>
+setTimeout(function () {
+  var f = document.getElementById('f');
+  var d = f.contentDocument, w = f.contentWindow;
+  var topbar = d.getElementById('topbar');
+  var actions = d.querySelector('.actions');
+  var brand = d.querySelector('.brand');
+  var game = d.getElementById('game');
+  var lines = [];
+  lines.push('innerWidth=' + w.innerWidth + ' innerHeight=' + w.innerHeight + ' dpr=' + w.devicePixelRatio);
+  lines.push('doc.scrollWidth=' + d.documentElement.scrollWidth + ' clientWidth=' + d.documentElement.clientWidth);
+  lines.push('body.offsetWidth=' + d.body.offsetWidth);
+  function r(n, el) {
+    if (!el) { lines.push(n + '=null'); return; }
+    var b = el.getBoundingClientRect();
+    lines.push(n + ' x=' + b.left.toFixed(1) + '..' + b.right.toFixed(1)
+      + ' y=' + b.top.toFixed(1) + '..' + b.bottom.toFixed(1)
+      + ' w=' + b.width.toFixed(1));
+  }
+  r('topbar', topbar); r('brand', brand); r('actions', actions); r('canvas#game', game);
+  document.title = 'RESULT|' + lines.join(' || ');
+  document.getElementById('out').textContent = lines.join('\n');
+}, 1200);
+</script>
+</body></html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b0b0e">
+<title>坦克大战 1990 · 网页预览版</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand">TANK&nbsp;1990<span>经典复刻 · 网页预览</span></div>
+    <div class="actions">
+      <button id="btn-sound" class="icon-btn" aria-label="音效开关"><img src="assets/ui_icon_sound_on.svg" alt="音效"></button>
+      <button id="btn-pause" class="icon-btn" aria-label="暂停"><img src="assets/ui_icon_pause_default.svg" alt="暂停"></button>
+    </div>
+  </header>
+
+  <div id="stage-wrap">
+    <canvas id="game" width="512" height="480"></canvas>
+  </div>
+
+  <div id="controls">
+    <div id="dpad">
+      <button id="btn-up" class="pad up" aria-label="上"><img src="assets/ui_arrow_up_default.svg" alt="上"></button>
+      <button id="btn-left" class="pad left" aria-label="左"><img src="assets/ui_arrow_left_default.svg" alt="左"></button>
+      <div class="pad center"></div>
+      <button id="btn-right" class="pad right" aria-label="右"><img src="assets/ui_arrow_right_default.svg" alt="右"></button>
+      <button id="btn-down" class="pad down" aria-label="下"><img src="assets/ui_arrow_down_default.svg" alt="下"></button>
+    </div>
+    <div id="fire-wrap">
+      <button id="btn-fire" class="fire" aria-label="射击"><img src="assets/ui_icon_fire_default.svg" alt="射击"></button>
+    </div>
+  </div>
+</div>
+
+<script src="js/platform.js"></script>
+<script src="js/config.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/level.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

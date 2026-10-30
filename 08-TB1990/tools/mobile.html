@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>手机预览 · 坦克大战</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: #07070a; color: #e8e8ee;
+    font-family: "PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; }
+  body { overflow-y: auto; }
+  #wrap { display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; gap: 10px; padding: 10px; }
+  #phone { width: 390px; height: 844px; border: 10px solid #23252e; border-radius: 34px;
+    overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.7); background: #000; flex: 0 0 auto; }
+  iframe { width: 390px; height: 844px; border: 0; display: block; }
+  .tip { font-size: 12px; color: #7f8494; letter-spacing: .5px; }
+  .tip b { color: #ffe066; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div id="wrap">
+    <div class="tip">iPhone 14 尺寸模拟 · <b>390 × 844</b> · 触摸模式已开启（真机效果）</div>
+    <div id="phone">
+      <iframe id="f" src="/preview/index.html?touch=1" scrolling="no"></iframe>
+    </div>
+    <div class="tip">这是本地预览，真机请用手机浏览器直接打开 <b>preview/index.html</b></div>
+  </div>
+  <script>
+    // ?play=1 时自动开局并模拟「按住上 + 按住开火」，用于截图/自测
+    (function () {
+      if (!/[?&]play=1(&|$)/.test(location.search)) return;
+      var f = document.getElementById('f');
+      f.addEventListener('load', function () {
+        setTimeout(function () {
+          var w = f.contentWindow;
+          if (!w || !w.__game) return;
+          w.__game.startNewGame();
+          setTimeout(function () {
+            var G = w.__game;
+            G.state = w.GAME_ST.PLAYING;
+            G.introT = 0;
+            w.Input.setVirtual('up', true);
+            w.Input.setVirtual('fire', true);
+          }, 1900);
+        }, 600);
+      });
+    })();
+  </script>
+</body>
+</html>

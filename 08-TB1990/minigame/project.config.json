@@ -1,0 +1,13 @@
+{
+  "description": "坦克大战1990 经典复刻（单机）",
+  "setting": {
+    "es6": true,
+    "urlCheck": false,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "game",
+  "libVersion": "2.33.0",
+  "appid": "touristappid",
+  "projectname": "tank1990"
+}

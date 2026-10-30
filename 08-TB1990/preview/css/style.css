@@ -1,0 +1,119 @@
+/* 坦克大战 1990 网页预览 - 样式（移动端九项适配：安全区/热区/touch-action/DPR/横竖屏） */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  background: #07070a;
+  color: #e8e8ee;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-user-select: none; user-select: none;
+}
+
+#app {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* ---------- 顶栏 ---------- */
+#topbar {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: linear-gradient(#14151b, #0d0e12);
+  border-bottom: 1px solid #23252e;
+}
+.brand { font-weight: 800; letter-spacing: 2px; font-size: 16px; color: #ffe066; }
+.brand span { display: block; font-size: 11px; font-weight: 400; letter-spacing: 1px; color: #7f8494; margin-top: 2px; }
+.actions { display: flex; gap: 10px; }
+.icon-btn {
+  width: 44px; height: 44px; border-radius: 12px;
+  border: 1px solid #33363f; background: #1b1d24;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0;
+}
+.icon-btn:active { background: #2a2d36; transform: scale(0.96); }
+.icon-btn img { width: 22px; height: 22px; display: block; pointer-events: none; }
+.icon-btn.off { opacity: 0.55; }
+
+/* ---------- 画布区 ---------- */
+#stage-wrap {
+  flex: 1 1 auto;
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px; min-height: 0;
+}
+#game {
+  display: block;
+  background: #0b0b0e;
+  border: 2px solid #2a2d36;
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  image-rendering: pixelated;
+  touch-action: none;
+}
+
+/* ---------- 虚拟控制（仅触摸设备显示） ---------- */
+#controls { display: none; }
+body.is-touch #controls {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 18px 14px;
+  background: #0a0b0f;
+}
+/* JS 检测失效时的兜底（触屏设备媒体查询） */
+@media (pointer: coarse) {
+  #controls {
+    flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 18px 14px;
+    background: #0a0b0f;
+  }
+}
+#dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 62px);
+  grid-template-rows: repeat(3, 62px);
+  gap: 2px;
+}
+.pad {
+  border: 1px solid #343844; background: #191c23;
+  border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  padding: 0; cursor: pointer;
+}
+.pad.up { grid-column: 2; grid-row: 1; }
+.pad.left { grid-column: 1; grid-row: 2; }
+.pad.center { grid-column: 2; grid-row: 2; background: #12141a; border-radius: 50%; }
+.pad.right { grid-column: 3; grid-row: 2; }
+.pad.down { grid-column: 2; grid-row: 3; }
+.pad:active { background: #30364a; }
+.pad img { width: 28px; height: 28px; pointer-events: none; }
+/* 扩大命中区到 >=88px（视觉保持 62px 紧凑） */
+.pad { position: relative; }
+.pad::after { content: ''; position: absolute; inset: -14px; }
+
+#fire-wrap { display: flex; align-items: center; }
+.fire {
+  width: 96px; height: 96px; border-radius: 50%;
+  border: 2px solid #ffb020;
+  background: radial-gradient(circle at 35% 30%, #ffd77a, #e07a10 70%, #a3500a);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 18px rgba(255, 140, 20, 0.28);
+  cursor: pointer; padding: 0;
+}
+.fire:active { transform: scale(0.94); background: radial-gradient(circle at 35% 30%, #ffe9a8, #f08a1c 70%, #b0560c); }
+.fire img { width: 42px; height: 42px; pointer-events: none; }
+
+/* ---------- 桌面端提示 ---------- */
+body.is-desktop #controls { display: none; }
+
+@media (max-height: 700px) {
+  #dpad { grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(3, 54px); }
+  .fire { width: 84px; height: 84px; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  #topbar { padding: 4px 10px; }
+  .brand span { display: none; }
+}
