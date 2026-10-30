@@ -115,13 +115,57 @@ check('玩家可移动且未越界',
   !game.player || (game.player.x >= 0 && game.player.x <= CFG.FIELD - CFG.TANK &&
     game.player.y >= 0 && game.player.y <= CFG.FIELD - CFG.TANK));
 
-// 打一炮看地形破坏
+// 射击打掉砖块
+// 以前是"让玩家随机走随机打，看地形有没有变化"——玩家可能朝空地打、可能在出生动画
+// 里、可能被敌人打死，于是这条断言偶发失败（连跑 20 次大概错 3 次）。
+// 改成直接构造一颗玩家子弹，从砖块左侧射入：走的是真实的 bulletResolve 碰撞路径，
+// 但去掉了朝向/走位/生死这些随机变量。
+// 前面的随机对局可能已经打完（GAMEOVER / CLEAR），而结算态下碰撞不会被处理，
+// 这条断言就会随机失败。先重开一局回到干净的战斗态，让结果与前面的随机性无关。
+game.startNewGame();
+game.stage = 1;
+game.startStage();
+game.state = ST.PLAYING;
+game.introT = 0;
+run(2);
+
+let brickR = -1, brickC = -1;
+for (let r = 1; r < CFG.GRID - 1 && brickR < 0; r++) {
+  for (let c = 2; c < CFG.GRID - 1; c++) {
+    // 要求左侧是空地：否则子弹会先撞上左边的钢墙/砖块（那是正常机制，但会干扰本断言）
+    if (game.grid[r][c] === CFG.T_BRICK && game.grid[r][c - 1] === CFG.T_EMPTY) {
+      brickR = r; brickC = c; break;
+    }
+  }
+}
 const before = JSON.stringify(game.grid.map(r => r.join('')));
-let fired = 0;
-for (let i = 0; i < 600 && fired < 40; i++) { game.fire(game.player); fired++; game.update(1 / 60); }
-run(1);
+function brickCount() {
+  let n = 0;
+  for (let r = 0; r < CFG.GRID; r++) for (let c = 0; c < CFG.GRID; c++) {
+    if (game.grid[r][c] === CFG.T_BRICK) n++;
+  }
+  return n;
+}
+if (brickR >= 0) {
+  const bullet = new g.Bullet({
+    x: brickC * CFG.TILE - CFG.BULLET - 2,
+    y: brickR * CFG.TILE + 4,      // 取砖块行的中间高度，确保命中这一行
+    dir: 'RIGHT',
+    speed: 240,
+    owner: 'player',
+    power: false
+  });
+  // 直接驱动子弹自身的碰撞（bullet.update 内部会调 game.bulletResolve），
+  // 不用 game.update：否则还要受整局状态影响（前面随机对局可能已进结算页）
+  for (let i = 0; i < 20 && bullet.alive; i++) bullet.update(1 / 60, game);
+}
 const after = JSON.stringify(game.grid.map(r => r.join('')));
-check('射击可破坏地形', before !== after);
+// 判定用"砖块总数减少"而不是"某一格变空"：砖块是 2x2 一组，
+// 子弹可能先撞上相邻的那一格，指定格不一定就是被吃掉的格子。
+const nb = JSON.parse(before).join('').split('1').length - 1;
+const na = JSON.parse(after).join('').split('1').length - 1;
+check('子弹击中砖块可破坏地形', brickR >= 0 && na < nb,
+  '砖块 ' + nb + ' -> ' + na);
 
 /* ---------- 4. 道具 ---------- */
 console.log('\n[4] 道具效果');

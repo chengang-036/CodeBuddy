@@ -44,61 +44,75 @@
     return o.c;
   }
 
-  /* ============ 坦克基础矩阵（16x16，朝上；履带两帧） ============ */
-  var T0 = [
-    '.......KK.......',
-    '.......KK.......',
-    '.......KK.......',
-    '......KAAK......',
-    '.....KABBAK.....',
-    '.....KABBAK.....',
-    '....KABBBBAK....',
-    'KKKABBBBBBBBAKKK',
-    'CKCABBBBBBBBACKC',
-    'KKKABBBBBBBBAKKK',
-    'CKCABBBBBBBBACKC',
-    'KKKABBBBBBBBAKKK',
-    'CKCABBBBBBBBACKC',
-    'KKKABBBBBBBBAKKK',
-    'CKCABBBBBBBBACKC',
-    'KKKABBBBBBBBAKKK'
-  ];
-  var T1 = [
-    '.......KK.......',
-    '.......KK.......',
-    '.......KK.......',
-    '......KAAK......',
-    '.....KABBAK.....',
-    '.....KABBAK.....',
-    '....KABBBBAK....',
-    'CKCABBBBBBBBACKC',
-    'KKKABBBBBBBBAKKK',
-    'CKCABBBBBBBBACKC',
-    'KKKABBBBBBBBAKKK',
-    'CKCABBBBBBBBACKC',
-    'KKKABBBBBBBBAKKK',
-    'CKCABBBBBBBBACKC',
-    'KKKABBBBBBBBAKKK',
-    'CKCABBBBBBBBACKC'
-  ];
+  /* ============ 坦克（原生 32x32 绘制，1 像素 = 1 画布像素） ============
+   * 之前是 16x16 设计再放大 2 倍，等于把像素放大成 2x2 色块，细节被砍半，
+   * 在 32px 的实际显示尺寸下读不出结构。改为直接按 32x32 设计，与场景砖块
+   * 的像素密度一致。结构（俯视，朝上）：
+   *   履带  x0..5 / x26..31，整长，带连接销
+   *   车体  x5..26，前装甲更亮
+   *   炮塔  x9..22 居中，带舱盖
+   *   炮管  x13..18，从炮塔前部伸出
+   * 绘制顺序：履带 → 车体 → 炮塔 → 炮管（后画的压住先画的，形成"插座"而不是断开）
+   */
+  function tankSprite(pal, frame, scale) {
+    scale = scale || 1;
+    var S = scale, W = 32, H = 32;
+    var o = mk(W * S, H * S), x = o.x;
+    x.imageSmoothingEnabled = false;
+
+    var K = pal.K, LIGHT = pal.A, MID = pal.B, DARK = pal.C;
+
+    function rect(gx, gy, gw, gh, col) {
+      x.fillStyle = col;
+      x.fillRect(gx * S, gy * S, gw * S, gh * S);
+    }
+
+    /* --- 1. 底板：整块黑 = 唯一的外轮廓，内部不再单独描边 --- */
+    rect(0, 2, 32, 30, K);
+
+    /* --- 2. 履带：左右各 5px，暗色填充，1px 细销做链感 --- */
+    rect(1, 3, 5, 28, DARK);
+    rect(26, 3, 5, 28, DARK);
+    for (var ly = 5 + (frame ? 2 : 0); ly < 30; ly += 5) {
+      rect(1, ly, 5, 1, K);
+      rect(26, ly, 5, 1, K);
+    }
+
+    /* --- 3. 车体：直接贴住履带（无缝、无黑边） --- */
+    rect(6, 4, 20, 27, MID);         // x6..25, y4..30
+    rect(6, 4, 20, 3, LIGHT);        // 前装甲亮条（旋转后=车的正面）
+    rect(6, 29, 20, 2, DARK);        // 尾部阴影
+
+    /* --- 4. 炮塔：实心亮块，无描边，靠明度区分；四角不画做出圆角 --- */
+    rect(11, 11, 10, 10, LIGHT);     // 塔体
+    rect(12, 10, 8, 1, LIGHT);       // 顶部窄行 -> 圆顶
+    rect(12, 21, 8, 2, DARK);        // 塔体下沿阴影
+    rect(14, 14, 4, 4, MID);         // 舱盖
+
+    /* --- 5. 炮管：唯一带黑描边的部件（它突出在剪影之外，需要描边才立得住） --- */
+    rect(13, 0, 6, 12, K);
+    rect(14, 1, 4, 11, LIGHT);
+    rect(14, 3, 4, 1, '#ffffff');    // 炮口高光
+    return o.c;
+  }
 
   var K = '#141418';
   var PALETTES = {
-    p1: { K: K, A: '#ffe066', B: '#f0a800', C: '#b06c00' },
-    p2: { K: K, A: '#ffffff', B: '#e8c860', C: '#9a7a10' },
-    p3: { K: K, A: '#fff3b0', B: '#ff8800', C: '#c03c00' },
-    basic: { K: K, A: '#e6e8ea', B: '#98a0a8', C: '#5a6169' },
-    fast: { K: K, A: '#dff2ff', B: '#84aecb', C: '#41617a' },
-    power: { K: K, A: '#f6e2ff', B: '#a184cf', C: '#5b3f84' },
-    armor4: { K: K, A: '#c8f5a8', B: '#52b84e', C: '#1f6b1c' },
-    armor3: { K: K, A: '#ffe9a8', B: '#dfae3c', C: '#7d5a10' },
-    armor2: { K: K, A: '#ffc4a0', B: '#dd6c3c', C: '#7c3010' },
-    armor1: { K: K, A: '#f2f2f2', B: '#9e9e9e', C: '#5c5c5c' }
+    p1: { K: K, A: '#ffe066', B: '#f0a800', C: '#8a5c00' },
+    p2: { K: K, A: '#f2f2f2', B: '#c8ccd4', C: '#6a7078' },
+    p3: { K: K, A: '#fff3b0', B: '#ff8800', C: '#8f3a00' },
+    basic: { K: K, A: '#e6e8ea', B: '#98a0a8', C: '#4a5058' },
+    fast: { K: K, A: '#dff2ff', B: '#84aecb', C: '#2f4a5e' },
+    power: { K: K, A: '#f6e2ff', B: '#a184cf', C: '#4a3068' },
+    armor4: { K: K, A: '#c8f5a8', B: '#52b84e', C: '#1b4a18' },
+    armor3: { K: K, A: '#ffe9a8', B: '#dfae3c', C: '#6b4a08' },
+    armor2: { K: K, A: '#ffc4a0', B: '#dd6c3c', C: '#6a2408' },
+    armor1: { K: K, A: '#f2f2f2', B: '#9e9e9e', C: '#4e4e4e' }
   };
 
   /** 生成一套坦克：{ UP:[f0,f1], RIGHT:[...], DOWN:[...], LEFT:[...] } */
   function tankSet(pal) {
-    var a = fromMatrix(T0, pal, 2), b = fromMatrix(T1, pal, 2);
+    var a = tankSprite(pal, 0, 1), b = tankSprite(pal, 1, 1);
     return {
       UP: [a, b],
       RIGHT: [rotate(a, 90), rotate(b, 90)],
@@ -305,9 +319,9 @@
     var o = mk(32, 32), x = o.x;
     x.fillStyle = '#f2f2f2'; x.fillRect(0, 0, 32, 32);
     x.fillStyle = '#101014'; x.fillRect(2, 2, 28, 28);
-    var m = (type === 'tank') ? T0 : ICONS[type];
+    var m = (type === 'tank') ? null : ICONS[type];
     var pal = (type === 'tank') ? PALETTES.p1 : ICON_PAL[type];
-    var icon = fromMatrix(m, pal, 1);
+    var icon = (type === 'tank') ? tankSprite(PALETTES.p1, 0, 1) : fromMatrix(m, pal, 1);
     x.drawImage(icon, 8, 8, 16, 16);
     return o.c;
   }
@@ -362,8 +376,14 @@
     return o.c;
   }
 
-  /** 小坦克图标（信息栏：剩余敌人 / 玩家生命） */
-  function tankIcon(pal) { return fromMatrix(T0, pal, 1); }
+  /** 小坦克图标（信息栏：剩余敌人 / 玩家生命）—— 32px 原图缩到 16px */
+  function tankIcon(pal) {
+    var big = tankSprite(pal, 0, 1);
+    var o = mk(16, 16);
+    o.x.imageSmoothingEnabled = false;
+    o.x.drawImage(big, 0, 0, 16, 16);
+    return o.c;
+  }
 
   var Sprites = {
     tank: {},

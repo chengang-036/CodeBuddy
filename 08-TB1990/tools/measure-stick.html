@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>摇杆坐标测量</title>
+<style>
+  body { margin: 0; background: #111; color: #ddd; font: 13px/1.6 -apple-system, "PingFang SC", monospace; }
+  #out { padding: 12px; white-space: pre; }
+  iframe { width: 390px; height: 844px; border: 0; }
+  #host { position: absolute; left: -9999px; }
+</style>
+</head>
+<body>
+<div id="out">measuring…</div>
+<div id="host"><iframe id="f" src="/preview/index.html?touch=1"></iframe></div>
+<script>
+(function () {
+  var out = document.getElementById('out');
+  var f = document.getElementById('f');
+  var lines = [];
+  function log(s) { lines.push(s); out.textContent = lines.join('\n'); }
+
+  f.addEventListener('load', function () {
+    setTimeout(function () {
+      var w = f.contentWindow, d = w.document;
+      var zone = d.getElementById('stick-zone');
+      var base = d.getElementById('stick-base');
+      var knob = d.getElementById('stick-knob');
+      if (!zone) { log('RESULT|fail|no stick-zone'); return; }
+
+      var zr = zone.getBoundingClientRect();
+      var br = base.getBoundingClientRect();
+      var kr = knob.getBoundingClientRect();
+
+      log('zone rect      ' + [zr.left, zr.top, zr.width, zr.height].map(Math.round).join(', '));
+      log('base rect(初始) ' + [br.left, br.top, br.width, br.height].map(Math.round).join(', '));
+      log('knob rect(初始) ' + [kr.left, kr.top, kr.width, kr.height].map(Math.round).join(', '));
+
+      var cx = zr.left + zr.width / 2, cy = zr.top + zr.height / 2;
+      log('按下点         ' + Math.round(cx) + ', ' + Math.round(cy));
+
+      function pe(type, x, y) {
+        zone.dispatchEvent(new w.PointerEvent(type, {
+          clientX: x, clientY: y, pointerId: 9,
+          bubbles: true, cancelable: true, pointerType: 'touch'
+        }));
+      }
+
+      pe('pointerdown', cx, cy);
+      var b2 = base.getBoundingClientRect();
+      log('base rect(按下) ' + [b2.left, b2.top, b2.width, b2.height].map(Math.round).join(', '));
+      log('base 中心(按下) ' + Math.round(b2.left + b2.width / 2) + ', ' + Math.round(b2.top + b2.height / 2));
+
+      // 依次推四个方向，每个都读回实际状态
+      var cases = [['UP', 0, -50], ['RIGHT', 50, 0], ['DOWN', 0, 50], ['LEFT', -50, 0]];
+      for (var i = 0; i < cases.length; i++) {
+        var c = cases[i];
+        pe('pointermove', cx + c[1], cy + c[2]);
+        var k2 = knob.getBoundingClientRect();
+        var dxk = Math.round((k2.left + k2.width / 2) - (b2.left + b2.width / 2));
+        var dyk = Math.round((k2.top + k2.height / 2) - (b2.top + b2.height / 2));
+        var dir = w.Input.stickDir();
+        var dataDir = base.getAttribute('data-dir');
+        log('推 ' + c[0] + ' -> stickDir=' + dir + ' data-dir=' + dataDir +
+            ' 摇杆帽偏移=(' + dxk + ',' + dyk + ')');
+      }
+
+      // 死区内不应有方向
+      pe('pointermove', cx + 6, cy + 6);
+      log('死区内微动 -> stickDir=' + w.Input.stickDir());
+
+      pe('pointerup', cx, cy);
+      var b3 = base.getBoundingClientRect();
+      var k3 = knob.getBoundingClientRect();
+      log('松手后 base 中心 ' + Math.round(b3.left + b3.width / 2) + ', ' + Math.round(b3.top + b3.height / 2));
+      log('松手后 stickDir=' + w.Input.stickDir() + ' data-dir=' + base.getAttribute('data-dir'));
+
+      log('RESULT|done');
+    }, 500);
+  });
+})();
+</script>
+</body>
+</html>

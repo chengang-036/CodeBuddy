@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>渲染自检</title>
-<style>body{margin:0;background:#000}canvas{display:block}</style>
+<style>body{margin:0;background:#000}canvas{display:block;image-rendering:pixelated}</style>
 </head>
 <body>
 <canvas id="c" width="512" height="480"></canvas>
@@ -29,6 +29,12 @@
   var parts = hash.split(',');
   var frames = parseInt(parts[0], 10) || 0;
   var stage = parseInt(parts[1], 10) || 1;
+  var zoom = parseFloat(parts[2]) || 1;   // 第 3 个参数：画布放大倍数（便于放大检查像素）
+
+  if (zoom !== 1) {
+    canvas.style.width = (512 * zoom) + 'px';
+    canvas.style.height = (480 * zoom) + 'px';
+  }
 
   if (frames > 0) {
     game.startNewGame();

@@ -61,6 +61,29 @@
       }
     },
 
+    /**
+     * 虚拟摇杆方向（4 向）：dir 为 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | null
+     * 摇杆是「互斥方向」语义，设置时自动清掉其它方向，避免斜推时残留。
+     */
+    setStickDir: function (dir) {
+      var map = { UP: 'up', DOWN: 'down', LEFT: 'left', RIGHT: 'right' };
+      var act = map[dir] || null;
+      if (act && !virtual[act]) emit('anyKey', act);
+      virtual.up = (act === 'up');
+      virtual.down = (act === 'down');
+      virtual.left = (act === 'left');
+      virtual.right = (act === 'right');
+    },
+
+    /** 摇杆当前方向（供 UI 画高亮） */
+    stickDir: function () {
+      if (virtual.up) return 'UP';
+      if (virtual.down) return 'DOWN';
+      if (virtual.left) return 'LEFT';
+      if (virtual.right) return 'RIGHT';
+      return null;
+    },
+
     isDown: function (act) { return !!(state[act] || virtual[act]); },
 
     /** 射击边沿（每帧读取一次后清除） */

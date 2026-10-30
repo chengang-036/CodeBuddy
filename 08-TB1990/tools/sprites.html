@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Sprite Sheet 检查</title>
+<style>
+  html, body { margin: 0; background: #16181d; color: #d8dce4;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; }
+  .wrap { padding: 16px 20px 28px; }
+  h2 { font-size: 14px; font-weight: 600; color: #8f95a3; margin: 18px 0 10px;
+       letter-spacing: .08em; text-transform: uppercase; }
+  .row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+  .cell { text-align: center; }
+  .cell canvas { display: block; image-rendering: pixelated;
+    background: #24262c; border: 1px solid #33363f; }
+  .cell span { display: block; font-size: 11px; color: #7c8290; margin-top: 6px; }
+  .stage { background: #0d0f13; padding: 12px; display: inline-block; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>玩家坦克（朝上，履带两帧）×10</h2>
+  <div class="row stage" id="p1row"></div>
+
+  <h2>敌方坦克 4 型（朝上）×10</h2>
+  <div class="row stage" id="enemyrow"></div>
+
+  <h2>四方向（朝右 / 朝下 / 朝左）×8</h2>
+  <div class="row stage" id="dirrow"></div>
+
+  <h2>实战尺寸对比：32px 原始 / 战场实景</h2>
+  <div class="row stage" id="realrow"></div>
+</div>
+
+<script src="../preview/js/platform.js"></script>
+<script src="../preview/js/config.js"></script>
+<script src="../preview/js/sprites.js"></script>
+<script>
+  var Sprites = window.Sprites;
+  Sprites.init();
+
+  function blit(src, zoom, label) {
+    var cell = document.createElement('div');
+    cell.className = 'cell';
+    var c = document.createElement('canvas');
+    c.width = src.width * zoom; c.height = src.height * zoom;
+    var x = c.getContext('2d');
+    x.imageSmoothingEnabled = false;
+    x.drawImage(src, 0, 0, c.width, c.height);
+    cell.appendChild(c);
+    var s = document.createElement('span');
+    s.textContent = label;
+    cell.appendChild(s);
+    return cell;
+  }
+
+  // 玩家坦克
+  var p1row = document.getElementById('p1row');
+  ['p1', 'p2', 'p3'].forEach(function (k) {
+    p1row.appendChild(blit(Sprites.tank[k].UP[0], 10, k + ' 帧0'));
+    p1row.appendChild(blit(Sprites.tank[k].UP[1], 10, k + ' 帧1'));
+  });
+
+  // 敌坦克
+  var erow = document.getElementById('enemyrow');
+  ['basic', 'fast', 'power', 'armor4'].forEach(function (k) {
+    erow.appendChild(blit(Sprites.tank[k].UP[0], 10, k));
+  });
+
+  // 方向
+  var drow = document.getElementById('dirrow');
+  ['UP', 'RIGHT', 'DOWN', 'LEFT'].forEach(function (d) {
+    drow.appendChild(blit(Sprites.tank.p1[d][0], 8, d));
+  });
+
+  // 实战尺寸
+  var rrow = document.getElementById('realrow');
+  rrow.appendChild(blit(Sprites.tank.p1.UP[0], 4, '4x（约手机实显）'));
+  rrow.appendChild(blit(Sprites.tank.p1.UP[0], 2, '2x'));
+  rrow.appendChild(blit(Sprites.tank.p1.UP[0], 1, '1x 原始 32px'));
+</script>
+</body>
+</html>

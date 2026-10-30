@@ -27,20 +27,32 @@
     <div class="tip">这是本地预览，真机请用手机浏览器直接打开 <b>preview/index.html</b></div>
   </div>
   <script>
-    // ?play=1 时自动开局并模拟「按住上 + 按住开火」，用于截图/自测
+    // ?play=1：自动开局 + 用真实 PointerEvent 推摇杆（走真实代码路径，不是直接改状态）
     (function () {
       if (!/[?&]play=1(&|$)/.test(location.search)) return;
       var f = document.getElementById('f');
       f.addEventListener('load', function () {
         setTimeout(function () {
-          var w = f.contentWindow;
+          var w = f.contentWindow, d = w.document;
           if (!w || !w.__game) return;
           w.__game.startNewGame();
           setTimeout(function () {
             var G = w.__game;
             G.state = w.GAME_ST.PLAYING;
             G.introT = 0;
-            w.Input.setVirtual('up', true);
+
+            var zone = d.getElementById('stick-zone');
+            if (!zone) return;
+            var r = zone.getBoundingClientRect();
+            var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+            function pe(type, x, y) {
+              zone.dispatchEvent(new w.PointerEvent(type, {
+                clientX: x, clientY: y, pointerId: 7,
+                bubbles: true, cancelable: true, pointerType: 'touch'
+              }));
+            }
+            pe('pointerdown', cx, cy);
+            pe('pointermove', cx, cy - 44);        // 向上推
             w.Input.setVirtual('fire', true);
           }, 1900);
         }, 600);

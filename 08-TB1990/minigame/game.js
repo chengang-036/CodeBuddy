@@ -35,11 +35,10 @@ UI.init();
 var game = new Game();
 GameGlobal.__game = game;
 
-/* ---------- 触摸操作：左半屏滑动 = 方向，右半屏点按 = 射击 ---------- */
-var TH = 14; // 方向判定阈值（px）
+/* ---------- 触摸操作：左半屏拖动 = 摇杆方向，右半屏点按 = 射击 ---------- */
+var TH = 18; // 摇杆死区半径（px）：小于这个距离视为不移动
 function setVDir(d) {
-  ['up', 'down', 'left', 'right'].forEach(function (k) { Input.setVirtual(k, false); });
-  if (d) Input.setVirtual(d.toLowerCase(), true);
+  Input.setStickDir(d);
 }
 
 var dirTouchId = null, fireTouchId = null, touchStart = null;
@@ -62,7 +61,10 @@ wx.onTouchMove(function (res) {
     var t = res.changedTouches[i];
     if (t.identifier === dirTouchId && touchStart) {
       var dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
-      if (Math.abs(dx) > TH || Math.abs(dy) > TH) {
+      // 以按下点为圆心的浮动摇杆：主导轴判方向，回到死区内即停止
+      if (Math.abs(dx) < TH && Math.abs(dy) < TH) {
+        setVDir(null);
+      } else {
         setVDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'RIGHT' : 'LEFT') : (dy > 0 ? 'DOWN' : 'UP'));
       }
     }

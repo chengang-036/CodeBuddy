@@ -72,27 +72,55 @@ body.is-touch #controls {
     background: #0a0b0f;
   }
 }
-#dpad {
-  display: grid;
-  grid-template-columns: repeat(3, 62px);
-  grid-template-rows: repeat(3, 62px);
-  gap: 2px;
+/* ---------- 虚拟摇杆（左）+ 开火键（右） ---------- */
+#stick-zone {
+  position: relative;
+  width: 176px; height: 176px;
+  flex: 0 0 auto;
+  touch-action: none;
+  -webkit-user-select: none; user-select: none;
 }
-.pad {
-  border: 1px solid #343844; background: #191c23;
-  border-radius: 14px; display: flex; align-items: center; justify-content: center;
-  padding: 0; cursor: pointer;
+#stick-base {
+  position: absolute; left: 0; top: 0;
+  width: 148px; height: 148px; border-radius: 50%;
+  transform: translate(14px, 14px);
+  background: radial-gradient(circle at 50% 45%, #232630, #13151b 72%);
+  border: 2px solid #333845;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.7), 0 6px 16px rgba(0, 0, 0, 0.35);
+  transition: transform 0.12s ease-out, border-color 0.15s;
 }
-.pad.up { grid-column: 2; grid-row: 1; }
-.pad.left { grid-column: 1; grid-row: 2; }
-.pad.center { grid-column: 2; grid-row: 2; background: #12141a; border-radius: 50%; }
-.pad.right { grid-column: 3; grid-row: 2; }
-.pad.down { grid-column: 2; grid-row: 3; }
-.pad:active { background: #30364a; }
-.pad img { width: 28px; height: 28px; pointer-events: none; }
-/* 扩大命中区到 >=88px（视觉保持 62px 紧凑） */
-.pad { position: relative; }
-.pad::after { content: ''; position: absolute; inset: -14px; }
+#stick-base.active { border-color: #64708a; }
+#stick-knob {
+  position: absolute; left: 50%; top: 50%;
+  width: 62px; height: 62px; margin: -31px 0 0 -31px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #f4f7ff, #9aa5bd 56%, #5a6480);
+  border: 2px solid #ccd4e6;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5), inset 0 -3px 8px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+}
+/* 四向指示箭头（摇到哪个方向哪个亮） */
+#stick-base .tick { position: absolute; width: 0; height: 0; opacity: 0.45; }
+.tick.up { left: 50%; top: 9px; margin-left: -5px;
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-bottom: 7px solid #7b8497; }
+.tick.down { left: 50%; bottom: 9px; margin-left: -5px;
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-top: 7px solid #7b8497; }
+.tick.left { top: 50%; left: 9px; margin-top: -5px;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  border-right: 7px solid #7b8497; }
+.tick.right { top: 50%; right: 9px; margin-top: -5px;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  border-left: 7px solid #7b8497; }
+#stick-base[data-dir="UP"] .tick.up,
+#stick-base[data-dir="DOWN"] .tick.down,
+#stick-base[data-dir="LEFT"] .tick.left,
+#stick-base[data-dir="RIGHT"] .tick.right { opacity: 1; }
+#stick-base[data-dir="UP"] .tick.up { border-bottom-color: #ffc02a; }
+#stick-base[data-dir="DOWN"] .tick.down { border-top-color: #ffc02a; }
+#stick-base[data-dir="LEFT"] .tick.left { border-right-color: #ffc02a; }
+#stick-base[data-dir="RIGHT"] .tick.right { border-left-color: #ffc02a; }
 
 #fire-wrap { display: flex; align-items: center; }
 .fire {
@@ -110,7 +138,9 @@ body.is-touch #controls {
 body.is-desktop #controls { display: none; }
 
 @media (max-height: 700px) {
-  #dpad { grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(3, 54px); }
+  #stick-zone { width: 156px; height: 156px; }
+  #stick-base { width: 132px; height: 132px; transform: translate(12px, 12px); }
+  #stick-knob { width: 56px; height: 56px; margin: -28px 0 0 -28px; }
   .fire { width: 84px; height: 84px; }
 }
 @media (orientation: landscape) and (max-height: 500px) {

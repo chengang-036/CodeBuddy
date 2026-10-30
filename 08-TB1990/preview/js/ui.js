@@ -240,7 +240,7 @@
 
       // 触摸端底部空间窄、缩放后字号小，只留一行精简提示，避免挤成一团
       if (g.__isTouch) {
-        text(ctx, '左下方向键移动 · 右下按钮开火', CFG.W - 20, y0 + 36,
+        text(ctx, '左摇杆拖动移动 · 右按钮开火', CFG.W - 20, y0 + 36,
           { size: 13, color: '#8f95a3', align: 'right', cn: true });
       } else {
         text(ctx, '方向键/WASD 移动 · 空格/J 射击 · P 暂停', CFG.W - 14, y0 + 28,
