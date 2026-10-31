@@ -22,6 +22,20 @@
 拖动超过 14px 死区后按主导轴判定四方向，松手立刻停止。摇杆帽的可动半径做了限位，
 不会推出底盘。
 
+## 视口锁定（防手机页面缩放）
+iOS Safari 自 iOS 10 起忽略 `user-scalable=no`，连续点按摇杆或双指同时按下会把
+整个页面放大 2 倍，摇杆跟着变大、画面被挤出屏幕，且没有明显的缩回入口。
+`preview/js/viewport.js` 专门处理这件事，三层防护：
+
+1. `#app` 上的 `touch-action: none`（第一道防线，pinch 最有效的手段）；
+2. 拦 Safari 私有 `gesturestart/gesturechange/gestureend` 与双击（`dblclick` + 300ms/40px 的 touchend 判定）；
+3. 兜底：`visualViewport.scale > 1.05` 时重写 viewport meta，逼 Safari 把缩放拉回 1。
+
+**不拦"双指按下"**：曾经拦过，结果"左手摇杆 + 右手射击"同时按直接哑火——
+第二根手指的 touchstart 被 preventDefault 后不再派发 pointer 事件。现在只拦真正的缩放手势。
+
+自检：`node tools/test-viewport.js`（12 项）、`tools/viewport-check.html`（真实浏览器验证复位链路）。
+
 ## 像素素材
 坦克按 **32×32 原生绘制**（1 像素 = 1 画布像素，与场景砖块同密度），
 结构分为履带 / 车体 / 炮塔 / 炮管四层，四方向由同一朝上底图旋转 90° 生成。
@@ -46,6 +60,7 @@ python3 -m http.server 8765   # 打开 http://localhost:8765/preview/
 node tools/smoke.js           # 冒烟测试：关卡/战斗/道具/状态机/通关
 node tools/test-hold-fire.js  # 按住连发
 node tools/test-stick.js      # 手机摇杆方向逻辑（互斥、换向不残留、死区）
+node tools/test-viewport.js   # 视口锁定（防页面缩放）
 
 # 同步源码到小游戏工程
 ./tools/build_minigame.sh

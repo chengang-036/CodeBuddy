@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>viewport 锁定验证</title>
+<style>
+  #app { position: fixed; inset: 0; background: #111; color: #ddd; font: 13px/1.7 monospace; padding: 12px; touch-action: none; }
+</style>
+</head>
+<body>
+<div id="app"><div id="out">running…</div></div>
+<script src="../preview/js/viewport.js"></script>
+<script>
+/* 真实浏览器里验证三件事：
+   1. viewport.js 装载后 window.VP 存在、meta 被锁死
+   2. #app 的计算样式 touch-action 确实是 none（第一道防线）
+   3. 伪造 visualViewport.scale = 2 后，兜底复位链路真的会把 meta 改回去
+   用 headless Chrome --dump-dom 读 #out 的结果即可。 */
+(function () {
+  var out = [];
+  out.push('VP=' + (typeof window.VP));
+  out.push('meta=' + document.querySelector('meta[name="viewport"]').getAttribute('content'));
+  out.push('touchAction=' + getComputedStyle(document.getElementById('app')).touchAction);
+
+  var patched = false;
+  try {
+    Object.defineProperty(window.visualViewport, 'scale', {
+      get: function () { return 2; }, configurable: true
+    });
+    patched = window.visualViewport.scale === 2;
+  } catch (e) {}
+  out.push('scalePatched=' + patched);
+  out.push('scale=' + window.visualViewport.scale);
+
+  // 把 meta 改成"被放大过"的状态，模拟用户 pinch 之后的样子
+  document.querySelector('meta[name="viewport"]')
+    .setAttribute('content', 'width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes');
+
+  window.visualViewport.dispatchEvent(new Event('resize'));
+
+  setTimeout(function () {
+    var c = document.querySelector('meta[name="viewport"]').getAttribute('content');
+    out.push('after=' + c);
+    out.push('RESET=' + (/maximum-scale=1/.test(c) && /user-scalable=no/.test(c) ? 'PASS' : 'FAIL'));
+    document.getElementById('out').textContent = out.join(' | ');
+  }, 400);
+})();
+</script>
+</body>
+</html>
