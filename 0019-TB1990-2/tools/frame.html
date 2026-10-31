@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>frame - 精确尺寸设备模拟</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #222; }
+  iframe { display: block; border: 0; }
+</style>
+</head>
+<body>
+<!-- 用途：headless Chrome 有最小视口 500px 的限制，直接用 --window-size=390,844
+     截出来的图其实是按 500 宽布局后裁到 390，会误判成"元素被裁切"。
+     这里用 iframe 固定一个真实设备尺寸，整页截图即可得到准确结果。
+     用法：tools/frame.html?w=390&h=844&q=touch=1 -->
+<iframe id="f"></iframe>
+<script>
+  (function () {
+    var p = new URLSearchParams(location.search);
+    var w = parseInt(p.get('w') || '390', 10);
+    var h = parseInt(p.get('h') || '844', 10);
+    var q = p.get('q') || 'touch=1';
+    var f = document.getElementById('f');
+    f.style.width = w + 'px';
+    f.style.height = h + 'px';
+    f.src = '../client/index.html?' + q;
+  })();
+</script>
+</body>
+</html>

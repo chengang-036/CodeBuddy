@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b0b0e">
+<title>坦克大战 1990 · 双人合作</title>
+<link rel="stylesheet" href="css/style.css?v=20261101">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand">TANK&nbsp;1990<span>双人合作 · 一起守家</span></div>
+    <div class="actions">
+      <button id="btn-sound" class="icon-btn" aria-label="音效开关"><img src="assets/ui_icon_sound_on.svg" alt="音效"></button>
+      <button id="btn-pause" class="icon-btn" aria-label="暂停"><img src="assets/ui_icon_pause_default.svg" alt="暂停"></button>
+    </div>
+  </header>
+
+  <div id="stage-wrap">
+    <canvas id="game" width="512" height="480"></canvas>
+  </div>
+
+  <!-- 双人控制区：P1 黄色（左），P2 绿色（右）。两块 pad 状态完全独立 -->
+  <div id="controls">
+    <div class="pad pad-1" id="pad-1">
+      <div class="stick-zone" id="stick-zone-1">
+        <div class="stick-base" id="stick-base-1">
+          <span class="tick up"></span><span class="tick down"></span>
+          <span class="tick left"></span><span class="tick right"></span>
+          <div class="stick-knob" id="stick-knob-1"></div>
+        </div>
+      </div>
+      <button class="fire" id="btn-fire-1" aria-label="P1 射击">
+        <img src="assets/ui_icon_fire_default.svg" alt="射击">
+        <i class="fire-tag">P1</i>
+      </button>
+    </div>
+
+    <div class="pad pad-2" id="pad-2">
+      <button class="fire" id="btn-fire-2" aria-label="P2 射击">
+        <img src="assets/ui_icon_fire_default.svg" alt="射击">
+        <i class="fire-tag">P2</i>
+      </button>
+      <div class="stick-zone" id="stick-zone-2">
+        <div class="stick-base" id="stick-base-2">
+          <span class="tick up"></span><span class="tick down"></span>
+          <span class="tick left"></span><span class="tick right"></span>
+          <div class="stick-knob" id="stick-knob-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/viewport.js?v=20261101"></script>
+<script src="js/platform.js?v=20261101"></script>
+<script src="js/prng.js?v=20261101"></script>
+<script src="js/rng.js?v=20261101"></script>
+<script src="js/config.js?v=20261101"></script>
+<script src="js/sprites.js?v=20261101"></script>
+<script src="js/audio.js?v=20261101"></script>
+<script src="js/input.js?v=20261101"></script>
+<script src="js/level.js?v=20261101"></script>
+<script src="js/entities.js?v=20261101"></script>
+<script src="js/game.js?v=20261101"></script>
+<script src="js/ui.js?v=20261101"></script>
+<script src="js/main.js?v=20261101"></script>
+</body>
+</html>
