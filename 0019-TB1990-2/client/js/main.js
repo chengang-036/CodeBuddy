@@ -54,6 +54,7 @@
      */
     var PROTO = g.PROTOCOL;
     var online = false;              // 会话中（等待 / 对战 / 断线都算）
+    var wasPaused = false;           // 是否因掉线暂停过（用于「接上了」提示，避免开局误报）
 
     // 联机时 game 的输入源换成「网络传来的帧掩码」，接口与 g.Input 一致
     var netSrc = g.NetInput.create(PROTO);
@@ -91,6 +92,7 @@
         game.inputSource = netSrc;
         game.startNewGame(info.seed);
         online = true;
+        wasPaused = false;
         document.body.classList.add('is-online');
         // 控件跟着自己的坦克配色：P2 是绿的，别让人看着黄色按钮开绿坦克
         document.body.classList.toggle('slot-2', info.slot === 1);
@@ -109,6 +111,18 @@
             break;
           case 'stall':
             break;                     // 卡帧不弹面板，避免打断操作
+          case 'reconnecting':
+            wasPaused = true;
+            g.NetUI.reconnecting({ tries: g.NetPlay.debug().retryTries, code: g.NetPlay.code() });
+            break;
+          case 'peer-offline':
+            wasPaused = true;
+            g.NetUI.peerOffline({ code: g.NetPlay.code() });
+            break;
+          case 'playing':
+            // 只有「从暂停里回来」才提示，开局首次进入 playing 不走这里
+            if (online && wasPaused) { wasPaused = false; g.NetUI.resumed(); }
+            break;
           case 'peerleft':
             g.NetUI.peerLeft();
             break;

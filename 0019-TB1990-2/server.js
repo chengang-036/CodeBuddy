@@ -20,7 +20,7 @@ const path = require('path');
 const url = require('url');
 
 const wsframe = require('./server/wsframe');
-const { Rooms } = require('./server/rooms');
+const { Rooms, GRACE_MS } = require('./server/rooms');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const ROOT = path.join(__dirname, 'client');
@@ -104,7 +104,7 @@ function handleWs(conn) {
       case 'create': {
         if (conn.meta.room) return;
         const r = rooms.create(conn);
-        conn.send({ t: 'room', code: r.code, slot: r.slot, seed: r.seed });
+        conn.send({ t: 'room', code: r.code, slot: r.slot, seed: r.seed, token: r.token });
         break;
       }
 
@@ -114,7 +114,7 @@ function handleWs(conn) {
         const r = rooms.join(conn, m.code);
         if (r.error) { conn.send({ t: 'err', code: r.error }); return; }
         const room = rooms.get(r.code);
-        conn.send({ t: 'room', code: r.code, slot: r.slot, seed: r.seed });
+        conn.send({ t: 'room', code: r.code, slot: r.slot, seed: r.seed, token: r.token });
         // 通知先到的那位：对手来了
         const other = room.slots[1 - r.slot];
         if (other && !other.closed) other.send({ t: 'peer', joined: true });
@@ -125,6 +125,24 @@ function handleWs(conn) {
             if (c && !c.closed) c.send({ t: 'go', code: r.code, seed: room.seed });
           }
         }
+        break;
+      }
+
+      /* ---- 掉线重连：拿票据回到原座位 ---- */
+      case 'rejoin': {
+        if (conn.meta.room) return;
+        const r = rooms.rejoin(conn, m.code, m.slot, m.token);
+        if (r.error) { conn.send({ t: 'err', code: r.error }); return; }
+        // resumed:true 是关键——客户端看到它只恢复推进，绝不重建 LockStep，
+        // 一重建就等于换了一局，两边帧号对不上，必 desync。
+        conn.send({ t: 'resumed', code: r.code, slot: r.slot, seed: r.seed });
+        break;
+      }
+
+      /* ---- 补帧请求：掉线方回来时向对端要漏掉的输入 ---- */
+      case 'resync': {
+        if (!conn.meta.room) return;
+        rooms.relay(conn, { t: 'resync', s: conn.meta.slot, from: m.from | 0 });
         break;
       }
 
@@ -172,7 +190,18 @@ function handleWs(conn) {
     }
   });
 
-  conn.onClose(() => { rooms.leave(conn); });
+  /*
+   * 断开 ≠ 退出。先挂起，留 GRACE_MS 给客户端重连：
+   * 手机上切后台、坐地铁过隧道、Wi-Fi 换 4G，都是几十秒内的事，
+   * 直接按「对手已断开」处理太粗暴——一局十几分钟的战果就白打了。
+   */
+  conn.onClose(() => {
+    const r = rooms.detach(conn);
+    if (r) {
+      const timer = setTimeout(() => rooms.expire(r.code, r.slot), GRACE_MS);
+      if (timer.unref) timer.unref();
+    }
+  });
 
   // 立刻回一条，客户端据此判定「通道真的通了」，而不是等它第一次发消息
   conn.send({ t: 'hello' });

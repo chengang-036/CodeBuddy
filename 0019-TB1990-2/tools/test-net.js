@@ -132,18 +132,44 @@ function waitServer(tries) {
     const dB = await b.next((m) => m.t === 'desync');
     ok('哈希不一致时双方都收到 desync', dA.f === 61 && dB.f === 61, [dA, dB]);
 
-    section('【6】掉线与房间回收');
+    section('【6】掉线保座（不再立刻判死）');
     b.close();
-    const left = await a.next((m) => m.t === 'peerleft');
-    ok('对手掉线通知到位', left.t === 'peerleft');
+    const off = await a.next((m) => m.t === 'peer-offline');
+    ok('对手掉线先发 peer-offline（留 60 秒重连窗口）', off.t === 'peer-offline' && off.grace > 0, off);
 
-    // 掉线后空出的槽位应能被新人补上
+    // 座位被票据占着：新人拿房号进来不该能顶掉掉线那位的座位
     const c = await connect(PORT, '/ws');
     c.send({ t: 'join', code: roomA.code });
-    const roomC = await c.next((m) => m.t === 'room');
-    ok('空出的槽位可被新对手补上', roomC.slot === 1 && roomC.seed === roomA.seed, roomC);
+    const cMsg = await c.next((m) => m.t === 'err' || m.t === 'room');
+    ok('掉线期间座位保留，新人进不来（ROOM_FULL）', cMsg.t === 'err' && cMsg.code === 'ROOM_FULL', cMsg);
+    c.close();
 
-    a.close(); c.close();
+    section('【7】票据重连回原座位');
+    const b2 = await connect(PORT, '/ws');
+    b2.send({ t: 'rejoin', code: roomA.code, slot: 1, token: roomB.token });
+    const resumed = await b2.next((m) => m.t === 'resumed' || m.t === 'err');
+    ok('拿票据重连成功，回到 1 号位', resumed.t === 'resumed' && resumed.slot === 1, resumed);
+    ok('重连后 seed 不变（同一局）', resumed.seed === roomA.seed, [resumed.seed, roomA.seed]);
+    const back = await a.next((m) => m.t === 'peer-online');
+    ok('队友收到「他回来了」', back.t === 'peer-online');
+
+    // 票据错了不能顶座（防别人拿房号冒充）
+    const badTok = await connect(PORT, '/ws');
+    badTok.send({ t: 'rejoin', code: roomA.code, slot: 0, token: 'WRONGTOKEN' });
+    const badMsg = await badTok.next((m) => m.t === 'err');
+    ok('票据不对拒绝重连（BAD_TOKEN）', badMsg.code === 'BAD_TOKEN', badMsg.code);
+    badTok.close();
+
+    b2.send({ t: 'in', a: 40, f: [[41, 2]] });
+    const afterBack = await a.next((m) => m.t === 'in');
+    ok('重连后输入继续转发，槽位仍是 1', afterBack.s === 1 && afterBack.f[0][0] === 41, afterBack);
+
+    section('【8】主动退出与房间回收');
+    b2.send({ t: 'leave' });
+    const left = await a.next((m) => m.t === 'peerleft');
+    ok('主动退出才立刻通知对手', left.t === 'peerleft');
+
+    a.close();
     await new Promise((r) => setTimeout(r, 200));
     const health2 = await getJson('/healthz');
     ok('两人都离开后房间被回收', /"rooms":0/.test(health2.body), health2.body);

@@ -99,6 +99,36 @@
       el.tip.textContent = '本局已结束';
     },
 
+    /** 自己掉线，正在自动重连（不打断画面，只提示） */
+    reconnecting: function (info) {
+      if (!el.box) return;
+      el.box.classList.remove('np-hidden');
+      el.step1.classList.add('np-hidden');
+      el.step2.classList.remove('np-hidden');
+      if (info && info.code) el.codeBig.textContent = info.code;
+      el.tip.textContent = '对局已暂停，正在自动重连';
+      setStatus('网络断了，正在重连…（第 ' + ((info && info.tries) || 1) + ' 次）');
+    },
+
+    /** 队友掉线，等他回来 */
+    peerOffline: function (info) {
+      if (!el.box) return;
+      el.box.classList.remove('np-hidden');
+      el.step1.classList.add('np-hidden');
+      el.step2.classList.remove('np-hidden');
+      if (info && info.code) el.codeBig.textContent = info.code;
+      el.tip.textContent = '队友的网络断了，最多等他 60 秒';
+      setStatus('队友掉线，对局已暂停…');
+    },
+
+    /** 回到对局 */
+    resumed: function () {
+      if (!el.box) return;
+      setStatus('接上了，继续打！', 'ok');
+      var self = this;
+      setTimeout(function () { self.hide(); }, 800);
+    },
+
     /** 对局中打开面板（当菜单用：看房号 / 退出） */
     inGame: function (code) {
       if (!el.box) return;
