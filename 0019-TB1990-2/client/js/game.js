@@ -64,6 +64,9 @@
     this.pausedFrom = ST.PLAYING;
     this.baseX = CFG.BASE_CELL.col * CFG.BRICK;
     this.baseY = CFG.BASE_CELL.row * CFG.BRICK;
+    // 输入来源。null = 本地键盘/摇杆；联机时换成「当前帧的输入掩码」，
+    // 接口与 Input 一致（pickDir / isDown / consumeFire），玩法代码不用改。
+    this.inputSource = null;
     this.setMode(this.mode);
   }
 
@@ -310,13 +313,14 @@
         continue;
       }
       if (p.spawnT <= 0) {
-        var dir = g.Input.pickDir(i);
+        var src = this.inputSource || g.Input;
+        var dir = src.pickDir(i);
         if (dir) { p.setDir(dir); p.moving = true; }
         else { p.moving = false; }
         // 点按立即开火；按住则连发（fire() 内部按射速与同屏弹数节流）
-        if (g.Input.consumeFire(i) || g.Input.isDown('fire', i)) this.fire(p);
+        if (src.consumeFire(i) || src.isDown('fire', i)) this.fire(p);
       } else {
-        g.Input.consumeFire(i);
+        (this.inputSource || g.Input).consumeFire(i);
       }
       p.update(dt, this);
     }

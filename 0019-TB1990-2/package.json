@@ -1,0 +1,14 @@
+{
+  "name": "tank-1990-coop-2p",
+  "version": "2.0.0",
+  "private": true,
+  "description": "坦克大战 1990 · 双人联机合作（帧同步 + 房间码）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tools/test-net.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

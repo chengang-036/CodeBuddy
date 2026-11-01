@@ -46,6 +46,99 @@
     game.setMode(bootMode);
     g.__setMode = setMode;
 
+    /* ==================== 联机（房间码 + 帧同步） ====================
+     * 两条循环互斥：
+     *   本地局   —— 由 rAF 按固定步长驱动（一个人或两个人挤一台机器）
+     *   联机局   —— 由 NetPlay 的 lockstep 驱动，必须收齐双方输入才走一帧
+     * 绝不能两种同时驱动，否则两端必然分叉。
+     */
+    var PROTO = g.PROTOCOL;
+    var online = false;              // 会话中（等待 / 对战 / 断线都算）
+
+    // 联机时 game 的输入源换成「网络传来的帧掩码」，接口与 g.Input 一致
+    var netSrc = g.NetInput.create(PROTO);
+
+    /** 退出联机：把「联机态」相关的 UI 全部还原，避免下次进本地局还顶着绿按钮 */
+    function clearOnlineUI() {
+      online = false;
+      document.body.classList.remove('is-online');
+      document.body.classList.remove('slot-2');
+      var tag = document.querySelector('#btn-fire-1 .fire-tag');
+      if (tag) tag.textContent = 'P1';
+    }
+
+    /** 采样本地输入 → 1 字节掩码。每人只操作自己手机上的摇杆，两条通道都读。 */
+    function sampleMask() {
+      var m = 0;
+      if (Input.isDown('up', 0) || Input.isDown('up', 1)) m |= PROTO.MASK.UP;
+      if (Input.isDown('down', 0) || Input.isDown('down', 1)) m |= PROTO.MASK.DOWN;
+      if (Input.isDown('left', 0) || Input.isDown('left', 1)) m |= PROTO.MASK.LEFT;
+      if (Input.isDown('right', 0) || Input.isDown('right', 1)) m |= PROTO.MASK.RIGHT;
+      if (Input.isDown('fire', 0) || Input.isDown('fire', 1)) m |= PROTO.MASK.FIRE;
+      return m;
+    }
+
+    g.NetPlay.init({
+      sampleMask: sampleMask,
+      hash: function () { return g.StateHash.of(game); },
+      step: function (frame, masks) {
+        netSrc.setMasks(masks);
+        game.update(STEP);
+      },
+      onStart: function (info) {
+        // 两端必须用同一个 seed 起同一局，且都切成双人模式
+        game.setMode(CFG.MODE_COOP);
+        game.inputSource = netSrc;
+        game.startNewGame(info.seed);
+        online = true;
+        document.body.classList.add('is-online');
+        // 控件跟着自己的坦克配色：P2 是绿的，别让人看着黄色按钮开绿坦克
+        document.body.classList.toggle('slot-2', info.slot === 1);
+        var tag = document.querySelector('#btn-fire-1 .fire-tag');
+        if (tag) tag.textContent = info.slot === 1 ? 'P2' : 'P1';
+        g.NetUI.waiting(info.code, info.slot);
+        g.NetUI.starting();
+        // 注意用 hide 而不是 close：close 会触发 onClose → leave，等于刚开局就退房
+        setTimeout(function () { g.NetUI.hide(); }, 600);
+      },
+      onStatus: function (s, info) {
+        switch (s) {
+          case 'waiting':
+            g.NetUI.waiting(info.code, info.slot);
+            if (info.peer) g.NetUI.peerJoined();
+            break;
+          case 'stall':
+            break;                     // 卡帧不弹面板，避免打断操作
+          case 'peerleft':
+            g.NetUI.peerLeft();
+            break;
+          case 'error':
+            g.NetUI.error(info.msg);
+            clearOnlineUI();
+            break;
+          default: break;
+        }
+      },
+      onDesync: function (frame) {
+        g.NetUI.error('两端画面不同步（第 ' + frame + ' 帧），这一局作废了。请关掉面板重开一局');
+        clearOnlineUI();
+      }
+    });
+
+    g.NetUI.init({
+      onCreate: function () { g.NetPlay.createRoom(); g.NetUI.waiting('....', 0); },
+      onJoin: function (code) { g.NetPlay.joinRoom(code); g.NetUI.waiting(code, 1); },
+      onClose: function () {
+        g.NetPlay.leave();
+        if (online) {
+          clearOnlineUI();
+          game.inputSource = null;
+          game.state = g.GAME_ST.TITLE;
+          game.setMode(bootMode);
+        }
+      }
+    });
+
     /* ---------- 画布适配 ---------- */
     function resize() {
       var wrap = document.getElementById('stage-wrap');
@@ -70,9 +163,15 @@
 
     Input.on('pause', function () {
       Sfx.unlock();
+      // 联机中不能本地暂停：一方停了另一方还在跑，状态立刻分叉
+      if (online) return;
       if (game.state === g.GAME_ST.PLAYING || game.state === g.GAME_ST.PAUSED) game.togglePause();
     });
-    Input.on('confirm', function () { Sfx.unlock(); game.confirm(); });
+    Input.on('confirm', function () {
+      Sfx.unlock();
+      if (online) return;
+      game.confirm();
+    });
 
     // 标题页：左右键 / 数字键切换人数
     window.addEventListener('keydown', function (e) {
@@ -86,13 +185,16 @@
     window.addEventListener('keydown', function (e) {
       if (e.code !== 'Space') return;
       Sfx.unlock();
+      if (online) return;                             // 联机中空格不能触发重开
       if (game.state === g.GAME_ST.PLAYING) return;   // 战斗中空格归 P2 开火
       game.confirm();
     });
 
-    // 画布点击：标题页命中「1 人 / 2 人」按钮则切换，点其它地方开始
+    // 画布点击：标题页命中「1 人 / 2 人 / 在线联机」按钮则切换，点其它地方开始
     Platform.onPointerDown(function (ev) {
       Sfx.unlock();
+      if (g.NetUI.isOpen()) return;   // 面板开着时点画布不做事（面板盖住画布本来也点不到）
+      if (online) return;             // 联机中不响应画布，避免误触重开导致两端分叉
       if (game.state === g.GAME_ST.TITLE) {
         var r = canvas.getBoundingClientRect();
         if (r.width > 0 && r.height > 0 && typeof ev.clientX === 'number') {
@@ -101,6 +203,7 @@
           var hit = UI.titleHit(lx, ly);
           if (hit === 'p1') { setMode(CFG.MODE_SINGLE); return; }
           if (hit === 'p2') { setMode(CFG.MODE_COOP); return; }
+          if (hit === 'online') { g.NetUI.open(); return; }
         }
         game.confirm();
         return;
@@ -238,6 +341,8 @@
     var btnPause = document.getElementById('btn-pause');
     if (btnPause) btnPause.addEventListener('click', function () {
       Sfx.unlock();
+      // 联机中暂停 = 让对手干等，所以这个按钮改成「打开菜单」（能看房号、能退出）
+      if (online) { g.NetUI.inGame(g.NetPlay.code()); return; }
       if (game.state === g.GAME_ST.PLAYING || game.state === g.GAME_ST.PAUSED) game.togglePause();
     });
     var btnSound = document.getElementById('btn-sound');
@@ -251,6 +356,21 @@
     /* ---------- 主循环：固定步长 60Hz ---------- */
     var last = 0, acc = 0;
     function frame(ts) {
+      // 联机局完全交给帧同步内核驱动：收不齐双方输入就不推进，宁可等也不抢先跑
+      if (online) {
+        // 面板打开时暂停推进，免得在看房号的时候被敌人打穿
+        if (!g.NetUI.isOpen()) {
+          var nowNet = (typeof ts === 'number' && ts > 0)
+            ? ts
+            : (typeof performance !== 'undefined' ? performance.now() : Date.now());
+          g.NetPlay.tick(nowNet);
+        }
+        last = 0; acc = 0;          // 退出联机时重新计秒，别把等待的时间补进去
+        UI.draw(ctx, game);
+        requestAnimationFrame(frame);
+        return;
+      }
+
       var now = (ts || 0) / 1000;
       if (!last) last = now;
       var dt = now - last;
@@ -272,6 +392,37 @@
     }
 
     resize();
+
+    // 联机状态探针：自动化验证与排查用，正常游玩不受影响
+    g.__netInfo = function () {
+      if (!online) return null;
+      return { code: g.NetPlay.code(), slot: g.NetPlay.slot(), rtt: g.NetPlay.rtt() };
+    };
+    g.__net = function () {
+      return {
+        status: g.NetPlay.status(),
+        frame: g.NetPlay.frame(),
+        slot: g.NetPlay.slot(),
+        code: g.NetPlay.code(),
+        desync: g.NetPlay.desyncFrame(),
+        rtt: g.NetPlay.rtt(),
+        dbg: g.NetPlay.debug()
+      };
+    };
+
+    // ?net=create 自动建房 / ?net=join=XXXX 自动进房（便于自动化验证与分享固定链接）
+    var qs = window.location.search;
+    if (/[?&]net=create(&|$)/.test(qs)) {
+      g.NetUI.open();
+      setTimeout(function () { g.NetPlay.createRoom(); g.NetUI.waiting('....', 0); }, 120);
+    } else {
+      var qJoin = /[?&]net=join=?([0-9A-Za-z]{0,4})/.exec(qs);
+      if (qJoin) {
+        var jc = (qJoin[1] || '').toUpperCase();
+        g.NetUI.open();
+        setTimeout(function () { g.NetPlay.joinRoom(jc); g.NetUI.waiting(jc, 1); }, 120);
+      }
+    }
 
     // ?auto=1 直接开局进入战斗（便于截图核对画面与自动化验证，不影响正常游玩）
     // ?fast=N  同步快进 N 个逻辑帧 —— headless 浏览器里 rAF 的推进不可控，

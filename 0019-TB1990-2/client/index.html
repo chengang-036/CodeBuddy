@@ -52,20 +52,54 @@
       </div>
     </div>
   </div>
+
+  <!-- 联机面板：房号输入用原生 input，手机上才有正常键盘可用（canvas 里做输入框是灾难） -->
+  <div id="netpanel" class="np-hidden">
+    <div class="np-card">
+      <h2>房间码联机</h2>
+
+      <div id="np-step1">
+        <p class="np-tip">一个人点「创建房间」拿到房号，另一个人输入房号加入。<br>两人各用一台手机，一起守家。</p>
+        <button id="np-create" class="np-btn np-primary">创建房间</button>
+        <div class="np-or"><span>或</span></div>
+        <div class="np-joinrow">
+          <input id="np-code" type="text" maxlength="4" autocapitalize="characters"
+                 autocomplete="off" spellcheck="false" placeholder="房号" aria-label="房间号">
+          <button id="np-join" class="np-btn">加入</button>
+        </div>
+      </div>
+
+      <div id="np-step2" class="np-hidden">
+        <p class="np-tip" id="np-step2-tip">把房号报给队友</p>
+        <div id="np-codebig">----</div>
+        <p class="np-status" id="np-status">正在连接…</p>
+      </div>
+
+      <button id="np-close" class="np-btn np-ghost">关闭</button>
+      <p class="np-foot">同一局内服务器只转发按键，不保存任何账号信息</p>
+    </div>
+  </div>
 </div>
 
-<script src="js/viewport.js?v=20261101"></script>
-<script src="js/platform.js?v=20261101"></script>
-<script src="js/prng.js?v=20261101"></script>
-<script src="js/rng.js?v=20261101"></script>
-<script src="js/config.js?v=20261101"></script>
-<script src="js/sprites.js?v=20261101"></script>
-<script src="js/audio.js?v=20261101"></script>
-<script src="js/input.js?v=20261101"></script>
-<script src="js/level.js?v=20261101"></script>
-<script src="js/entities.js?v=20261101"></script>
-<script src="js/game.js?v=20261101"></script>
-<script src="js/ui.js?v=20261101"></script>
-<script src="js/main.js?v=20261101"></script>
+<script src="js/viewport.js?v=20261101b"></script>
+<script src="js/platform.js?v=20261101b"></script>
+<script src="js/prng.js?v=20261101b"></script>
+<script src="js/hash.js?v=20261101b"></script>
+<script src="js/protocol.js?v=20261101b"></script>
+<script src="js/lockstep.js?v=20261101b"></script>
+<script src="js/netinput.js?v=20261101b"></script>
+<script src="js/statehash.js?v=20261101b"></script>
+<script src="js/rng.js?v=20261101b"></script>
+<script src="js/config.js?v=20261101b"></script>
+<script src="js/sprites.js?v=20261101b"></script>
+<script src="js/audio.js?v=20261101b"></script>
+<script src="js/input.js?v=20261101b"></script>
+<script src="js/level.js?v=20261101b"></script>
+<script src="js/entities.js?v=20261101b"></script>
+<script src="js/game.js?v=20261101b"></script>
+<script src="js/ui.js?v=20261101b"></script>
+<script src="js/net.js?v=20261101b"></script>
+<script src="js/netui.js?v=20261101b"></script>
+<script src="js/main.js?v=20261101b"></script>
 </body>
 </html>

@@ -250,7 +250,14 @@
       text(ctx, pad(Math.max(game.best, game.score), 6), 150, y0 + 44, { size: 20, color: '#ff8a3c' });
 
       // 触摸端底部空间窄、缩放后字号小，只留一行精简提示，避免挤成一团
-      if (g.__isTouch) {
+      var net = g.__netInfo ? g.__netInfo() : null;
+      if (net) {
+        // 联机局：显示房号与延迟，比操作提示有用得多
+        var line = '房间 ' + (net.code || '----') + ' · ' + (net.slot === 0 ? 'P1 黄' : 'P2 绿')
+          + ' · 延迟 ' + (net.rtt || 0) + 'ms';
+        text(ctx, line, CFG.W - 20, y0 + 36,
+          { size: 12, color: '#8fb6ff', align: 'right', cn: true });
+      } else if (g.__isTouch) {
         var tip = game.mode === CFG.MODE_COOP
           ? '左摇杆 P1 黄 · 右摇杆 P2 绿 · 各自开火'
           : '左摇杆拖动移动 · 右按钮开火';
@@ -294,18 +301,21 @@
     /** 标题页按钮坐标（逻辑坐标系 512x480），main.js 用它做点击命中 */
     titleLayout: function () {
       return {
-        p1: { x: 88, y: 152, w: 156, h: 48 },
-        p2: { x: 268, y: 152, w: 156, h: 48 },
-        start: { x: 146, y: 214, w: 220, h: 50 }
+        p1: { x: 88, y: 150, w: 156, h: 46 },
+        p2: { x: 268, y: 150, w: 156, h: 46 },
+        start: { x: 88, y: 206, w: 156, h: 50 },
+        online: { x: 268, y: 206, w: 156, h: 50 }
       };
     },
 
-    /** 返回 'p1' | 'p2' | null */
+    /** 返回 'p1' | 'p2' | 'online' | 'start' | null */
     titleHit: function (x, y) {
       var L = this.titleLayout();
       function inside(b) { return x >= b.x && y >= b.y && x <= b.x + b.w && y <= b.y + b.h; }
       if (inside(L.p1)) return 'p1';
       if (inside(L.p2)) return 'p2';
+      if (inside(L.online)) return 'online';
+      if (inside(L.start)) return 'start';
       return null;
     },
 
@@ -317,24 +327,30 @@
 
       // 装饰坦克：必须按整数倍（2x = 64px）绘制，非整数倍会让 32px 像素错位发糊
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(S.tank.p1.UP[0], 40, 116, 64, 64);
-      ctx.drawImage(S.tank.q1.UP[0], 408, 116, 64, 64);
+      ctx.drawImage(S.tank.p1.UP[0], 40, 112, 64, 64);
+      ctx.drawImage(S.tank.q1.UP[0], 408, 112, 64, 64);
 
-      text(ctx, '坦 克 大 战', cx, 104, { size: 42, align: 'center', cn: true, color: '#ffe066' });
-      text(ctx, 'TANK BATTLE 1990', cx, 132, { size: 16, align: 'center', color: '#e8e8ee' });
+      text(ctx, '坦 克 大 战', cx, 100, { size: 42, align: 'center', cn: true, color: '#ffe066' });
+      text(ctx, 'TANK BATTLE 1990', cx, 128, { size: 16, align: 'center', color: '#e8e8ee' });
 
       // ---- 人数选择 ----
       this.modeButton(ctx, L.p1, '1 人', '单独闯关', !coop, '#ffe066');
       this.modeButton(ctx, L.p2, '2 人同屏', '合作守家', coop, '#4ade80');
 
-      // ---- 开始按钮 ----
-      var s = L.start;
+      // ---- 开始 / 联机 ----
+      var s = L.start, o = L.online;
       ctx.fillStyle = '#ffe066'; ctx.fillRect(s.x, s.y, s.w, s.h);
       ctx.fillStyle = '#c8901a'; ctx.fillRect(s.x, s.y + s.h - 5, s.w, 5);
-      text(ctx, '开 始 游 戏', cx, s.y + 34, { size: 23, align: 'center', cn: true, color: '#20222a', stroke: false });
+      text(ctx, '本 地 开 始', s.x + s.w / 2, s.y + 33, { size: 21, align: 'center', cn: true, color: '#20222a', stroke: false });
 
-      text(ctx, g.__isTouch ? '点「开始游戏」进入' : '按 空格 / Enter 开始 · ← → 或 1 / 2 换人数',
-        cx, 286, { size: 13, align: 'center', cn: true, color: '#b9bcc8' });
+      ctx.fillStyle = '#2a3550'; ctx.fillRect(o.x, o.y, o.w, o.h);
+      ctx.lineWidth = 2; ctx.strokeStyle = '#5b9cff'; ctx.strokeRect(o.x + 1, o.y + 1, o.w - 2, o.h - 2);
+      ctx.fillStyle = '#3f6fbf'; ctx.fillRect(o.x, o.y + o.h - 5, o.w, 5);
+      text(ctx, '在 线 联 机', o.x + o.w / 2, o.y + 33, { size: 20, align: 'center', cn: true, color: '#dce8ff', stroke: false });
+
+      text(ctx, g.__isTouch ? '点「在线联机」用房号和朋友各用一台手机一起打'
+        : '空格 / Enter 开始 · ← → 换人数 · 点「在线联机」开房',
+        cx, 276, { size: 12, align: 'center', cn: true, color: '#b9bcc8' });
 
       // ---- 操作说明 ----
       var lines;
@@ -356,18 +372,18 @@
         ];
       }
       for (var i = 0; i < lines.length; i++) {
-        text(ctx, lines[i], cx, 324 + i * 24, { size: 13, align: 'center', cn: true, color: CFG.COLORS.dim });
+        text(ctx, lines[i], cx, 312 + i * 24, { size: 13, align: 'center', cn: true, color: CFG.COLORS.dim });
       }
 
       var total = coop ? CFG.ENEMY.totalCoop : CFG.ENEMY.total;
       text(ctx, '目标：守住基地老鹰，消灭全部 ' + total + ' 辆敌方坦克',
-        cx, 406, { size: 12, align: 'center', cn: true, color: '#6f7480' });
+        cx, 392, { size: 12, align: 'center', cn: true, color: '#6f7480' });
 
       // 合规展示：适龄提示 + 健康游戏忠告（提审需提供截图）
       text(ctx, '适龄提示  8+    本游戏为像素风休闲射击，无社交与付费系统',
-        cx, 432, { size: 10, align: 'center', cn: true, color: '#8f95a3', stroke: false });
+        cx, 420, { size: 10, align: 'center', cn: true, color: '#8f95a3', stroke: false });
       text(ctx, '适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。',
-        cx, 454, { size: 10, align: 'center', cn: true, color: '#7a8090', stroke: false });
+        cx, 443, { size: 10, align: 'center', cn: true, color: '#7a8090', stroke: false });
     },
 
     /** 标题页人数按钮：选中态用主色填充，未选中用暗底 + 灰字 */

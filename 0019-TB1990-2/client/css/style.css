@@ -258,3 +258,106 @@ body.is-desktop #controls { display: none; }
   #controls { --stick: 104px; --knob: 40px; --fire: 60px; }
   #stage-wrap { padding: 2px 112px; }
 }
+
+/* ---------- 联机面板 ---------- */
+.np-hidden { display: none !important; }
+
+#netpanel {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  background: rgba(4, 5, 8, 0.82);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  touch-action: manipulation;
+}
+
+.np-card {
+  width: min(360px, 100%);
+  max-height: 100%; overflow-y: auto;
+  background: #14161d;
+  border: 1px solid #2c3040;
+  border-radius: 14px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65);
+  text-align: center;
+}
+.np-card h2 {
+  margin: 0 0 12px;
+  font-size: 17px; font-weight: 800; letter-spacing: 1px; color: #dce8ff;
+}
+.np-tip {
+  margin: 0 0 14px; font-size: 12.5px; line-height: 1.65; color: #8f95a3;
+}
+
+.np-btn {
+  display: block; width: 100%;
+  padding: 13px 12px; margin: 0;
+  font-size: 15px; font-weight: 700; letter-spacing: 1px;
+  color: #d8dbe4; background: #232733;
+  border: 1px solid #3a3f4f; border-radius: 10px;
+  cursor: pointer; touch-action: manipulation;
+}
+.np-btn:active { transform: scale(0.98); background: #2b303d; }
+.np-primary {
+  color: #10131a; background: #5b9cff; border-color: #5b9cff;
+}
+.np-primary:active { background: #4a8bef; }
+.np-ghost {
+  margin-top: 10px; padding: 10px;
+  font-size: 13px; font-weight: 500; color: #8f95a3;
+  background: transparent; border-color: #2c3040;
+}
+
+.np-or {
+  display: flex; align-items: center; gap: 10px;
+  margin: 14px 0; color: #5a6070; font-size: 11px;
+}
+.np-or::before, .np-or::after {
+  content: ''; flex: 1; height: 1px; background: #2a2e3a;
+}
+
+.np-joinrow { display: flex; gap: 8px; }
+.np-joinrow input {
+  flex: 1 1 auto; min-width: 0;
+  padding: 13px 12px;
+  font-size: 20px; font-weight: 800; letter-spacing: 6px; text-align: center;
+  text-transform: uppercase;
+  color: #dce8ff; background: #0d0f15;
+  border: 1px solid #3a3f4f; border-radius: 10px;
+  font-family: ui-monospace, Menlo, monospace;
+  -webkit-user-select: text; user-select: text;
+}
+.np-joinrow input::placeholder { color: #4a4f5e; letter-spacing: 2px; font-weight: 500; }
+.np-joinrow input:focus { outline: none; border-color: #5b9cff; }
+.np-joinrow .np-btn { width: auto; flex: 0 0 auto; padding: 13px 18px; }
+
+.np-codebig {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 46px; font-weight: 800; letter-spacing: 10px;
+  color: #ffe066; text-indent: 10px;
+  margin: 4px 0 12px;
+}
+.np-status {
+  margin: 0 0 4px; font-size: 13px; color: #8f95a3; min-height: 20px;
+}
+.np-status.is-ok { color: #4ade80; }
+.np-status.is-err { color: #ff7a68; }
+.np-foot {
+  margin: 14px 0 0; font-size: 10.5px; line-height: 1.6; color: #575c6b;
+}
+
+/* 联机时只留一套控件：每个人只操作自己这台手机的左侧摇杆 */
+body.is-online #pad-2 { display: none; }
+
+/* 联机时本地玩家的控件跟着自己的坦克配色走（P2 是绿色） */
+body.is-online.slot-2 #btn-fire-1 {
+  border-color: #4ade80;
+  background: radial-gradient(circle at 35% 30%, #b6f7c9, #24a55a 70%, #12633a);
+  box-shadow: 0 6px 18px rgba(74, 222, 128, 0.28);
+}
+body.is-online.slot-2 #btn-fire-1 .fire-tag { background: rgba(74, 222, 128, 0.95); }
+body.is-online.slot-2 #stick-base-1 { border-color: #4ade80; }
+body.is-online.slot-2 #stick-knob-1 {
+  background: radial-gradient(circle at 38% 32%, #e9fff0, #6ede97 56%, #2f8a55);
+  border-color: #b6f7c9;
+}
